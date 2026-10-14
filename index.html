@@ -1586,8 +1586,13 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     return { posts, views, leads, convRate: safePct(leads, views) };
   }
   function computeSocial(s){
-    const posts = toNum(s.posts), reach = toNum(s.reach), engagement = toNum(s.engagement), followers = toNum(s.followers);
-    return { posts, reach, engagement, followers, engagementRate: safePct(engagement, reach) };
+    const posts = toNum(s.posts), reach = toNum(s.reach), impressions = toNum(s.impressions),
+      engagement = toNum(s.engagement), clicks = toNum(s.clicks), followers = toNum(s.followers);
+    return {
+      posts, reach, impressions, engagement, clicks, followers,
+      engagementRate: safePct(engagement, reach),
+      clickRate: safePct(clicks, impressions)
+    };
   }
   function computeReport(r){
     return {
@@ -2685,7 +2690,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       website:{sessions:"",users:"",conversions:""},
       email:{sent:"",openRate:"",clickRate:""},
       blog:{posts:"",views:"",leads:""},
-      social:{posts:"",reach:"",engagement:"",followers:""},
+      social:{posts:"",reach:"",impressions:"",engagement:"",clicks:"",followers:""},
       custom:[], notes:""
     };
   }
@@ -2696,7 +2701,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     ["website","sessions"],["website","users"],["website","conversions"],
     ["email","sent"],["email","openRate"],["email","clickRate"],
     ["blog","posts"],["blog","views"],["blog","leads"],
-    ["social","posts"],["social","reach"],["social","engagement"],["social","followers"]
+    ["social","posts"],["social","reach"],["social","impressions"],["social","engagement"],["social","clicks"],["social","followers"]
   ];
   // Qualified synonyms ("meta spend") disambiguate columns in a single multi-platform
   // sheet (Excel import). Bare synonyms ("dépense", "spend") only apply when the platform
@@ -2723,8 +2728,10 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     "blog.views":["blog views","views","vues","pageviews"],
     "blog.leads":["blog leads","leads"],
     "social.posts":["social posts","posts","publications"],
-    "social.reach":["reach","impressions","portée"],
+    "social.reach":["reach","portée"],
+    "social.impressions":["social impressions","impressions"],
     "social.engagement":["engagement","engagements","interactions"],
+    "social.clicks":["link clicks","social clicks","clics","clicks"],
     "social.followers":["followers","new followers","abonnés","followers gained"]
   };
 
@@ -2802,7 +2809,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         ${platformFieldsHtml("website", t('reportForm.website'), r.website, ["sessions","users","conversions"], "globe")}
         ${platformFieldsHtml("email", t('reportForm.email'), r.email, ["sent","openRate","clickRate"], "share")}
         ${platformFieldsHtml("blog", t('reportForm.blog'), r.blog||{}, ["posts","views","leads"], "clipboard")}
-        ${platformFieldsHtml("social", t('reportForm.socialMedia'), r.social||{}, ["posts","reach","engagement","followers"], "users")}
+        ${platformFieldsHtml("social", t('reportForm.socialMedia'), r.social||{}, ["posts","reach","impressions","engagement","clicks","followers"], "users")}
 
         <fieldset class="surface card p-6">
           <legend class="eyebrow px-1">${t('reportForm.customMetrics')}</legend>
@@ -3028,7 +3035,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         website: { sessions:g("website.sessions"), users:g("website.users"), conversions:g("website.conversions") },
         email: { sent:g("email.sent"), openRate:g("email.openRate"), clickRate:g("email.clickRate") },
         blog: { posts:g("blog.posts"), views:g("blog.views"), leads:g("blog.leads") },
-        social: { posts:g("social.posts"), reach:g("social.reach"), engagement:g("social.engagement"), followers:g("social.followers") },
+        social: { posts:g("social.posts"), reach:g("social.reach"), impressions:g("social.impressions"), engagement:g("social.engagement"), clicks:g("social.clicks"), followers:g("social.followers") },
         custom: Array.from(customContainer.querySelectorAll(".custom-row")).map(row => ({
           label: row.querySelector(".custom-label").value.trim(),
           value: row.querySelector(".custom-value").value
@@ -3094,7 +3101,9 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       add(T.blog, T.leads, 'blog.leads');
       add(T.socialMedia, T.posts, 'social.posts');
       add(T.socialMedia, T.reach, 'social.reach');
+      add(T.socialMedia, T.impressions, 'social.impressions');
       add(T.socialMedia, T.engagement, 'social.engagement');
+      add(T.socialMedia, T.clicks, 'social.clicks');
       add(T.socialMedia, T.followers, 'social.followers');
     });
     return map;
@@ -3171,13 +3180,14 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       </div>`;
     document.body.appendChild(backdrop);
 
+    const SECTION_LABEL_KEYS = { meta:'metaAds', google:'googleAds', website:'website', email:'email', blog:'blog', social:'socialMedia' };
     const mapsEl = backdrop.querySelector("#importFieldMaps");
     mapsEl.innerHTML = FIELD_DEFS.map(([section,key])=>{
       const fieldKey = section+'.'+key;
       const guessed = guessColumn(headerRow, fieldKey);
       return `
         <div class="map-row">
-          <label class="field-label" style="margin-bottom:0;">${t('reportForm.'+(section==='meta'||section==='google'?(section==='meta'?'metaAds':'googleAds'):section==='website'?'website':'email'))} — ${t('reportForm.'+key)}</label>
+          <label class="field-label" style="margin-bottom:0;">${t('reportForm.'+SECTION_LABEL_KEYS[section])} — ${t('reportForm.'+key)}</label>
           <select data-field="${fieldKey}">
             <option value="">${t('common.ignore')}</option>
             ${headerRow.map((h,i)=>`<option value="${i}" ${i===guessed?'selected':''}>${escapeHtml(String(h) || ('Col ' + (i+1)))}</option>`).join("")}
@@ -3294,7 +3304,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
           <div class="surface card p-6">${platformTable(t('reportForm.website'), d.website, dPrev?dPrev.website:null, [["sessions","int"],["users","int"],["conversions","int"],["convRate","pct"]])}</div>
           <div class="surface card p-6">${platformTable(t('reportForm.email'), d.email, dPrev?dPrev.email:null, [["sent","int"],["openRate","pct"],["clickRate","pct"]])}</div>
           <div class="surface card p-6">${platformTable(t('reportForm.blog'), d.blog, dPrev?dPrev.blog:null, [["posts","int"],["views","int"],["leads","int"],["convRate","pct"]])}</div>
-          <div class="surface card p-6">${platformTable(t('reportForm.socialMedia'), d.social, dPrev?dPrev.social:null, [["posts","int"],["reach","int"],["engagement","int"],["followers","int"],["engagementRate","pct"]])}</div>
+          <div class="surface card p-6">${platformTable(t('reportForm.socialMedia'), d.social, dPrev?dPrev.social:null, [["posts","int"],["reach","int"],["impressions","int"],["engagement","int"],["clicks","int"],["followers","int"],["engagementRate","pct"],["clickRate","pct"]])}</div>
           ${d.custom.length ? `<div class="surface card p-6">${customTable(d.custom, dPrev?dPrev.custom:null)}</div>` : ""}
         </div>
 
@@ -3432,8 +3442,9 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     push(blog, t('reportForm.leads'), d.blog.leads); push(blog, t('preview.convRate'), d.blog.convRate);
 
     push(social, t('reportForm.posts'), d.social.posts); push(social, t('reportForm.reach'), d.social.reach);
-    push(social, t('reportForm.engagement'), d.social.engagement); push(social, t('reportForm.followers'), d.social.followers);
-    push(social, t('preview.engagementRate'), d.social.engagementRate);
+    push(social, t('reportForm.impressions'), d.social.impressions); push(social, t('reportForm.engagement'), d.social.engagement);
+    push(social, t('reportForm.clicks'), d.social.clicks); push(social, t('reportForm.followers'), d.social.followers);
+    push(social, t('preview.engagementRate'), d.social.engagementRate); push(social, t('reportForm.clickRate'), d.social.clickRate);
 
     d.custom.forEach(c => push(t('csvExport.custom'), c.label, c.value));
 
