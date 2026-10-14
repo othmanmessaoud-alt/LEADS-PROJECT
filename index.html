@@ -194,7 +194,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     .kpi-value{ font-size:1.9rem; }
   }
 
-  /* ---------- Dashboard: colored/dark stat tiles, client avatar cards ---------- */
+  /* ---------- Colored/dark stat tiles (dashboard, report preview), client avatar cards ---------- */
   .stat-tile{
     border-radius:20px; padding:1.5rem; min-width:0; overflow:hidden; position:relative;
   }
@@ -207,6 +207,9 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
   }
   .stat-tile .eyebrow{ color:inherit; opacity:.75; }
   .stat-tile .kpi-value{ color:inherit; }
+  /* Nested content (goal bars, "vs previous" captions) needs to stay legible on a dark/colored tile */
+  .stat-tile .text-muted{ color:rgba(255,255,255,.7) !important; }
+  .stat-tile .goal-bar-track{ background:rgba(255,255,255,.25); }
 
   .client-avatar{
     width:2.5rem; height:2.5rem; border-radius:999px; flex-shrink:0; display:flex; align-items:center;
@@ -3132,19 +3135,22 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         </div>
 
         <div class="grid gap-4 mt-10 mb-4" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));">
-          <div class="kpi-card">
+          <div class="stat-tile stat-tile-dark">
+            <span class="stat-tile-icon">${icon('trendUp',16)}</span>
             <span class="eyebrow">${t('preview.kpiSpend')}</span>
             <p class="kpi-value">${fmtCur(totalSpend)}</p>
             ${deltaBadge(delta(totalSpend, prevTotalSpend))}
             ${spendGoal ? renderGoalProgress(spendGoal, totalSpend) : ''}
           </div>
-          <div class="kpi-card">
+          <div class="stat-tile stat-tile-accent">
+            <span class="stat-tile-icon">${icon('users',16)}</span>
             <span class="eyebrow">${t('preview.kpiLeads')}</span>
             <p class="kpi-value">${fmtInt(totalLeads)}</p>
             ${deltaBadge(delta(totalLeads, prevTotalLeads))}
             ${leadsGoal ? renderGoalProgress(leadsGoal, totalLeads) : ''}
           </div>
-          <div class="kpi-card">
+          <div class="stat-tile stat-tile-success">
+            <span class="stat-tile-icon">${icon('barChart',16)}</span>
             <span class="eyebrow">${t('preview.kpiCpl')}</span>
             <p class="kpi-value">${fmtCur(blendedCpl)}</p>
             ${deltaBadge(delta(blendedCpl, dPrev ? safeDiv(prevTotalSpend, prevTotalLeads) : null))}
