@@ -86,7 +86,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
   }
   .font-display, .headline{ font-family:'Outfit',system-ui,sans-serif; letter-spacing:-.02em; }
   .font-mono{ font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums; }
-  .eyebrow{ font-family:'Inter',sans-serif; font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+  .eyebrow{ font-family:'Inter',sans-serif; font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); overflow-wrap:break-word; word-break:break-word; hyphens:auto; }
   .text-muted{ color:var(--muted); }
   .text-accent{ color:var(--accent); }
   .border-base{ border-color:var(--border); }
@@ -1876,17 +1876,17 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
                     </svg>
                   </div>
                   <div class="grid gap-3 mb-6" style="grid-template-columns:repeat(3,1fr);">
-                    <div class="surface card p-4" style="text-align:left; min-width:0;">
+                    <div class="surface card p-4" style="text-align:left; min-width:0; overflow:hidden;">
                       <span class="eyebrow">${t('landing.kpiSpend')}</span>
                       <p class="kpi-value" style="font-size:1.4rem; margin:.4rem 0;">4 230 €</p>
                       <span class="delta delta-up font-mono">▲ 8,2%</span>
                     </div>
-                    <div class="surface card p-4" style="text-align:left; min-width:0;">
+                    <div class="surface card p-4" style="text-align:left; min-width:0; overflow:hidden;">
                       <span class="eyebrow">${t('landing.kpiLeads')}</span>
                       <p class="kpi-value" style="font-size:1.4rem; margin:.4rem 0;">312</p>
                       <span class="delta delta-up font-mono">▲ 12,1%</span>
                     </div>
-                    <div class="surface card p-4" style="text-align:left; min-width:0;">
+                    <div class="surface card p-4" style="text-align:left; min-width:0; overflow:hidden;">
                       <span class="eyebrow">${t('landing.kpiCpl')}</span>
                       <p class="kpi-value" style="font-size:1.4rem; margin:.4rem 0;">13,56 €</p>
                       <span class="delta delta-down font-mono">▼ 4,0%</span>
