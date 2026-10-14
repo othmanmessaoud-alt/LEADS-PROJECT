@@ -2242,11 +2242,13 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
 
         <div class="eyebrow mb-4">${t('settings.storageOverview')}</div>
         <div class="grid gap-4 mb-12" style="grid-template-columns:repeat(2,1fr); max-width:420px;">
-          <div class="kpi-card">
+          <div class="stat-tile stat-tile-dark">
+            <span class="stat-tile-icon">${icon('users',16)}</span>
             <span class="eyebrow">${t('settings.clients')}</span>
             <p class="kpi-value">${data.clients.length}</p>
           </div>
-          <div class="kpi-card">
+          <div class="stat-tile stat-tile-accent">
+            <span class="stat-tile-icon">${icon('barChart',16)}</span>
             <span class="eyebrow">${t('settings.reports')}</span>
             <p class="kpi-value">${data.reports.length}</p>
           </div>
@@ -2337,7 +2339,10 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
           </div>
           <div>
             <label class="field-label">${t('clientForm.colorLabel')}</label>
-            <input type="color" name="color" value="${existing?existing.color:'#2D7FE0'}" style="height:2.8rem; padding:.3rem;">
+            <div class="flex items-center gap-3">
+              <span id="colorPreviewSwatch" style="width:2.8rem; height:2.8rem; border-radius:999px; flex-shrink:0; background:${existing?escapeAttr(existing.color):'#2D7FE0'}; box-shadow:var(--shadow-sm);"></span>
+              <input type="color" name="color" value="${existing?existing.color:'#2D7FE0'}" style="height:2.8rem; padding:.3rem; flex:1;">
+            </div>
           </div>
           <div class="flex gap-2 mt-2 flex-wrap">
             <button type="submit" class="btn btn-primary">${t('clientForm.save')}</button>
@@ -2347,6 +2352,9 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         </form>
         ${existing ? renderGoalsSection(existing) : ''}
       </div>`;
+    const colorInput = main.querySelector('[name="color"]');
+    const colorSwatch = document.getElementById("colorPreviewSwatch");
+    if(colorInput && colorSwatch) colorInput.addEventListener("input", (e) => { colorSwatch.style.background = e.target.value; });
     document.getElementById("cancelClient").onclick = () => {
       state.mode = state.clientId ? "reports" : "welcome";
       render();
@@ -2595,16 +2603,20 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
           <canvas id="clientSpendChart" height="${reports.length===1 ? '90' : '160'}"></canvas>
         </div>
         <div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr));">
-          ${reports.map(r => {
+          ${reports.map((r, i) => {
             const d = computeReport(r);
             const totalSpend = (d.meta.spend||0) + (d.google.spend||0);
+            const isLatest = i === 0;
+            const prevReport = reports[i+1];
+            const spendDelta = prevReport ? delta(totalSpend, (computeReport(prevReport).meta.spend||0) + (computeReport(prevReport).google.spend||0)) : null;
             return `
-            <div class="surface card p-6 flex flex-col gap-3 cursor-pointer" data-action="open-report" data-id="${r.id}">
-              <div class="flex items-center justify-between">
+            <div class="client-card surface card cursor-pointer ${isLatest ? 'top-client' : ''}" data-action="open-report" data-id="${r.id}">
+              <div class="flex items-center justify-between mb-2">
                 <span class="headline font-bold" style="font-size:1.2rem;">${monthLabel(r.month)}</span>
                 ${r.isExample?'<span class="badge badge-example">EX</span>':''}
               </div>
-              <p class="text-muted text-xs font-mono">${t('reportsList.totalSpend',{amount:fmtCur(totalSpend)})}</p>
+              <p class="text-xs font-mono mb-3" style="color:${isLatest?'rgba(255,255,255,.6)':'var(--muted)'};">${t('reportsList.totalSpend',{amount:fmtCur(totalSpend)})}</p>
+              ${spendDelta!==null ? `<div class="mb-3">${deltaBadge(spendDelta)}</div>` : ''}
               <div class="flex gap-2 mt-1">
                 <button class="btn btn-ghost btn-sm" data-action="edit-report" data-id="${r.id}">${t('reportsList.edit')}</button>
                 <button class="btn btn-danger btn-sm" data-action="delete-report" data-id="${r.id}">${t('reportsList.delete')}</button>
@@ -2658,11 +2670,11 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     "email.clickRate":["click rate","taux de clic","ctr email"]
   };
 
-  function platformFieldsHtml(prefix, label, p, fieldKeys){
+  function platformFieldsHtml(prefix, label, p, fieldKeys, iconName){
     return `
       <fieldset class="surface card p-6">
         <div class="flex items-center justify-between gap-2 flex-wrap">
-          <span class="eyebrow">${label}</span>
+          <span class="flex items-center gap-2"><span class="icon-chip" style="width:1.9rem; height:1.9rem; border-radius:8px;">${icon(iconName||'barChart',14)}</span><span class="eyebrow">${label}</span></span>
           <button type="button" class="btn btn-ghost btn-sm" data-paste-toggle="${prefix}">${t('reportForm.pasteToggle')}</button>
         </div>
         <div id="pasteArea-${prefix}" class="paste-panel hidden">
@@ -2727,10 +2739,10 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
           <div class="err-msg hidden" data-err="month"></div>
         </div>
 
-        ${platformFieldsHtml("meta", t('reportForm.metaAds'), r.meta, ["spend","impressions","clicks","leads"])}
-        ${platformFieldsHtml("google", t('reportForm.googleAds'), r.google, ["spend","impressions","clicks","leads"])}
-        ${platformFieldsHtml("website", t('reportForm.website'), r.website, ["sessions","users","conversions"])}
-        ${platformFieldsHtml("email", t('reportForm.email'), r.email, ["sent","openRate","clickRate"])}
+        ${platformFieldsHtml("meta", t('reportForm.metaAds'), r.meta, ["spend","impressions","clicks","leads"], "trendUp")}
+        ${platformFieldsHtml("google", t('reportForm.googleAds'), r.google, ["spend","impressions","clicks","leads"], "barChart")}
+        ${platformFieldsHtml("website", t('reportForm.website'), r.website, ["sessions","users","conversions"], "globe")}
+        ${platformFieldsHtml("email", t('reportForm.email'), r.email, ["sent","openRate","clickRate"], "share")}
 
         <fieldset class="surface card p-6">
           <legend class="eyebrow px-1">${t('reportForm.customMetrics')}</legend>
