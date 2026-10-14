@@ -371,7 +371,8 @@
         cancel:"Annuler", confirm:"Importer les valeurs",
         parseError:"Impossible de lire ce fichier. Vérifiez qu'il s'agit bien d'un fichier Excel (.xlsx) ou CSV valide.",
         noData:"Ce fichier ne contient aucune ligne de données.",
-        imported:"Valeurs importées. Vérifiez-les avant d'enregistrer le rapport."
+        imported:"Valeurs importées. Vérifiez-les avant d'enregistrer le rapport.",
+        noMatches:"Aucune colonne n'a pu être associée à un indicateur. Vérifiez les en-têtes de votre fichier ou faites la correspondance manuellement ci-dessus."
       },
       preview:{
         back:"← Retour aux rapports", edit:"Modifier", exportCsv:"Exporter en CSV",
@@ -510,7 +511,8 @@
         cancel:"Cancel", confirm:"Import values",
         parseError:"Couldn't read this file. Make sure it's a valid Excel (.xlsx) or CSV file.",
         noData:"This file has no data rows.",
-        imported:"Values imported. Review them before saving the report."
+        imported:"Values imported. Review them before saving the report.",
+        noMatches:"No column could be matched to a metric. Check your file's headers, or map columns manually above."
       },
       preview:{
         back:"← Back to reports", edit:"Edit", exportCsv:"Export as CSV",
@@ -1881,6 +1883,22 @@
             .map(row => row.map(cell => cell===null||cell===undefined ? "" : cell))
             .filter(row => row.some(cell => String(cell).trim() !== ""));
           if(rows.length === 0){ alert(t('importModal.noData')); return; }
+
+          const ownFormat = tryParseOwnExportFormat(rows);
+          if(ownFormat){
+            const form = document.getElementById("reportForm");
+            Object.keys(ownFormat.fields).forEach(fieldPath => {
+              const input = form.querySelector(`[name="${fieldPath}"]`);
+              if(input) input.value = ownFormat.fields[fieldPath];
+            });
+            if(ownFormat.customEntries.length){
+              customContainer.innerHTML = "";
+              ownFormat.customEntries.forEach(c => addCustomRow(c.label, c.value));
+            }
+            alert(t('importModal.imported'));
+            return;
+          }
+
           openImportModal(rows, document.getElementById("reportForm"));
         }catch(err){
           alert(t('importModal.parseError'));
@@ -2049,6 +2067,66 @@
   }
 
   /* ---------- Import mapping modal ---------- */
+  /* ---------- Recognize Rapport's own CSV export format ----------
+     exportCsv() writes a "long" format: one row per (Section, Indicateur, Valeur) triple,
+     not one row per month like a real Ads Manager export. The generic wide-format importer
+     below can't make sense of that shape — every column-synonym match fails because there
+     are only 3 columns total. Since we fully control this format (in both languages it can
+     be exported in), we can recognize and re-import it perfectly and automatically, with no
+     manual column mapping needed. This is what makes "re-upload a report you exported
+     earlier" actually work. */
+  function buildLongFormatReverseMap(){
+    const map = {};
+    ['fr','en'].forEach(lang=>{
+      const T = I18N[lang].reportForm;
+      const add = (section, indicatorLabel, fieldPath) => { map[section.toLowerCase()+'|'+indicatorLabel.toLowerCase()] = fieldPath; };
+      [['metaAds','meta'], ['googleAds','google']].forEach(([platformKey, prefix])=>{
+        const platform = T[platformKey];
+        add(platform, T.spend, prefix+'.spend');
+        add(platform, T.impressions, prefix+'.impressions');
+        add(platform, T.clicks, prefix+'.clicks');
+        add(platform, T.leads, prefix+'.leads');
+      });
+      add(T.website, T.sessions, 'website.sessions');
+      add(T.website, T.users, 'website.users');
+      add(T.website, T.conversions, 'website.conversions');
+      add(T.email, T.sent, 'email.sent');
+      add(T.email, T.openRate, 'email.openRate');
+      add(T.email, T.clickRate, 'email.clickRate');
+    });
+    return map;
+  }
+  function tryParseOwnExportFormat(rows){
+    if(rows.length < 1) return null;
+    const header = rows[0].map(h=>String(h).trim().toLowerCase());
+    const validHeaderSets = [
+      [I18N.fr.csvExport.section, I18N.fr.csvExport.indicator, I18N.fr.csvExport.value],
+      [I18N.en.csvExport.section, I18N.en.csvExport.indicator, I18N.en.csvExport.value]
+    ].map(set => set.map(s=>s.toLowerCase()));
+    const isOwnFormat = validHeaderSets.some(set => set.length===header.length && set.every((h,i)=>h===header[i]));
+    if(!isOwnFormat) return null;
+
+    const reverseMap = buildLongFormatReverseMap();
+    const customLabels = [I18N.fr.csvExport.custom.toLowerCase(), I18N.en.csvExport.custom.toLowerCase()];
+    const fields = {};
+    const customEntries = [];
+    for(let i=1;i<rows.length;i++){
+      const row = rows[i];
+      if(!row || row.length < 3) continue;
+      const section = String(row[0]).trim();
+      const indicator = String(row[1]).trim();
+      const value = row[2];
+      if(value === undefined || value === '') continue;
+      if(customLabels.includes(section.toLowerCase())){
+        if(indicator) customEntries.push({ label: indicator, value: String(value).trim() });
+        continue;
+      }
+      const fieldPath = reverseMap[section.toLowerCase()+'|'+indicator.toLowerCase()];
+      if(fieldPath) fields[fieldPath] = String(value).trim();
+    }
+    return { fields, customEntries };
+  }
+
   function guessColumn(headerRow, fieldKey){
     const synonyms = FIELD_SYNONYMS[fieldKey] || [];
     const platform = fieldKey.split('.')[0]; // meta | google | website | email
@@ -2110,16 +2188,20 @@
     backdrop.querySelector("#importConfirmBtn").onclick = () => {
       const rowIdx = parseInt(backdrop.querySelector("#importRowSelect").value, 10);
       const dataRow = rows[rowIdx] || [];
+      let filledCount = 0;
       mapsEl.querySelectorAll('[data-field]').forEach(sel => {
         const colIdx = sel.value;
         if(colIdx === "") return;
         const val = dataRow[parseInt(colIdx,10)];
-        if(val === undefined) return;
+        if(val === undefined || String(val).trim() === "") return;
         const input = form.querySelector(`[name="${sel.dataset.field}"]`);
-        if(input) input.value = String(val).trim();
+        if(input){ input.value = String(val).trim(); filledCount++; }
       });
       closeModal();
-      alert(t('importModal.imported'));
+      // Don't claim success when nothing was actually mapped — this used to always show
+      // "Valeurs importées" even with every field left on "— Ignorer —", which is exactly
+      // what happens when the uploaded file doesn't match the expected column headers.
+      alert(filledCount > 0 ? t('importModal.imported') : t('importModal.noMatches'));
     };
   }
 
