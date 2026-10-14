@@ -56,6 +56,8 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     --shadow-md:0 16px 36px -12px rgba(20,20,35,.12), 0 4px 10px -4px rgba(20,20,35,.06);
     --shadow-lg:0 32px 72px -20px rgba(20,20,35,.20);
     --shadow-accent:0 14px 30px -10px rgba(45,127,224,.35);
+    --hero-mesh-1: rgba(45,127,224,.20);
+    --hero-mesh-2: rgba(95,168,240,.14);
     color-scheme: light;
   }
   /* Dark mode is opt-in only (data-theme="dark"); the app always renders light by default
@@ -71,6 +73,8 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     --shadow-md:0 16px 36px -12px rgba(0,0,0,.5), 0 4px 10px -4px rgba(0,0,0,.4);
     --shadow-lg:0 32px 72px -20px rgba(0,0,0,.6);
     --shadow-accent:0 14px 34px -8px rgba(95,168,240,.4);
+    --hero-mesh-1: rgba(15,42,77,.55);
+    --hero-mesh-2: rgba(20,55,95,.35);
     color-scheme: dark;
   }
   *{box-sizing:border-box;}
@@ -190,22 +194,13 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     .kpi-value{ font-size:1.9rem; }
   }
 
+  /* Hero background: a single soft radial gradient mesh behind the headline, blue fading to
+     transparent. Subtle by design — it should read as depth, not as a visible shape. */
   .hero-glow{
     position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0;
-  }
-  .hero-glow::before, .hero-glow::after{
-    content:""; position:absolute; border-radius:50%; filter:blur(70px); opacity:.35;
-  }
-  .hero-glow::before{ width:420px; height:420px; background:var(--accent); top:-160px; left:10%; }
-  .hero-glow::after{ width:340px; height:340px; background:var(--accent-2); bottom:-140px; right:12%; opacity:.25; }
-
-  /* Hero background: a faint dot-grid texture, under the glow blobs, under the content. */
-  .hero-dotgrid{
-    position:absolute; inset:0; z-index:0; pointer-events:none;
-    background-image:radial-gradient(circle, var(--border) 1.5px, transparent 1.5px);
-    background-size:28px 28px;
-    mask-image:radial-gradient(ellipse 60% 55% at 50% 30%, black 40%, transparent 90%);
-    -webkit-mask-image:radial-gradient(ellipse 60% 55% at 50% 30%, black 40%, transparent 90%);
+    background:
+      radial-gradient(ellipse 60% 50% at 30% 20%, var(--hero-mesh-1), transparent 65%),
+      radial-gradient(ellipse 55% 45% at 75% 55%, var(--hero-mesh-2), transparent 70%);
   }
 
   /* Floating stat/graph chips scattered around the hero copy, for visual interest without
@@ -1063,7 +1058,6 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       <div style="max-width:980px; margin:0 auto;">
 
         <section style="position:relative; overflow:hidden; padding-bottom:1rem; padding-top:.5rem;">
-          <div class="hero-dotgrid"></div>
           <div class="hero-glow"></div>
 
           <div class="float-chip" style="top:2rem; left:-1rem; animation-delay:0s;">
@@ -1790,7 +1784,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
           <label class="field-label">${t('reportForm.pasteLabel')}</label>
           <textarea id="pasteInput-${prefix}" placeholder="${t('reportForm.pastePlaceholder')}"></textarea>
           <div class="flex gap-2 mt-2">
-            <button type="button" class="btn btn-primary btn-sm" data-paste-analyze="${prefix}">${t('reportForm.pasteAnalyze')}</button>
+            <button type="button" class="btn btn-primary btn-sm" data-paste-analyze="${prefix}" disabled>${t('reportForm.pasteAnalyze')}</button>
             <button type="button" class="btn btn-ghost btn-sm" data-paste-cancel="${prefix}">${t('reportForm.cancel')}</button>
           </div>
           <div id="pastePreview-${prefix}" class="mt-3"></div>
@@ -1841,7 +1835,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
           <button class="btn btn-ghost btn-sm" data-action="back-to-reports">${t('reportForm.back')}</button>
         </div>
       </div>
-      <form id="reportForm" class="flex flex-col gap-5" style="max-width:720px;">
+      <form id="reportForm" class="flex flex-col gap-5" style="max-width:960px;">
         <div class="surface card p-6">
           <label class="field-label">${t('reportForm.monthLabel')}</label>
           <input type="month" name="month" required value="${r.month||''}" style="max-width:220px;">
@@ -1943,6 +1937,12 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     };
 
     /* ---- Paste-from-spreadsheet import (per platform section) ---- */
+    document.getElementById("reportForm").addEventListener("input", (e) => {
+      if(!e.target.matches('textarea[id^="pasteInput-"]')) return;
+      const prefix = e.target.id.replace('pasteInput-','');
+      const analyzeBtn = document.querySelector(`[data-paste-analyze="${prefix}"]`);
+      if(analyzeBtn) analyzeBtn.disabled = e.target.value.trim() === '';
+    });
     document.getElementById("reportForm").addEventListener("click", (e) => {
       const toggleBtn = e.target.closest('[data-paste-toggle]');
       if(toggleBtn){
@@ -1955,6 +1955,8 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         document.getElementById('pasteArea-'+prefix).classList.add('hidden');
         document.getElementById('pastePreview-'+prefix).innerHTML = '';
         document.getElementById('pasteInput-'+prefix).value = '';
+        const cancelAnalyzeBtn = document.querySelector(`[data-paste-analyze="${prefix}"]`);
+        if(cancelAnalyzeBtn) cancelAnalyzeBtn.disabled = true;
         return;
       }
       const analyzeBtn = e.target.closest('[data-paste-analyze]');
