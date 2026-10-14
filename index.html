@@ -504,7 +504,11 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         parseError:"Impossible de lire ce fichier. Vérifiez qu'il s'agit bien d'un fichier Excel (.xlsx) ou CSV valide.",
         noData:"Ce fichier ne contient aucune ligne de données.",
         imported:"Valeurs importées. Vérifiez-les avant d'enregistrer le rapport.",
-        noMatches:"Aucune colonne n'a pu être associée à un indicateur. Vérifiez les en-têtes de votre fichier ou faites la correspondance manuellement ci-dessus."
+        noMatches:"Aucune colonne n'a pu être associée à un indicateur. Vérifiez les en-têtes de votre fichier ou faites la correspondance manuellement ci-dessus.",
+        monthLabel:"Colonne du mois", monthNone:"— Aucune (importer une seule ligne) —",
+        singleHint:"Sans colonne de mois, une seule ligne est importée dans ce rapport.",
+        bulkHint:"Chaque ligne du fichier sera importée comme un rapport séparé (le mois doit être au format AAAA-MM, JJ/MM/AAAA ou MM/AAAA).",
+        bulkResult:"{created} rapport(s) importé(s), {skipped} ligne(s) ignorée(s) (mois illisible)."
       },
       preview:{
         back:"← Retour aux rapports", edit:"Modifier", exportCsv:"Exporter en CSV",
@@ -647,7 +651,11 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         parseError:"Couldn't read this file. Make sure it's a valid Excel (.xlsx) or CSV file.",
         noData:"This file has no data rows.",
         imported:"Values imported. Review them before saving the report.",
-        noMatches:"No column could be matched to a metric. Check your file's headers, or map columns manually above."
+        noMatches:"No column could be matched to a metric. Check your file's headers, or map columns manually above.",
+        monthLabel:"Month column", monthNone:"— None (import a single row) —",
+        singleHint:"Without a month column, only one row is imported into this report.",
+        bulkHint:"Every row in the file will be imported as its own report (month must be in YYYY-MM, DD/MM/YYYY or MM/YYYY format).",
+        bulkResult:"{created} report(s) imported, {skipped} row(s) skipped (unreadable month)."
       },
       preview:{
         back:"← Back to reports", edit:"Edit", exportCsv:"Export as CSV",
@@ -790,7 +798,11 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         parseError:"No se pudo leer este archivo. Comprueba que sea un archivo Excel (.xlsx) o CSV válido.",
         noData:"Este archivo no contiene filas de datos.",
         imported:"Valores importados. Revísalos antes de guardar el informe.",
-        noMatches:"No se pudo asociar ninguna columna a una métrica. Revisa los encabezados de tu archivo o haz la correspondencia manualmente arriba."
+        noMatches:"No se pudo asociar ninguna columna a una métrica. Revisa los encabezados de tu archivo o haz la correspondencia manualmente arriba.",
+        monthLabel:"Columna de mes", monthNone:"— Ninguna (importar una sola fila) —",
+        singleHint:"Sin una columna de mes, solo se importa una fila a este informe.",
+        bulkHint:"Cada fila del archivo se importará como un informe independiente (el mes debe tener el formato AAAA-MM, DD/MM/AAAA o MM/AAAA).",
+        bulkResult:"{created} informe(s) importado(s), {skipped} fila(s) omitida(s) (mes ilegible)."
       },
       preview:{
         back:"← Volver a los informes", edit:"Editar", exportCsv:"Exportar como CSV",
@@ -933,7 +945,11 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         parseError:"Diese Datei konnte nicht gelesen werden. Stellen Sie sicher, dass es sich um eine gültige Excel- (.xlsx) oder CSV-Datei handelt.",
         noData:"Diese Datei enthält keine Datenzeilen.",
         imported:"Werte importiert. Prüfen Sie sie, bevor Sie den Bericht speichern.",
-        noMatches:"Keine Spalte konnte einer Kennzahl zugeordnet werden. Prüfen Sie die Kopfzeilen Ihrer Datei oder ordnen Sie die Spalten oben manuell zu."
+        noMatches:"Keine Spalte konnte einer Kennzahl zugeordnet werden. Prüfen Sie die Kopfzeilen Ihrer Datei oder ordnen Sie die Spalten oben manuell zu.",
+        monthLabel:"Monatsspalte", monthNone:"— Keine (nur eine Zeile importieren) —",
+        singleHint:"Ohne Monatsspalte wird nur eine Zeile in diesen Bericht importiert.",
+        bulkHint:"Jede Zeile der Datei wird als eigener Bericht importiert (Monat muss im Format JJJJ-MM, TT/MM/JJJJ oder MM/JJJJ vorliegen).",
+        bulkResult:"{created} Bericht(e) importiert, {skipped} Zeile(n) übersprungen (Monat nicht lesbar)."
       },
       preview:{
         back:"← Zurück zu den Berichten", edit:"Bearbeiten", exportCsv:"Als CSV exportieren",
@@ -1076,7 +1092,11 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         parseError:"Dit bestand kon niet worden gelezen. Controleer of het een geldig Excel- (.xlsx) of CSV-bestand is.",
         noData:"Dit bestand bevat geen gegevensrijen.",
         imported:"Waarden geïmporteerd. Controleer ze voordat je het rapport opslaat.",
-        noMatches:"Geen enkele kolom kon aan een statistiek worden gekoppeld. Controleer de kopteksten van je bestand of koppel de kolommen hierboven handmatig."
+        noMatches:"Geen enkele kolom kon aan een statistiek worden gekoppeld. Controleer de kopteksten van je bestand of koppel de kolommen hierboven handmatig.",
+        monthLabel:"Maandkolom", monthNone:"— Geen (één rij importeren) —",
+        singleHint:"Zonder maandkolom wordt slechts één rij in dit rapport geïmporteerd.",
+        bulkHint:"Elke rij in het bestand wordt als eigen rapport geïmporteerd (maand moet in JJJJ-MM, DD/MM/JJJJ of MM/JJJJ zijn).",
+        bulkResult:"{created} rapport(en) geïmporteerd, {skipped} rij(en) overgeslagen (maand onleesbaar)."
       },
       preview:{
         back:"← Terug naar rapporten", edit:"Bewerken", exportCsv:"Exporteren als CSV",
@@ -1219,7 +1239,11 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         parseError:"Impossibile leggere questo file. Assicurati che sia un file Excel (.xlsx) o CSV valido.",
         noData:"Questo file non contiene righe di dati.",
         imported:"Valori importati. Controllali prima di salvare il report.",
-        noMatches:"Nessuna colonna è stata associata a una metrica. Controlla le intestazioni del file o esegui la corrispondenza manuale qui sopra."
+        noMatches:"Nessuna colonna è stata associata a una metrica. Controlla le intestazioni del file o esegui la corrispondenza manuale qui sopra.",
+        monthLabel:"Colonna del mese", monthNone:"— Nessuna (importa una sola riga) —",
+        singleHint:"Senza colonna del mese, viene importata una sola riga in questo report.",
+        bulkHint:"Ogni riga del file verrà importata come report separato (il mese deve essere nel formato AAAA-MM, GG/MM/AAAA o MM/AAAA).",
+        bulkResult:"{created} report importati, {skipped} riga/e ignorata/e (mese illeggibile)."
       },
       preview:{
         back:"← Torna ai report", edit:"Modifica", exportCsv:"Esporta come CSV",
@@ -1362,7 +1386,11 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         parseError:"ไม่สามารถอ่านไฟล์นี้ได้ โปรดตรวจสอบว่าเป็นไฟล์ Excel (.xlsx) หรือ CSV ที่ถูกต้อง",
         noData:"ไฟล์นี้ไม่มีแถวข้อมูล",
         imported:"นำเข้าค่าสำเร็จแล้ว โปรดตรวจสอบก่อนบันทึกรายงาน",
-        noMatches:"ไม่สามารถจับคู่คอลัมน์ใดกับตัวชี้วัดได้ โปรดตรวจสอบหัวตารางในไฟล์ของคุณ หรือจับคู่คอลัมน์ด้วยตนเองด้านบน"
+        noMatches:"ไม่สามารถจับคู่คอลัมน์ใดกับตัวชี้วัดได้ โปรดตรวจสอบหัวตารางในไฟล์ของคุณ หรือจับคู่คอลัมน์ด้วยตนเองด้านบน",
+        monthLabel:"คอลัมน์เดือน", monthNone:"— ไม่มี (นำเข้าเพียงแถวเดียว) —",
+        singleHint:"หากไม่มีคอลัมน์เดือน จะนำเข้าเพียงหนึ่งแถวลงในรายงานนี้",
+        bulkHint:"แต่ละแถวในไฟล์จะถูกนำเข้าเป็นรายงานแยกกัน (เดือนต้องอยู่ในรูปแบบ YYYY-MM, DD/MM/YYYY หรือ MM/YYYY)",
+        bulkResult:"นำเข้า {created} รายงาน ข้าม {skipped} แถว (อ่านเดือนไม่ได้)"
       },
       preview:{
         back:"← กลับไปที่รายงาน", edit:"แก้ไข", exportCsv:"ส่งออกเป็น CSV",
@@ -2892,7 +2920,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
             return;
           }
 
-          openImportModal(rows, document.getElementById("reportForm"));
+          openImportModal(rows, document.getElementById("reportForm"), client);
         }catch(err){
           alert(t('importModal.parseError'));
         }
@@ -3155,9 +3183,36 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     return -1;
   }
 
-  function openImportModal(rows, form){
+  /* Normalizes a spreadsheet cell's month value to "YYYY-MM", or returns null when the
+     value doesn't unambiguously specify both a month and a year — those rows are skipped
+     (and counted, not silently dropped) rather than guessed at, since a wrong month/year
+     would corrupt data in a way the user can't easily spot later. */
+  function parseMonthValue(raw){
+    if(raw === null || raw === undefined || raw === "") return null;
+    // Excel date serial (XLSX.read without cellDates keeps date-formatted cells as numbers)
+    if(typeof raw === "number" && raw > 20000 && raw < 80000){
+      const d = new Date(Math.round((raw - 25569) * 86400 * 1000));
+      if(!isNaN(d.getTime())) return d.getUTCFullYear() + "-" + String(d.getUTCMonth()+1).padStart(2,"0");
+    }
+    const s = String(raw).trim();
+    if(!s) return null;
+    let m;
+    if((m = s.match(/^(\d{4})-(\d{2})(-\d{2})?$/))) return m[1] + "-" + m[2];
+    if((m = s.match(/^(\d{1,2})\/(\d{4})$/))) return m[2] + "-" + m[1].padStart(2,"0");
+    if((m = s.match(/^(\d{1,2})[\/.](\d{1,2})[\/.](\d{4})$/))){
+      // day/month/year — the app is FR-first, so ambiguous slash dates are read day-first,
+      // never guessed as US-style month/day/year.
+      const month = parseInt(m[2],10);
+      if(month>=1 && month<=12) return m[3] + "-" + String(month).padStart(2,"0");
+      return null;
+    }
+    return null;
+  }
+
+  function openImportModal(rows, form, client){
     const headerRow = rows[0] || [];
     const defaultDataRow = rows.length > 1 ? 1 : 0;
+    const monthColGuess = headerRow.findIndex(h => /month|mois|date|mes\b|monat|maand|mese|เดือน/i.test(String(h)));
 
     const backdrop = document.createElement("div");
     backdrop.className = "modal-backdrop no-print";
@@ -3166,10 +3221,19 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         <h3 class="headline font-bold mb-2" style="font-size:1.4rem;">${t('importModal.title')}</h3>
         <p class="text-muted text-sm mb-5">${t('importModal.desc')}</p>
 
-        <label class="field-label">${t('importModal.rowLabel')}</label>
-        <select id="importRowSelect" class="mb-5">
-          ${rows.map((row,i)=>`<option value="${i}" ${i===defaultDataRow?'selected':''}>${escapeHtml(t('importModal.rowOption',{n:i+1, preview:row.slice(0,4).join(', ')}))}</option>`).join("")}
+        <label class="field-label">${t('importModal.monthLabel')}</label>
+        <select id="importMonthSelect" class="mb-2">
+          <option value="">${t('importModal.monthNone')}</option>
+          ${headerRow.map((h,i)=>`<option value="${i}" ${i===monthColGuess?'selected':''}>${escapeHtml(String(h) || ('Col ' + (i+1)))}</option>`).join("")}
         </select>
+        <p class="text-muted text-xs mb-5" id="importModeHint"></p>
+
+        <div id="importRowWrap">
+          <label class="field-label">${t('importModal.rowLabel')}</label>
+          <select id="importRowSelect" class="mb-5">
+            ${rows.map((row,i)=>`<option value="${i}" ${i===defaultDataRow?'selected':''}>${escapeHtml(t('importModal.rowOption',{n:i+1, preview:row.slice(0,4).join(', ')}))}</option>`).join("")}
+          </select>
+        </div>
 
         <div id="importFieldMaps"></div>
 
@@ -3195,26 +3259,85 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         </div>`;
     }).join("");
 
+    const monthSelect = backdrop.querySelector("#importMonthSelect");
+    const rowWrap = backdrop.querySelector("#importRowWrap");
+    const modeHint = backdrop.querySelector("#importModeHint");
+    function syncMode(){
+      const bulk = monthSelect.value !== "";
+      rowWrap.classList.toggle("hidden", bulk);
+      modeHint.textContent = bulk ? t('importModal.bulkHint') : t('importModal.singleHint');
+    }
+    monthSelect.onchange = syncMode;
+    syncMode();
+
     function closeModal(){ backdrop.remove(); }
     backdrop.addEventListener("click", (e) => { if(e.target === backdrop) closeModal(); });
     backdrop.querySelector("#importCancelBtn").onclick = closeModal;
     backdrop.querySelector("#importConfirmBtn").onclick = () => {
-      const rowIdx = parseInt(backdrop.querySelector("#importRowSelect").value, 10);
-      const dataRow = rows[rowIdx] || [];
-      let filledCount = 0;
-      mapsEl.querySelectorAll('[data-field]').forEach(sel => {
-        const colIdx = sel.value;
-        if(colIdx === "") return;
-        const val = dataRow[parseInt(colIdx,10)];
-        if(val === undefined || String(val).trim() === "") return;
-        const input = form.querySelector(`[name="${sel.dataset.field}"]`);
-        if(input){ input.value = String(val).trim(); filledCount++; }
-      });
+      const monthColIdx = monthSelect.value === "" ? null : parseInt(monthSelect.value, 10);
+      const fieldSelects = Array.from(mapsEl.querySelectorAll('[data-field]'));
+
+      if(monthColIdx === null){
+        // Single row -> fills the report form currently open, as before.
+        const rowIdx = parseInt(backdrop.querySelector("#importRowSelect").value, 10);
+        const dataRow = rows[rowIdx] || [];
+        let filledCount = 0;
+        fieldSelects.forEach(sel => {
+          const colIdx = sel.value;
+          if(colIdx === "") return;
+          const val = dataRow[parseInt(colIdx,10)];
+          if(val === undefined || String(val).trim() === "") return;
+          const input = form.querySelector(`[name="${sel.dataset.field}"]`);
+          if(input){ input.value = String(val).trim(); filledCount++; }
+        });
+        closeModal();
+        // Don't claim success when nothing was actually mapped — this used to always show
+        // "Valeurs importées" even with every field left on "— Ignorer —", which is exactly
+        // what happens when the uploaded file doesn't match the expected column headers.
+        alert(filledCount > 0 ? t('importModal.imported') : t('importModal.noMatches'));
+        return;
+      }
+
+      // Bulk mode: every data row with a parseable month becomes its own saved report,
+      // using the same column mapping for every row. A report already saved for a given
+      // month is overwritten (matches how re-importing a report in the single-row path
+      // already behaves); a row whose month can't be parsed is skipped and counted,
+      // never guessed at.
+      let created = 0, skipped = 0;
+      for(let i=1;i<rows.length;i++){
+        const dataRow = rows[i];
+        const month = parseMonthValue(dataRow[monthColIdx]);
+        if(!month){ skipped++; continue; }
+        const existing = data.reports.find(r => r.clientId===client.id && r.month===month);
+        const report = existing ? JSON.parse(JSON.stringify(existing)) : emptyReport(client.id);
+        report.month = month;
+        let rowHadValue = false;
+        fieldSelects.forEach(sel => {
+          const colIdx = sel.value;
+          if(colIdx === "") return;
+          const val = dataRow[parseInt(colIdx,10)];
+          if(val === undefined || String(val).trim() === "") return;
+          const [section,key] = sel.dataset.field.split(".");
+          report[section] = report[section] || {};
+          report[section][key] = String(val).trim();
+          rowHadValue = true;
+        });
+        if(!rowHadValue){ skipped++; continue; }
+        if(existing){
+          const idx = data.reports.findIndex(r=>r.id===existing.id);
+          data.reports[idx] = report;
+        }else{
+          data.reports.push(report);
+        }
+        created++;
+      }
+      saveData();
       closeModal();
-      // Don't claim success when nothing was actually mapped — this used to always show
-      // "Valeurs importées" even with every field left on "— Ignorer —", which is exactly
-      // what happens when the uploaded file doesn't match the expected column headers.
-      alert(filledCount > 0 ? t('importModal.imported') : t('importModal.noMatches'));
+      alert(t('importModal.bulkResult', {created, skipped}));
+      if(created > 0){
+        state.clientId = client.id; state.reportId = null; state.mode = "reports";
+        render();
+      }
     };
   }
 
