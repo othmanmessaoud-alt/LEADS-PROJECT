@@ -6,6 +6,7 @@
 <title>Rapport — Reporting marketing mensuel</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -56,6 +57,7 @@
     display:inline-flex; align-items:center; gap:.5rem; padding:.7rem 1.4rem;
     font-family:'Inter',sans-serif; font-weight:600; font-size:.85rem;
     border-radius:999px; border:1px solid transparent; cursor:pointer; transition:all .18s ease;
+    white-space:nowrap;
   }
   .btn-primary{ background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:var(--accent-fg); box-shadow:var(--shadow-accent); }
   .btn-primary:hover{ transform:translateY(-1px); filter:brightness(1.04); }
@@ -64,6 +66,14 @@
   .btn-danger{ background:transparent; color:var(--danger); border-color:transparent; }
   .btn-danger:hover{ background:var(--danger-soft); }
   .btn-sm{ padding:.5rem 1rem; font-size:.78rem; }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; transform:none !important; }
+
+  .lang-btn{
+    font-family:'Inter',sans-serif; font-size:.72rem; font-weight:700; padding:.3rem .55rem; border-radius:8px;
+    color:var(--muted); cursor:pointer; border:1px solid transparent; transition:all .15s;
+  }
+  .lang-btn:hover{ background:var(--bg-soft); color:var(--ink); }
+  .lang-btn.active{ background:var(--accent-soft); color:var(--accent); }
 
   label.field-label{ display:block; font-family:'Inter',sans-serif; font-size:.74rem; font-weight:600; color:var(--muted); margin-bottom:.45rem; }
 
@@ -72,13 +82,15 @@
     border-radius:14px; padding:.65rem .85rem; font-size:.9rem; width:100%; font-family:'Inter',sans-serif;
     transition:border-color .15s, background .15s;
   }
-  input:focus, textarea:focus, select:focus{ outline:none; background:var(--surface); border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft); }
+  select{ cursor:pointer; }
+  input:focus, select:focus, textarea:focus{ outline:none; background:var(--surface); border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft); }
   .field-err{ border-color:var(--danger) !important; box-shadow:0 0 0 4px var(--danger-soft) !important; }
   .err-msg{ color:var(--danger); font-size:.78rem; margin-top:.4rem; font-weight:500; }
 
   .badge{
     font-family:'Inter',sans-serif; font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
     padding:.25rem .6rem; border:none; color:var(--accent); border-radius:999px; background:var(--accent-soft);
+    white-space:nowrap;
   }
   .badge-example{ color:var(--accent); background:var(--accent-soft); }
 
@@ -101,7 +113,7 @@
   .scrollbar-thin::-webkit-scrollbar{ width:5px; }
   .scrollbar-thin::-webkit-scrollbar-thumb{ background:var(--border); border-radius:3px; }
 
-  .delta{ display:inline-flex; align-items:center; padding:.2rem .55rem; border-radius:999px; font-weight:700; font-size:.72rem; }
+  .delta{ display:inline-flex; align-items:center; padding:.2rem .55rem; border-radius:999px; font-weight:700; font-size:.72rem; white-space:nowrap; }
   .delta-up{ color:var(--success); background:var(--success-soft); }
   .delta-down{ color:var(--danger); background:var(--danger-soft); }
   .delta-flat{ color:var(--muted); background:var(--bg-soft); }
@@ -111,10 +123,17 @@
   tbody tr:last-child{ border-bottom:none; }
   thead tr{ border-bottom:1px solid var(--border); }
 
-  .kpi-card{ border-radius:20px; padding:1.75rem; background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); }
-  .kpi-value{ font-family:'Outfit',system-ui,sans-serif; font-weight:700; font-size:3rem; line-height:1; margin:.6rem 0 .8rem; font-variant-numeric:tabular-nums; letter-spacing:-.03em; }
+  /* KPI tiles: min-width:0 lets the value shrink instead of overflowing its card,
+     and fitKpiValues() (JS) auto-shrinks font-size further for very large numbers
+     so nothing ever clips or wraps mid-digit. */
+  .kpi-card{ border-radius:20px; padding:1.75rem; background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); min-width:0; overflow:hidden; }
+  .kpi-value{
+    font-family:'Outfit',system-ui,sans-serif; font-weight:700; font-size:2.75rem; line-height:1.1;
+    margin:.6rem 0 .8rem; font-variant-numeric:tabular-nums; letter-spacing:-.02em;
+    white-space:nowrap; overflow:hidden; display:block; max-width:100%;
+  }
   @media (max-width: 860px){
-    .kpi-value{ font-size:2.25rem; }
+    .kpi-value{ font-size:2.1rem; }
   }
 
   .hero-glow{
@@ -126,6 +145,16 @@
   .hero-glow::before{ width:420px; height:420px; background:var(--accent); top:-160px; left:10%; }
   .hero-glow::after{ width:340px; height:340px; background:var(--accent-2); bottom:-140px; right:12%; opacity:.25; }
 
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(15,20,30,.45); backdrop-filter:blur(2px);
+    display:flex; align-items:center; justify-content:center; z-index:100; padding:1.5rem;
+  }
+  .modal-panel{
+    background:var(--surface); border-radius:20px; box-shadow:var(--shadow-lg); border:1px solid var(--border);
+    max-width:560px; width:100%; max-height:85vh; overflow-y:auto; padding:2rem;
+  }
+  .map-row{ display:grid; grid-template-columns:1fr 1.3fr; gap:1rem; align-items:center; padding:.5rem 0; }
+
   @media print{
     .no-print{ display:none !important; }
     body{ background:#fff; color:#111; }
@@ -133,6 +162,7 @@
   @media (max-width: 860px){
     .app-shell{ flex-direction:column; }
     .sidebar{ width:100% !important; max-height:none; position:static !important; border-right:none !important; border-bottom:1px solid var(--border); }
+    .map-row{ grid-template-columns:1fr; }
   }
 </style>
 </head>
@@ -143,9 +173,9 @@
     <div class="px-5 pt-7 pb-6">
       <div class="flex items-center gap-2.5">
         <span style="width:1.6rem; height:1.6rem; border-radius:8px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); flex-shrink:0; box-shadow:var(--shadow-accent);"></span>
-        <h1 class="headline font-bold" style="font-size:1.35rem; line-height:1;">Rapport</h1>
+        <h1 class="headline font-bold" style="font-size:1.35rem; line-height:1;" id="appNameLabel">Rapport</h1>
       </div>
-      <p class="text-muted text-xs mt-2">Reporting marketing</p>
+      <p class="text-muted text-xs mt-2" id="taglineLabel">Reporting marketing</p>
     </div>
 
     <nav class="flex flex-col gap-1">
@@ -153,16 +183,18 @@
     </nav>
 
     <div class="px-5 pt-7 pb-2">
-      <span class="eyebrow">Clients</span>
+      <span class="eyebrow" id="clientsLabel">Clients</span>
     </div>
-    <div id="clientList" class="flex flex-col gap-0.5 overflow-y-auto scrollbar-thin" style="max-height:calc(100vh - 380px);"></div>
+    <div id="clientList" class="flex flex-col gap-0.5 overflow-y-auto scrollbar-thin" style="max-height:calc(100vh - 430px);"></div>
 
     <div class="px-4 pt-5 flex flex-col gap-2">
-      <button class="btn btn-primary w-full justify-center btn-sm" data-action="new-client">+ Nouveau client</button>
-      <button class="btn btn-ghost w-full justify-center btn-sm" data-action="load-example">Charger client exemple</button>
+      <button class="btn btn-primary w-full justify-center btn-sm" data-action="new-client" id="newClientBtn">+ Nouveau client</button>
+      <button class="btn btn-ghost w-full justify-center btn-sm" data-action="load-example" id="loadExampleBtn">Charger client exemple</button>
     </div>
 
-    <nav class="pt-5 pb-7 mt-auto flex flex-col gap-1" style="border-top:1px solid var(--border); margin-top:auto; padding-top:1.25rem;">
+    <div class="px-5 pt-5 flex items-center gap-1" id="langSwitchSidebar"></div>
+
+    <nav class="pt-3 pb-7 flex flex-col gap-1" style="border-top:1px solid var(--border); margin-top:.75rem; padding-top:1rem;">
       <div class="nav-item" id="navSettings" data-action="go-settings">Paramètres</div>
     </nav>
   </aside>
@@ -173,6 +205,242 @@
 <script>
 (function(){
   "use strict";
+
+  /* ---------- i18n ---------- */
+  const I18N = {
+    fr: {
+      appName:"Rapport", tagline:"Reporting marketing",
+      nav:{ dashboard:"Tableau de bord", settings:"Paramètres", clients:"Clients" },
+      sidebar:{ noClients:"Aucun client pour l'instant.", newClient:"+ Nouveau client", loadExample:"Charger client exemple" },
+      common:{ ignore:"— Ignorer —", example:"EXEMPLE", yes:"Oui", no:"Non" },
+      landing:{
+        eyebrow:"Reporting marketing simplifié",
+        headline:"Des rapports clients clairs, en quelques minutes.",
+        sub:"Rapport est un outil de reporting mensuel pour les freelances et petites agences. Collez vos chiffres (ou importez un fichier Excel), obtenez des métriques calculées automatiquement et un rapport prêt à partager — sans serveur, sans compte, sans IA.",
+        ctaNew:"+ Nouveau client", ctaExample:"Voir un exemple",
+        trust:"Gratuit · 100 % local · Sans création de compte",
+        mockupClient:"Agence Nord", mockupTitle:"Rapport mensuel — Mai 2026",
+        mockupCaption:"Aperçu illustratif — vos rapports utilisent vos propres chiffres et couleurs de marque.",
+        kpiSpend:"Dépense totale", kpiLeads:"Leads totaux", kpiCpl:"CPL moyen",
+        chartLabel:"Leads par canal",
+        howEyebrow:"Comment ça marche", howTitle:"Trois étapes, chaque mois.",
+        step1Title:"Ajoutez un client", step1Desc:"Nom, logo et couleur de marque pour des rapports à son image.",
+        step2Title:"Ajoutez vos chiffres", step2Desc:"Collez-les à la main ou importez un fichier Excel/CSV existant.",
+        step3Title:"Partagez le rapport", step3Desc:"Métriques calculées automatiquement, graphiques, export CSV et PDF.",
+        featEyebrow:"Fonctionnalités", featTitle:"Pensé pour les pros du marketing.",
+        feat1T:"Calculs automatiques", feat1D:"CTR, CPC, CPL et taux de conversion calculés pour vous, sans formules.",
+        feat2T:"Suivi mensuel", feat2D:"Comparaison automatique avec le mois précédent, en un coup d'œil.",
+        feat3T:"Multi-clients", feat3D:"Un espace par client, avec son propre logo et sa couleur de marque.",
+        feat4T:"Export CSV & impression", feat4D:"Exportez vos données ou imprimez un rapport prêt à partager en PDF.",
+        feat5T:"Import Excel / CSV", feat5D:"Importez les chiffres d'un client depuis un fichier existant, sans ressaisie.",
+        feat6T:"100 % local", feat6D:"Aucune IA, aucun compte, aucun serveur. Vos données restent dans votre navigateur.",
+        ctaTitle:"Prêt à créer votre premier rapport ?", ctaDesc:"Ajoutez votre premier client et construisez un rapport en quelques minutes."
+      },
+      dashboard:{
+        title:"Tableau de bord", sub:"Vue d'ensemble de {n} client{plural}.",
+        kpiClients:"Clients", kpiReports:"Rapports au total", kpiSpend:"Dépense totale",
+        kpiSpendCaption:"Somme du dernier rapport de chaque client",
+        kpiUpToDate:"À jour ce mois-ci",
+        chartSpendByClient:"Dépense par client (dernier rapport)",
+        chartTrend:"Tendance globale des dépenses",
+        yourClients:"Vos clients",
+        lastReport:"Dernier rapport — {month} · {amount}",
+        noReport:"Aucun rapport",
+        upToDate:"À jour", missing:"Rapport du mois manquant"
+      },
+      settings:{
+        title:"Paramètres", sub:"Gérez vos données locales. Rien n'est envoyé à un serveur : tout reste dans le stockage de votre navigateur.",
+        storageOverview:"Aperçu du stockage", clients:"Clients", reports:"Rapports",
+        exampleData:"Données exemple", exampleDataDesc:"Le client exemple est clairement identifié et séparé de vos vraies données.",
+        loadExample:"Charger le client exemple", clearExample:"Supprimer les données exemple",
+        language:"Langue", languageDesc:"Choisissez la langue de l'interface."
+      },
+      clientForm:{
+        newTitle:"Nouveau client", editTitle:"Modifier le client",
+        nameLabel:"Nom du client *", logoLabel:"Logo (URL, optionnel)", colorLabel:"Couleur de marque",
+        save:"Enregistrer", cancel:"Annuler", deleteClient:"Supprimer le client",
+        nameRequired:"Le nom est obligatoire.",
+        confirmDelete:"Supprimer \"{name}\" et tous ses rapports ?"
+      },
+      reportsList:{
+        editClient:"Modifier le client", newReport:"+ Nouveau rapport",
+        count:"{n} rapport{plural}", recent:"Rapports récents",
+        emptyTitle:"Aucun rapport pour ce client", emptyDesc:"Créez le premier rapport mensuel pour commencer.",
+        totalSpend:"Dépenses totales — {amount}",
+        edit:"Modifier", delete:"Supprimer",
+        confirmDeleteReport:"Supprimer ce rapport ?"
+      },
+      reportForm:{
+        newTitle:"Nouveau rapport", editTitle:"Modifier le rapport", back:"← Retour",
+        monthLabel:"Mois du rapport *",
+        monthRequired:"Le mois est obligatoire.", monthDuplicate:"Un rapport existe déjà pour ce mois.",
+        metricPositive:"Doit être un nombre positif.", metricRange:"Doit être compris entre 0 et 100.",
+        metaAds:"Meta Ads", googleAds:"Google Ads", website:"Site web", email:"Email",
+        spend:"Dépense (€)", impressions:"Impressions", clicks:"Clics", leads:"Leads",
+        sessions:"Sessions", users:"Utilisateurs", conversions:"Conversions",
+        sent:"Emails envoyés", openRate:"Taux d'ouverture (%)", clickRate:"Taux de clic (%)",
+        customMetrics:"Métriques personnalisées", addMetric:"+ Ajouter une métrique",
+        metricNamePlaceholder:"Nom de la métrique", valuePlaceholder:"Valeur",
+        save:"Enregistrer le rapport", cancel:"Annuler",
+        duplicateLastMonth:"Dupliquer le mois dernier",
+        importFile:"Importer un fichier (Excel/CSV)"
+      },
+      importModal:{
+        title:"Importer un fichier",
+        desc:"Associez les colonnes de votre fichier à chaque indicateur, puis importez. Les colonnes non reconnues sont ignorées.",
+        rowLabel:"Ligne de données",
+        rowOption:"Ligne {n} : {preview}",
+        cancel:"Annuler", confirm:"Importer les valeurs",
+        parseError:"Impossible de lire ce fichier. Vérifiez qu'il s'agit bien d'un fichier Excel (.xlsx) ou CSV valide.",
+        noData:"Ce fichier ne contient aucune ligne de données.",
+        imported:"Valeurs importées. Vérifiez-les avant d'enregistrer le rapport."
+      },
+      preview:{
+        back:"← Retour aux rapports", edit:"Modifier", exportCsv:"Exporter en CSV",
+        pdfNote:"Pour enregistrer en PDF, utilisez la fonction d'impression de votre navigateur (Ctrl+P / Cmd+P).",
+        monthly:"Rapport mensuel — {month}",
+        kpiSpend:"Dépense totale", kpiLeads:"Leads totaux", kpiCpl:"CPL moyen", kpiConversions:"Conversions site",
+        indicator:"Indicateur", value:"Valeur", vsPrevious:"vs mois précédent",
+        ctr:"CTR", cpc:"CPC", cpl:"CPL", convRate:"Taux de conversion",
+        customMetrics:"Métriques personnalisées", visualizations:"Visualisations",
+        chartSpend:"Répartition des dépenses", chartLeads:"Leads & conversions", chartTrend:"Évolution du budget"
+      },
+      csvExport:{ section:"Section", indicator:"Indicateur", value:"Valeur", client:"Client", name:"Nom", report:"Rapport", month:"Mois", custom:"Personnalisé" },
+      alerts:{ exampleLoaded:"Le client exemple est déjà chargé.", confirmClearExample:"Supprimer le client exemple et ses rapports ?" },
+      months:["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."]
+    },
+    en: {
+      appName:"Rapport", tagline:"Marketing reporting",
+      nav:{ dashboard:"Dashboard", settings:"Settings", clients:"Clients" },
+      sidebar:{ noClients:"No clients yet.", newClient:"+ New client", loadExample:"Load example client" },
+      common:{ ignore:"— Ignore —", example:"EXAMPLE", yes:"Yes", no:"No" },
+      landing:{
+        eyebrow:"Simplified marketing reporting",
+        headline:"Clear client reports, in minutes.",
+        sub:"Rapport is a monthly reporting tool for freelancers and small agencies. Paste your numbers (or import an Excel file), get automatically calculated metrics and a report ready to share — no server, no account, no AI.",
+        ctaNew:"+ New client", ctaExample:"See an example",
+        trust:"Free · 100% local · No account needed",
+        mockupClient:"Agence Nord", mockupTitle:"Monthly report — May 2026",
+        mockupCaption:"Illustrative preview — your reports use your own numbers and brand colors.",
+        kpiSpend:"Total spend", kpiLeads:"Total leads", kpiCpl:"Average CPL",
+        chartLabel:"Leads by channel",
+        howEyebrow:"How it works", howTitle:"Three steps, every month.",
+        step1Title:"Add a client", step1Desc:"Name, logo and brand color for reports that look like them.",
+        step2Title:"Add your numbers", step2Desc:"Paste them by hand or import an existing Excel/CSV file.",
+        step3Title:"Share the report", step3Desc:"Metrics calculated automatically, charts, CSV and PDF export.",
+        featEyebrow:"Features", featTitle:"Built for marketing pros.",
+        feat1T:"Automatic calculations", feat1D:"CTR, CPC, CPL and conversion rate calculated for you, no formulas.",
+        feat2T:"Monthly tracking", feat2D:"Automatic comparison with the previous month, at a glance.",
+        feat3T:"Multi-client", feat3D:"A dedicated space per client, with its own logo and brand color.",
+        feat4T:"CSV export & printing", feat4D:"Export your data or print a report ready to share as a PDF.",
+        feat5T:"Excel / CSV import", feat5D:"Import a client's numbers from an existing file, no retyping.",
+        feat6T:"100% local", feat6D:"No AI, no account, no server. Your data stays in your browser.",
+        ctaTitle:"Ready to create your first report?", ctaDesc:"Add your first client and build a report in minutes."
+      },
+      dashboard:{
+        title:"Dashboard", sub:"Overview of {n} client{plural}.",
+        kpiClients:"Clients", kpiReports:"Total reports", kpiSpend:"Total spend",
+        kpiSpendCaption:"Sum of each client's latest report",
+        kpiUpToDate:"Up to date this month",
+        chartSpendByClient:"Spend by client (latest report)",
+        chartTrend:"Overall spend trend",
+        yourClients:"Your clients",
+        lastReport:"Latest report — {month} · {amount}",
+        noReport:"No report yet",
+        upToDate:"Up to date", missing:"Missing this month's report"
+      },
+      settings:{
+        title:"Settings", sub:"Manage your local data. Nothing is sent to a server: everything stays in your browser's storage.",
+        storageOverview:"Storage overview", clients:"Clients", reports:"Reports",
+        exampleData:"Example data", exampleDataDesc:"The example client is clearly labeled and kept separate from your real data.",
+        loadExample:"Load the example client", clearExample:"Remove example data",
+        language:"Language", languageDesc:"Choose the interface language."
+      },
+      clientForm:{
+        newTitle:"New client", editTitle:"Edit client",
+        nameLabel:"Client name *", logoLabel:"Logo (URL, optional)", colorLabel:"Brand color",
+        save:"Save", cancel:"Cancel", deleteClient:"Delete client",
+        nameRequired:"Name is required.",
+        confirmDelete:"Delete \"{name}\" and all its reports?"
+      },
+      reportsList:{
+        editClient:"Edit client", newReport:"+ New report",
+        count:"{n} report{plural}", recent:"Recent reports",
+        emptyTitle:"No reports for this client", emptyDesc:"Create the first monthly report to get started.",
+        totalSpend:"Total spend — {amount}",
+        edit:"Edit", delete:"Delete",
+        confirmDeleteReport:"Delete this report?"
+      },
+      reportForm:{
+        newTitle:"New report", editTitle:"Edit report", back:"← Back",
+        monthLabel:"Report month *",
+        monthRequired:"Month is required.", monthDuplicate:"A report already exists for this month.",
+        metricPositive:"Must be a positive number.", metricRange:"Must be between 0 and 100.",
+        metaAds:"Meta Ads", googleAds:"Google Ads", website:"Website", email:"Email",
+        spend:"Spend (€)", impressions:"Impressions", clicks:"Clicks", leads:"Leads",
+        sessions:"Sessions", users:"Users", conversions:"Conversions",
+        sent:"Emails sent", openRate:"Open rate (%)", clickRate:"Click rate (%)",
+        customMetrics:"Custom metrics", addMetric:"+ Add a metric",
+        metricNamePlaceholder:"Metric name", valuePlaceholder:"Value",
+        save:"Save report", cancel:"Cancel",
+        duplicateLastMonth:"Duplicate last month",
+        importFile:"Import a file (Excel/CSV)"
+      },
+      importModal:{
+        title:"Import a file",
+        desc:"Map your file's columns to each metric, then import. Unrecognized columns are ignored.",
+        rowLabel:"Data row",
+        rowOption:"Row {n}: {preview}",
+        cancel:"Cancel", confirm:"Import values",
+        parseError:"Couldn't read this file. Make sure it's a valid Excel (.xlsx) or CSV file.",
+        noData:"This file has no data rows.",
+        imported:"Values imported. Review them before saving the report."
+      },
+      preview:{
+        back:"← Back to reports", edit:"Edit", exportCsv:"Export as CSV",
+        pdfNote:"To save as PDF, use your browser's print function (Ctrl+P / Cmd+P).",
+        monthly:"Monthly report — {month}",
+        kpiSpend:"Total spend", kpiLeads:"Total leads", kpiCpl:"Average CPL", kpiConversions:"Site conversions",
+        indicator:"Metric", value:"Value", vsPrevious:"vs previous month",
+        ctr:"CTR", cpc:"CPC", cpl:"CPL", convRate:"Conversion rate",
+        customMetrics:"Custom metrics", visualizations:"Visualizations",
+        chartSpend:"Spend breakdown", chartLeads:"Leads & conversions", chartTrend:"Budget trend"
+      },
+      csvExport:{ section:"Section", indicator:"Metric", value:"Value", client:"Client", name:"Name", report:"Report", month:"Month", custom:"Custom" },
+      alerts:{ exampleLoaded:"The example client is already loaded.", confirmClearExample:"Remove the example client and its reports?" },
+      months:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    }
+  };
+
+  let currentLang = (function(){
+    try{ const saved = localStorage.getItem("rapport_lang"); if(saved==='fr'||saved==='en') return saved; }catch(e){}
+    return 'fr';
+  })();
+
+  function t(path, vars){
+    const parts = path.split('.');
+    let cur = I18N[currentLang];
+    for(const p of parts){ cur = cur && cur[p]; }
+    let str = (cur === undefined) ? path : cur;
+    if(vars){ Object.keys(vars).forEach(k=>{ str = str.replace(new RegExp('\\{'+k+'\\}','g'), vars[k]); }); }
+    return str;
+  }
+  function loc(){ return currentLang === 'en' ? 'en-US' : 'fr-FR'; }
+  function setLang(lang){
+    if(lang!=='fr' && lang!=='en') return;
+    currentLang = lang;
+    try{ localStorage.setItem("rapport_lang", lang); }catch(e){}
+    document.documentElement.lang = lang;
+    render();
+  }
+  function renderLangSwitch(){
+    const html = `
+      <button class="lang-btn ${currentLang==='fr'?'active':''}" data-action="set-lang" data-lang="fr">FR</button>
+      <button class="lang-btn ${currentLang==='en'?'active':''}" data-action="set-lang" data-lang="en">EN</button>
+    `;
+    const el = document.getElementById("langSwitchSidebar");
+    if(el) el.innerHTML = html;
+  }
 
   /* ---------- Storage ---------- */
   const STORAGE_KEY = "rapport_data_v1";
@@ -186,7 +454,7 @@
   }
   function saveData(){
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-    catch(e){ console.error("Échec de la sauvegarde locale", e); }
+    catch(e){ console.error("Local save failed", e); }
   }
 
   let data = loadData();
@@ -205,10 +473,10 @@
     const n = Number(v);
     return Number.isFinite(n) && n >= 0;
   }
-  function fmtInt(v){ return (v===null||v===undefined||isNaN(v)) ? "—" : Math.round(v).toLocaleString('fr-FR'); }
-  function fmtDec(v, d=2){ return (v===null||v===undefined||isNaN(v)) ? "—" : v.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d}); }
-  function fmtCur(v){ return (v===null||v===undefined||isNaN(v)) ? "—" : v.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}) + " €"; }
-  function fmtPct(v, d=2){ return (v===null||v===undefined||isNaN(v)) ? "—" : v.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d}) + " %"; }
+  function fmtInt(v){ return (v===null||v===undefined||isNaN(v)) ? "—" : Math.round(v).toLocaleString(loc()); }
+  function fmtDec(v, d=2){ return (v===null||v===undefined||isNaN(v)) ? "—" : v.toLocaleString(loc(),{minimumFractionDigits:d,maximumFractionDigits:d}); }
+  function fmtCur(v){ return (v===null||v===undefined||isNaN(v)) ? "—" : v.toLocaleString(loc(),{minimumFractionDigits:2,maximumFractionDigits:2}) + " €"; }
+  function fmtPct(v, d=2){ return (v===null||v===undefined||isNaN(v)) ? "—" : v.toLocaleString(loc(),{minimumFractionDigits:d,maximumFractionDigits:d}) + " %"; }
   function safeDiv(n, d){
     if(n===null||n===undefined||d===null||d===undefined||!Number.isFinite(n)||!Number.isFinite(d)||d===0) return null;
     return n/d;
@@ -217,9 +485,9 @@
   function monthLabel(m){
     if(!m) return "—";
     const [y,mo] = m.split("-");
-    const names = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+    const names = t('months');
     const idx = parseInt(mo,10)-1;
-    return (names[idx]||mo) + " " + y;
+    return ((Array.isArray(names) && names[idx]) || mo) + " " + y;
   }
   function nextMonthStr(m){
     const [y,mo] = m.split("-").map(Number);
@@ -229,6 +497,22 @@
   function currentMonthStr(){
     const d = new Date();
     return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
+  }
+  function plural(n){ return n===1 ? '' : 's'; }
+
+  /* ---------- Fix: KPI tiles auto-shrink to fit (no overflow/clipping on long numbers) ---------- */
+  function fitKpiValues(){
+    document.querySelectorAll('.kpi-value').forEach(el=>{
+      const max = parseFloat(window.getComputedStyle(el).fontSize);
+      let size = max;
+      el.style.fontSize = size + 'px';
+      let guard = 0;
+      while(el.scrollWidth > el.clientWidth && size > 15 && guard < 60){
+        size -= 1;
+        el.style.fontSize = size + 'px';
+        guard++;
+      }
+    });
   }
 
   /* ---------- Derived metrics ---------- */
@@ -271,7 +555,7 @@
     if(d===null||isNaN(d)) return '<span class="text-muted text-xs">—</span>';
     const cls = d>0.001 ? "delta-up" : (d<-0.001 ? "delta-down" : "delta-flat");
     const arrow = d>0.001 ? "▲" : (d<-0.001 ? "▼" : "▬");
-    return `<span class="delta ${cls} font-mono">${arrow} ${Math.abs(d).toLocaleString('fr-FR',{maximumFractionDigits:1})}%</span>`;
+    return `<span class="delta ${cls} font-mono">${arrow} ${Math.abs(d).toLocaleString(loc(),{maximumFractionDigits:1})}%</span>`;
   }
 
   /* ---------- Example data ---------- */
@@ -292,7 +576,7 @@
   }
   function loadExample(){
     if(data.clients.some(c=>c.isExample)){
-      alert("Le client exemple est déjà chargé.");
+      alert(t('alerts.exampleLoaded'));
       return;
     }
     const c = exampleClient();
@@ -303,7 +587,7 @@
     render();
   }
   function removeExampleData(){
-    if(!confirm("Supprimer le client exemple et ses rapports ?")) return;
+    if(!confirm(t('alerts.confirmClearExample'))) return;
     const exClients = data.clients.filter(c=>c.isExample).map(c=>c.id);
     data.clients = data.clients.filter(c=>!c.isExample);
     data.reports = data.reports.filter(r=>!exClients.includes(r.clientId));
@@ -314,9 +598,18 @@
 
   /* ---------- Rendering: sidebar ---------- */
   function renderSidebar(){
+    document.getElementById("appNameLabel").textContent = t('appName');
+    document.getElementById("taglineLabel").textContent = t('tagline');
+    document.getElementById("navDashboard").textContent = t('nav.dashboard');
+    document.getElementById("clientsLabel").textContent = t('nav.clients');
+    document.getElementById("newClientBtn").textContent = t('sidebar.newClient');
+    document.getElementById("loadExampleBtn").textContent = t('sidebar.loadExample');
+    document.getElementById("navSettings").textContent = t('nav.settings');
+    renderLangSwitch();
+
     const list = document.getElementById("clientList");
     if(data.clients.length === 0){
-      list.innerHTML = `<p class="text-muted text-xs py-2 px-5">Aucun client pour l'instant.</p>`;
+      list.innerHTML = `<p class="text-muted text-xs py-2 px-5">${t('sidebar.noClients')}</p>`;
     }else{
       list.innerHTML = data.clients.map(c => `
         <div class="sidebar-item ${c.id===state.clientId?'active':''}" data-action="select-client" data-id="${c.id}">
@@ -339,16 +632,19 @@
   function render(){
     renderSidebar();
     const main = document.getElementById("main");
-    if(state.mode === "new-client") return renderClientForm(main, null);
-    if(state.mode === "settings") return renderSettings(main);
-    if(state.mode === "welcome" || !state.clientId) return renderWelcome(main);
-    const client = data.clients.find(c=>c.id===state.clientId);
-    if(!client){ state = {clientId:null, reportId:null, mode:"welcome"}; return renderWelcome(main); }
-    if(state.mode === "reports") return renderReportsList(main, client);
-    if(state.mode === "form") return renderReportForm(main, client, state.reportId);
-    if(state.mode === "preview") return renderReportPreview(main, client, state.reportId);
-    if(state.mode === "edit-client") return renderClientForm(main, client);
-    renderReportsList(main, client);
+    if(state.mode === "new-client") renderClientForm(main, null);
+    else if(state.mode === "settings") renderSettings(main);
+    else if(state.mode === "welcome" || !state.clientId) renderWelcome(main);
+    else {
+      const client = data.clients.find(c=>c.id===state.clientId);
+      if(!client){ state = {clientId:null, reportId:null, mode:"welcome"}; renderWelcome(main); }
+      else if(state.mode === "reports") renderReportsList(main, client);
+      else if(state.mode === "form") renderReportForm(main, client, state.reportId);
+      else if(state.mode === "preview") renderReportPreview(main, client, state.reportId);
+      else if(state.mode === "edit-client") renderClientForm(main, client);
+      else renderReportsList(main, client);
+    }
+    fitKpiValues();
   }
 
   function renderWelcome(main){
@@ -363,15 +659,15 @@
 
         <section style="position:relative; overflow:hidden; padding-bottom:1rem;">
           <div class="hero-glow"></div>
-          <div style="position:relative; z-index:1; text-align:center; max-width:620px; margin:0 auto;">
-            <span class="eyebrow" style="color:var(--accent);">Reporting marketing simplifié</span>
-            <h2 class="headline font-bold mt-4 mb-4" style="font-size:3rem; line-height:1.06;">Des rapports clients clairs, en quelques minutes.</h2>
-            <p class="text-muted mb-8" style="font-size:1.08rem;">Rapport est un outil de reporting mensuel pour les freelances et petites agences. Collez vos chiffres, obtenez des métriques calculées automatiquement et un rapport prêt à partager — sans serveur, sans compte, sans IA.</p>
+          <div style="position:relative; z-index:1; text-align:center; max-width:640px; margin:0 auto;">
+            <span class="eyebrow" style="color:var(--accent);">${t('landing.eyebrow')}</span>
+            <h2 class="headline font-bold mt-4 mb-4" style="font-size:3rem; line-height:1.06;">${t('landing.headline')}</h2>
+            <p class="text-muted mb-8" style="font-size:1.08rem;">${t('landing.sub')}</p>
             <div class="flex gap-3 justify-center mb-4">
-              <button class="btn btn-primary" data-action="new-client">+ Nouveau client</button>
-              <button class="btn btn-ghost" data-action="load-example">Voir un exemple</button>
+              <button class="btn btn-primary" data-action="new-client">${t('landing.ctaNew')}</button>
+              <button class="btn btn-ghost" data-action="load-example">${t('landing.ctaExample')}</button>
             </div>
-            <p class="text-muted text-xs">Gratuit · 100 % local · Sans création de compte</p>
+            <p class="text-muted text-xs">${t('landing.trust')}</p>
           </div>
 
           <div style="position:relative; z-index:1; max-width:820px; margin:3.5rem auto 0;">
@@ -386,30 +682,30 @@
                   <div class="flex items-center gap-3">
                     <span style="width:2.75rem; height:2.75rem; border-radius:12px; display:inline-block; background:linear-gradient(135deg, var(--accent), var(--accent-2));"></span>
                     <div style="text-align:left;">
-                      <p class="headline font-bold" style="font-size:1.3rem; line-height:1.1;">Agence Nord</p>
-                      <p class="text-muted text-xs">Rapport mensuel — Mai 2026 <span class="badge badge-example">EXEMPLE</span></p>
+                      <p class="headline font-bold" style="font-size:1.3rem; line-height:1.1;">${t('landing.mockupClient')}</p>
+                      <p class="text-muted text-xs">${t('landing.mockupTitle')} <span class="badge badge-example">${t('common.example')}</span></p>
                     </div>
                   </div>
                 </div>
                 <div class="grid gap-3 mb-6" style="grid-template-columns:repeat(3,1fr);">
-                  <div class="surface card p-4" style="text-align:left;">
-                    <span class="eyebrow">Dépense totale</span>
+                  <div class="surface card p-4" style="text-align:left; min-width:0;">
+                    <span class="eyebrow">${t('landing.kpiSpend')}</span>
                     <p class="kpi-value" style="font-size:1.7rem; margin:.4rem 0;">4 230 €</p>
                     <span class="delta delta-up font-mono">▲ 8,2%</span>
                   </div>
-                  <div class="surface card p-4" style="text-align:left;">
-                    <span class="eyebrow">Leads totaux</span>
+                  <div class="surface card p-4" style="text-align:left; min-width:0;">
+                    <span class="eyebrow">${t('landing.kpiLeads')}</span>
                     <p class="kpi-value" style="font-size:1.7rem; margin:.4rem 0;">312</p>
                     <span class="delta delta-up font-mono">▲ 12,1%</span>
                   </div>
-                  <div class="surface card p-4" style="text-align:left;">
-                    <span class="eyebrow">CPL moyen</span>
+                  <div class="surface card p-4" style="text-align:left; min-width:0;">
+                    <span class="eyebrow">${t('landing.kpiCpl')}</span>
                     <p class="kpi-value" style="font-size:1.7rem; margin:.4rem 0;">13,56 €</p>
                     <span class="delta delta-down font-mono">▼ 4,0%</span>
                   </div>
                 </div>
                 <div class="surface card p-4" style="text-align:left;">
-                  <span class="eyebrow">Leads par canal</span>
+                  <span class="eyebrow">${t('landing.chartLabel')}</span>
                   <div class="flex items-end gap-5 mt-4" style="height:90px;">
                     <div class="flex flex-col items-center justify-end" style="height:100%;">
                       <div style="width:2.5rem; height:72%; border-radius:6px; background:var(--accent);"></div>
@@ -421,75 +717,57 @@
                     </div>
                     <div class="flex flex-col items-center justify-end" style="height:100%;">
                       <div style="width:2.5rem; height:30%; border-radius:6px; background:var(--border);"></div>
-                      <span class="text-muted text-xs mt-2">Site web</span>
+                      <span class="text-muted text-xs mt-2">${t('reportForm.website')}</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <p class="text-muted text-xs text-center mt-3">Aperçu illustratif — vos rapports utilisent vos propres chiffres et couleurs de marque.</p>
+            <p class="text-muted text-xs text-center mt-3">${t('landing.mockupCaption')}</p>
           </div>
         </section>
 
         <section class="mt-24">
-          <div class="eyebrow text-center mb-3">Comment ça marche</div>
-          <h3 class="headline font-bold text-center mb-10" style="font-size:1.9rem;">Trois étapes, chaque mois.</h3>
+          <div class="eyebrow text-center mb-3">${t('landing.howEyebrow')}</div>
+          <h3 class="headline font-bold text-center mb-10" style="font-size:1.9rem;">${t('landing.howTitle')}</h3>
           <div class="grid gap-4" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
             <div class="surface card p-6">
               <span class="eyebrow" style="color:var(--accent);">01</span>
-              <p class="font-semibold mt-2 mb-1">Ajoutez un client</p>
-              <p class="text-muted text-sm">Nom, logo et couleur de marque pour des rapports à son image.</p>
+              <p class="font-semibold mt-2 mb-1">${t('landing.step1Title')}</p>
+              <p class="text-muted text-sm">${t('landing.step1Desc')}</p>
             </div>
             <div class="surface card p-6">
               <span class="eyebrow" style="color:var(--accent);">02</span>
-              <p class="font-semibold mt-2 mb-1">Collez vos chiffres</p>
-              <p class="text-muted text-sm">Meta, Google, site web, email — un formulaire par mois, en quelques minutes.</p>
+              <p class="font-semibold mt-2 mb-1">${t('landing.step2Title')}</p>
+              <p class="text-muted text-sm">${t('landing.step2Desc')}</p>
             </div>
             <div class="surface card p-6">
               <span class="eyebrow" style="color:var(--accent);">03</span>
-              <p class="font-semibold mt-2 mb-1">Partagez le rapport</p>
-              <p class="text-muted text-sm">Métriques calculées automatiquement, graphiques, export CSV et PDF.</p>
+              <p class="font-semibold mt-2 mb-1">${t('landing.step3Title')}</p>
+              <p class="text-muted text-sm">${t('landing.step3Desc')}</p>
             </div>
           </div>
         </section>
 
         <section class="mt-24">
-          <div class="eyebrow text-center mb-3">Fonctionnalités</div>
-          <h3 class="headline font-bold text-center mb-10" style="font-size:1.9rem;">Pensé pour les pros du marketing.</h3>
+          <div class="eyebrow text-center mb-3">${t('landing.featEyebrow')}</div>
+          <h3 class="headline font-bold text-center mb-10" style="font-size:1.9rem;">${t('landing.featTitle')}</h3>
           <div class="grid gap-4" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
-            <div class="surface card p-6">
-              <p class="font-semibold mb-1">Calculs automatiques</p>
-              <p class="text-muted text-sm">CTR, CPC, CPL et taux de conversion calculés pour vous, sans formules.</p>
-            </div>
-            <div class="surface card p-6">
-              <p class="font-semibold mb-1">Suivi mensuel</p>
-              <p class="text-muted text-sm">Comparaison automatique avec le mois précédent, en un coup d'œil.</p>
-            </div>
-            <div class="surface card p-6">
-              <p class="font-semibold mb-1">Multi-clients</p>
-              <p class="text-muted text-sm">Un espace par client, avec son propre logo et sa couleur de marque.</p>
-            </div>
-            <div class="surface card p-6">
-              <p class="font-semibold mb-1">Export CSV & impression</p>
-              <p class="text-muted text-sm">Exportez vos données ou imprimez un rapport prêt à partager en PDF.</p>
-            </div>
-            <div class="surface card p-6">
-              <p class="font-semibold mb-1">Métriques personnalisées</p>
-              <p class="text-muted text-sm">Ajoutez vos propres indicateurs, spécifiques à chaque client.</p>
-            </div>
-            <div class="surface card p-6">
-              <p class="font-semibold mb-1">100 % local</p>
-              <p class="text-muted text-sm">Aucune IA, aucun compte, aucun serveur. Vos données restent dans votre navigateur.</p>
-            </div>
+            <div class="surface card p-6"><p class="font-semibold mb-1">${t('landing.feat1T')}</p><p class="text-muted text-sm">${t('landing.feat1D')}</p></div>
+            <div class="surface card p-6"><p class="font-semibold mb-1">${t('landing.feat2T')}</p><p class="text-muted text-sm">${t('landing.feat2D')}</p></div>
+            <div class="surface card p-6"><p class="font-semibold mb-1">${t('landing.feat3T')}</p><p class="text-muted text-sm">${t('landing.feat3D')}</p></div>
+            <div class="surface card p-6"><p class="font-semibold mb-1">${t('landing.feat4T')}</p><p class="text-muted text-sm">${t('landing.feat4D')}</p></div>
+            <div class="surface card p-6"><p class="font-semibold mb-1">${t('landing.feat5T')}</p><p class="text-muted text-sm">${t('landing.feat5D')}</p></div>
+            <div class="surface card p-6"><p class="font-semibold mb-1">${t('landing.feat6T')}</p><p class="text-muted text-sm">${t('landing.feat6D')}</p></div>
           </div>
         </section>
 
         <section class="mt-24 mb-16" style="background:var(--accent-soft); border-radius:24px; padding:3.5rem 2rem; text-align:center;">
-          <h3 class="headline font-bold mb-3" style="font-size:2rem;">Prêt à créer votre premier rapport ?</h3>
-          <p class="text-muted mb-7" style="max-width:420px; margin-left:auto; margin-right:auto;">Ajoutez votre premier client et construisez un rapport en quelques minutes.</p>
+          <h3 class="headline font-bold mb-3" style="font-size:2rem;">${t('landing.ctaTitle')}</h3>
+          <p class="text-muted mb-7" style="max-width:420px; margin-left:auto; margin-right:auto;">${t('landing.ctaDesc')}</p>
           <div class="flex gap-3 justify-center">
-            <button class="btn btn-primary" data-action="new-client">+ Nouveau client</button>
-            <button class="btn btn-ghost" data-action="load-example">Charger un client exemple</button>
+            <button class="btn btn-primary" data-action="new-client">${t('landing.ctaNew')}</button>
+            <button class="btn btn-ghost" data-action="load-example">${t('sidebar.loadExample')}</button>
           </div>
         </section>
 
@@ -500,6 +778,9 @@
   function latestReportFor(clientId){
     return data.reports.filter(r=>r.clientId===clientId).sort((a,b)=> a.month < b.month ? 1 : -1)[0] || null;
   }
+  let dashboardCharts = [];
+  function destroyDashboardCharts(){ dashboardCharts.forEach(c=>c.destroy()); dashboardCharts = []; }
+
   function renderDashboardOverview(main){
     const cm = currentMonthStr();
     const totalSpendLatest = data.clients.reduce((sum,c)=>{
@@ -509,35 +790,42 @@
       return sum + (cd.meta.spend||0) + (cd.google.spend||0);
     }, 0);
     const upToDateCount = data.clients.filter(c => data.reports.some(r=>r.clientId===c.id && r.month===cm)).length;
+    const hasAnyReports = data.reports.length > 0;
 
     main.innerHTML = `
       <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
-        <h2 class="headline font-bold" style="font-size:2.5rem;">Tableau de bord</h2>
-        <button class="btn btn-primary" data-action="new-client">+ Nouveau client</button>
+        <h2 class="headline font-bold" style="font-size:2.5rem;">${t('dashboard.title')}</h2>
+        <button class="btn btn-primary" data-action="new-client">${t('sidebar.newClient')}</button>
       </div>
-      <p class="text-muted mb-10" style="font-size:1.02rem;">Vue d'ensemble de ${data.clients.length} client${data.clients.length===1?'':'s'}.</p>
+      <p class="text-muted mb-10" style="font-size:1.02rem;">${t('dashboard.sub',{n:data.clients.length, plural:plural(data.clients.length)})}</p>
 
-      <div class="grid gap-4 mb-12" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));">
+      <div class="grid gap-4 mb-10" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));">
         <div class="kpi-card">
-          <span class="eyebrow">Clients</span>
+          <span class="eyebrow">${t('dashboard.kpiClients')}</span>
           <p class="kpi-value">${data.clients.length}</p>
         </div>
         <div class="kpi-card">
-          <span class="eyebrow">Rapports au total</span>
+          <span class="eyebrow">${t('dashboard.kpiReports')}</span>
           <p class="kpi-value">${data.reports.length}</p>
         </div>
         <div class="kpi-card">
-          <span class="eyebrow">Dépense totale</span>
-          <p class="kpi-value" style="font-size:2.1rem;">${fmtCur(totalSpendLatest)}</p>
-          <p class="text-muted text-xs mt-1">Somme du dernier rapport de chaque client</p>
+          <span class="eyebrow">${t('dashboard.kpiSpend')}</span>
+          <p class="kpi-value">${fmtCur(totalSpendLatest)}</p>
+          <p class="text-muted text-xs mt-1">${t('dashboard.kpiSpendCaption')}</p>
         </div>
         <div class="kpi-card">
-          <span class="eyebrow">À jour ce mois-ci</span>
+          <span class="eyebrow">${t('dashboard.kpiUpToDate')}</span>
           <p class="kpi-value">${upToDateCount}/${data.clients.length}</p>
         </div>
       </div>
 
-      <div class="eyebrow mb-4">Vos clients</div>
+      ${hasAnyReports ? `
+      <div class="grid gap-4 mb-12" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr));">
+        <div class="surface card p-6"><p class="eyebrow mb-4">${t('dashboard.chartSpendByClient')}</p><canvas id="chartClientSpend" height="200"></canvas></div>
+        <div class="surface card p-6"><p class="eyebrow mb-4">${t('dashboard.chartTrend')}</p><canvas id="chartGlobalTrend" height="200"></canvas></div>
+      </div>` : ''}
+
+      <div class="eyebrow mb-4">${t('dashboard.yourClients')}</div>
       <div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">
         ${data.clients.map(c => {
           const latest = latestReportFor(c.id);
@@ -547,17 +835,78 @@
           return `
           <div class="surface card p-6 flex flex-col gap-3 cursor-pointer" data-action="select-client" data-id="${c.id}">
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                ${c.logo ? `<img src="${escapeAttr(c.logo)}" class="w-10 h-10 rounded-xl object-cover" onerror="this.style.display='none'">` : `<span class="w-10 h-10 rounded-xl inline-block" style="background:${escapeAttr(c.color||'#2D7FE0')}"></span>`}
-                <span class="font-semibold">${escapeHtml(c.name)}</span>
+              <div class="flex items-center gap-3" style="min-width:0;">
+                ${c.logo ? `<img src="${escapeAttr(c.logo)}" class="w-10 h-10 rounded-xl object-cover flex-shrink-0" onerror="this.style.display='none'">` : `<span class="w-10 h-10 rounded-xl inline-block flex-shrink-0" style="background:${escapeAttr(c.color||'#2D7FE0')}"></span>`}
+                <span class="font-semibold truncate">${escapeHtml(c.name)}</span>
               </div>
               ${c.isExample ? '<span class="badge badge-example">EX</span>' : ''}
             </div>
-            ${latest ? `<p class="text-muted text-xs font-mono">Dernier rapport — ${monthLabel(latest.month)} · ${fmtCur(latestSpend)}</p>` : `<p class="text-muted text-xs">Aucun rapport</p>`}
-            <span class="badge" style="align-self:flex-start; ${hasCurrent ? 'color:var(--success); background:var(--success-soft);' : 'color:var(--danger); background:var(--danger-soft);'}">${hasCurrent ? 'À jour' : 'Rapport du mois manquant'}</span>
+            ${latest ? `<p class="text-muted text-xs font-mono">${t('dashboard.lastReport',{month:monthLabel(latest.month), amount:fmtCur(latestSpend)})}</p>` : `<p class="text-muted text-xs">${t('dashboard.noReport')}</p>`}
+            <span class="badge" style="align-self:flex-start; ${hasCurrent ? 'color:var(--success); background:var(--success-soft);' : 'color:var(--danger); background:var(--danger-soft);'}">${hasCurrent ? t('dashboard.upToDate') : t('dashboard.missing')}</span>
           </div>`;
         }).join("")}
       </div>`;
+
+    destroyDashboardCharts();
+    if(!hasAnyReports) return;
+
+    const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#6D7178';
+    const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#E7EDF3';
+    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2D7FE0';
+    Chart.defaults.color = muted;
+    Chart.defaults.borderColor = border;
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.size = 11;
+
+    const clientsWithLatest = data.clients.map(c=>({ c, latest: latestReportFor(c.id) })).filter(x=>x.latest);
+    const spendCtx = document.getElementById('chartClientSpend');
+    if(spendCtx){
+      dashboardCharts.push(new Chart(spendCtx, {
+        type: 'bar',
+        data: {
+          labels: clientsWithLatest.map(x=>x.c.name),
+          datasets: [{
+            label: t('dashboard.kpiSpend'),
+            data: clientsWithLatest.map(x=>{ const cd = computeReport(x.latest); return (cd.meta.spend||0)+(cd.google.spend||0); }),
+            backgroundColor: clientsWithLatest.map(x=>x.c.color||accentColor),
+            borderRadius: 8, maxBarThickness: 44
+          }]
+        },
+        options: {
+          plugins:{ legend:{display:false} },
+          scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } }
+        }
+      }));
+    }
+
+    const allMonths = Array.from(new Set(data.reports.map(r=>r.month))).sort();
+    const trendCtx = document.getElementById('chartGlobalTrend');
+    if(trendCtx){
+      const ctx2d = trendCtx.getContext('2d');
+      const grad = ctx2d.createLinearGradient(0,0,0,200);
+      grad.addColorStop(0, accentColor+'33');
+      grad.addColorStop(1, accentColor+'00');
+      dashboardCharts.push(new Chart(ctx2d, {
+        type: 'line',
+        data: {
+          labels: allMonths.map(m=>monthLabel(m)),
+          datasets: [{
+            label: t('dashboard.kpiSpend'),
+            data: allMonths.map(m=>{
+              return data.reports.filter(r=>r.month===m).reduce((sum,r)=>{
+                const cd = computeReport(r);
+                return sum + (cd.meta.spend||0) + (cd.google.spend||0);
+              }, 0);
+            }),
+            borderColor: accentColor, backgroundColor: grad, fill:true, tension:.35, borderWidth:2.5, pointRadius:3, pointBackgroundColor: accentColor, pointBorderColor:'#fff', pointBorderWidth:2
+          }]
+        },
+        options: {
+          plugins:{ legend:{display:false} },
+          scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } }
+        }
+      }));
+    }
   }
 
   /* ---------- Settings ---------- */
@@ -565,26 +914,33 @@
     const hasExample = data.clients.some(c=>c.isExample);
     main.innerHTML = `
       <div style="max-width:680px;">
-        <h2 class="headline font-bold mb-3" style="font-size:2.5rem;">Paramètres</h2>
-        <p class="text-muted mb-10" style="font-size:1.02rem;">Gérez vos données locales. Rien n'est envoyé à un serveur : tout reste dans le stockage de votre navigateur.</p>
+        <h2 class="headline font-bold mb-3" style="font-size:2.5rem;">${t('settings.title')}</h2>
+        <p class="text-muted mb-10" style="font-size:1.02rem;">${t('settings.sub')}</p>
 
-        <div class="eyebrow mb-4">Aperçu du stockage</div>
+        <div class="eyebrow mb-4">${t('settings.storageOverview')}</div>
         <div class="grid gap-4 mb-12" style="grid-template-columns:repeat(2,1fr); max-width:420px;">
           <div class="kpi-card">
-            <span class="eyebrow">Clients</span>
+            <span class="eyebrow">${t('settings.clients')}</span>
             <p class="kpi-value">${data.clients.length}</p>
           </div>
           <div class="kpi-card">
-            <span class="eyebrow">Rapports</span>
+            <span class="eyebrow">${t('settings.reports')}</span>
             <p class="kpi-value">${data.reports.length}</p>
           </div>
         </div>
 
-        <div class="eyebrow mb-3">Données exemple</div>
-        <p class="text-muted text-sm mb-4">Le client exemple est clairement identifié et séparé de vos vraies données.</p>
+        <div class="eyebrow mb-3">${t('settings.language')}</div>
+        <p class="text-muted text-sm mb-4">${t('settings.languageDesc')}</p>
+        <div class="flex gap-2 mb-12">
+          <button class="btn ${currentLang==='fr'?'btn-primary':'btn-ghost'} btn-sm" data-action="set-lang" data-lang="fr">Français</button>
+          <button class="btn ${currentLang==='en'?'btn-primary':'btn-ghost'} btn-sm" data-action="set-lang" data-lang="en">English</button>
+        </div>
+
+        <div class="eyebrow mb-3">${t('settings.exampleData')}</div>
+        <p class="text-muted text-sm mb-4">${t('settings.exampleDataDesc')}</p>
         <div class="flex gap-2">
-          <button class="btn btn-ghost btn-sm" data-action="load-example" ${hasExample?'disabled style="opacity:.4;cursor:not-allowed;"':''}>Charger le client exemple</button>
-          <button class="btn btn-danger btn-sm" data-action="clear-example" ${hasExample?'':'disabled style="opacity:.4;cursor:not-allowed;"'}>Supprimer les données exemple</button>
+          <button class="btn btn-ghost btn-sm" data-action="load-example" ${hasExample?'disabled':''}>${t('settings.loadExample')}</button>
+          <button class="btn btn-danger btn-sm" data-action="clear-example" ${hasExample?'':'disabled'}>${t('settings.clearExample')}</button>
         </div>
       </div>`;
   }
@@ -593,25 +949,25 @@
   function renderClientForm(main, existing){
     main.innerHTML = `
       <div class="surface card p-8" style="max-width:460px;">
-        <h2 class="headline font-bold mb-7" style="font-size:1.9rem;">${existing ? "Modifier le client" : "Nouveau client"}</h2>
+        <h2 class="headline font-bold mb-7" style="font-size:1.9rem;">${existing ? t('clientForm.editTitle') : t('clientForm.newTitle')}</h2>
         <form id="clientForm" class="flex flex-col gap-5">
           <div>
-            <label class="field-label">Nom du client *</label>
+            <label class="field-label">${t('clientForm.nameLabel')}</label>
             <input type="text" name="name" required maxlength="80" value="${existing?escapeAttr(existing.name):''}">
             <div class="err-msg hidden" data-err="name"></div>
           </div>
           <div>
-            <label class="field-label">Logo (URL, optionnel)</label>
+            <label class="field-label">${t('clientForm.logoLabel')}</label>
             <input type="text" name="logo" value="${existing?escapeAttr(existing.logo||''):''}" placeholder="https://...">
           </div>
           <div>
-            <label class="field-label">Couleur de marque</label>
+            <label class="field-label">${t('clientForm.colorLabel')}</label>
             <input type="color" name="color" value="${existing?existing.color:'#2D7FE0'}" style="height:2.8rem; padding:.3rem;">
           </div>
-          <div class="flex gap-2 mt-2">
-            <button type="submit" class="btn btn-primary">Enregistrer</button>
-            <button type="button" class="btn btn-ghost" id="cancelClient">Annuler</button>
-            ${existing && !existing.isExample ? `<button type="button" class="btn btn-danger" id="deleteClient">Supprimer le client</button>` : ''}
+          <div class="flex gap-2 mt-2 flex-wrap">
+            <button type="submit" class="btn btn-primary">${t('clientForm.save')}</button>
+            <button type="button" class="btn btn-ghost" id="cancelClient">${t('clientForm.cancel')}</button>
+            ${existing && !existing.isExample ? `<button type="button" class="btn btn-danger" id="deleteClient">${t('clientForm.deleteClient')}</button>` : ''}
           </div>
         </form>
       </div>`;
@@ -621,7 +977,7 @@
     };
     if(existing && !existing.isExample){
       document.getElementById("deleteClient").onclick = () => {
-        if(!confirm(`Supprimer "${existing.name}" et tous ses rapports ?`)) return;
+        if(!confirm(t('clientForm.confirmDelete',{name:existing.name}))) return;
         data.clients = data.clients.filter(c=>c.id!==existing.id);
         data.reports = data.reports.filter(r=>r.clientId!==existing.id);
         saveData();
@@ -636,7 +992,7 @@
       const errEl = e.target.querySelector('[data-err="name"]');
       const nameInput = e.target.querySelector('[name="name"]');
       if(!name){
-        errEl.textContent = "Le nom est obligatoire.";
+        errEl.textContent = t('clientForm.nameRequired');
         errEl.classList.remove("hidden");
         nameInput.classList.add("field-err");
         return;
@@ -663,23 +1019,23 @@
     const reports = data.reports.filter(r=>r.clientId===client.id).sort((a,b)=> a.month < b.month ? 1 : -1);
     main.innerHTML = `
       <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
-        <div class="flex items-center gap-4">
-          ${client.logo ? `<img src="${escapeAttr(client.logo)}" class="w-14 h-14 rounded-2xl object-cover" style="box-shadow:var(--shadow-sm);" onerror="this.style.display='none'">` : `<span class="w-14 h-14 rounded-2xl inline-block" style="background:${escapeAttr(client.color)}; box-shadow:var(--shadow-sm);"></span>`}
-          <div>
-            <h2 class="headline font-bold flex items-center gap-3" style="font-size:2.1rem; line-height:1.1;">${escapeHtml(client.name)} ${client.isExample?'<span class="badge badge-example">EXEMPLE</span>':''}</h2>
+        <div class="flex items-center gap-4" style="min-width:0;">
+          ${client.logo ? `<img src="${escapeAttr(client.logo)}" class="w-14 h-14 rounded-2xl object-cover flex-shrink-0" style="box-shadow:var(--shadow-sm);" onerror="this.style.display='none'">` : `<span class="w-14 h-14 rounded-2xl inline-block flex-shrink-0" style="background:${escapeAttr(client.color)}; box-shadow:var(--shadow-sm);"></span>`}
+          <div style="min-width:0;">
+            <h2 class="headline font-bold flex items-center gap-3 truncate" style="font-size:2.1rem; line-height:1.1;">${escapeHtml(client.name)} ${client.isExample?`<span class="badge badge-example">${t('common.example')}</span>`:''}</h2>
           </div>
         </div>
         <div class="flex gap-2">
-          <button class="btn btn-ghost btn-sm" data-action="edit-client">Modifier le client</button>
-          <button class="btn btn-primary" data-action="new-report">+ Nouveau rapport</button>
+          <button class="btn btn-ghost btn-sm" data-action="edit-client">${t('reportsList.editClient')}</button>
+          <button class="btn btn-primary" data-action="new-report">${t('reportsList.newReport')}</button>
         </div>
       </div>
-      <p class="text-muted text-sm mb-10">${reports.length} rapport${reports.length===1?'':'s'}</p>
-      <div class="eyebrow mb-4">Rapports récents</div>
+      <p class="text-muted text-sm mb-10">${t('reportsList.count',{n:reports.length, plural:plural(reports.length)})}</p>
+      <div class="eyebrow mb-4">${t('reportsList.recent')}</div>
       ${reports.length===0 ? `
         <div class="text-center py-20 surface card">
-          <p class="headline font-semibold" style="font-size:1.5rem;">Aucun rapport pour ce client</p>
-          <p class="text-muted text-sm mt-3">Créez le premier rapport mensuel pour commencer.</p>
+          <p class="headline font-semibold" style="font-size:1.5rem;">${t('reportsList.emptyTitle')}</p>
+          <p class="text-muted text-sm mt-3">${t('reportsList.emptyDesc')}</p>
         </div>
       ` : `
         <div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr));">
@@ -692,10 +1048,10 @@
                 <span class="headline font-bold" style="font-size:1.2rem;">${monthLabel(r.month)}</span>
                 ${r.isExample?'<span class="badge badge-example">EX</span>':''}
               </div>
-              <p class="text-muted text-xs font-mono">Dépenses totales — ${fmtCur(totalSpend)}</p>
+              <p class="text-muted text-xs font-mono">${t('reportsList.totalSpend',{amount:fmtCur(totalSpend)})}</p>
               <div class="flex gap-2 mt-1">
-                <button class="btn btn-ghost btn-sm" data-action="edit-report" data-id="${r.id}">Modifier</button>
-                <button class="btn btn-danger btn-sm" data-action="delete-report" data-id="${r.id}">Supprimer</button>
+                <button class="btn btn-ghost btn-sm" data-action="edit-report" data-id="${r.id}">${t('reportsList.edit')}</button>
+                <button class="btn btn-danger btn-sm" data-action="delete-report" data-id="${r.id}">${t('reportsList.delete')}</button>
               </div>
             </div>`;
           }).join("")}
@@ -716,14 +1072,37 @@
     };
   }
 
-  function platformFieldsHtml(prefix, label, p, fieldDefs){
+  const FIELD_DEFS = [
+    ["meta","spend"],["meta","impressions"],["meta","clicks"],["meta","leads"],
+    ["google","spend"],["google","impressions"],["google","clicks"],["google","leads"],
+    ["website","sessions"],["website","users"],["website","conversions"],
+    ["email","sent"],["email","openRate"],["email","clickRate"]
+  ];
+  const FIELD_SYNONYMS = {
+    "meta.spend":["meta spend","facebook spend","amount spent (meta)","dépense meta","spend meta"],
+    "meta.impressions":["meta impressions","facebook impressions"],
+    "meta.clicks":["meta clicks","facebook clicks","meta clics","link clicks (meta)"],
+    "meta.leads":["meta leads","meta results","facebook leads"],
+    "google.spend":["google spend","adwords spend","dépense google","cost (google)"],
+    "google.impressions":["google impressions","adwords impressions"],
+    "google.clicks":["google clicks","adwords clicks","google clics"],
+    "google.leads":["google leads","google conversions","adwords leads"],
+    "website.sessions":["sessions"],
+    "website.users":["users","utilisateurs"],
+    "website.conversions":["conversions"],
+    "email.sent":["sent","envoyés","emails sent"],
+    "email.openRate":["open rate","taux d'ouverture","open %"],
+    "email.clickRate":["click rate","taux de clic","ctr email"]
+  };
+
+  function platformFieldsHtml(prefix, label, p, fieldKeys){
     return `
       <fieldset class="surface card p-6">
         <legend class="eyebrow px-1">${label}</legend>
         <div class="grid gap-4 mt-3" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
-          ${fieldDefs.map(([key,lbl])=>`
+          ${fieldKeys.map(key=>`
             <div>
-              <label class="field-label">${lbl}</label>
+              <label class="field-label">${t('reportForm.'+key)}</label>
               <input type="number" min="0" step="any" name="${prefix}.${key}" value="${p[key]!==undefined && p[key]!==null ? p[key] : ''}" data-metric="${prefix}.${key}">
               <div class="err-msg hidden" data-err="${prefix}.${key}"></div>
             </div>
@@ -740,33 +1119,35 @@
 
     main.innerHTML = `
       <div class="flex items-center justify-between mb-8 flex-wrap gap-2">
-        <h2 class="headline font-bold" style="font-size:2rem;">${existing ? "Modifier le rapport" : "Nouveau rapport"} — ${escapeHtml(client.name)}</h2>
-        <div class="flex gap-2">
-          ${latestPrior ? `<button type="button" class="btn btn-ghost btn-sm" id="duplicateLastMonth">Dupliquer le mois dernier</button>` : ''}
-          <button class="btn btn-ghost btn-sm" data-action="back-to-reports">← Retour</button>
+        <h2 class="headline font-bold" style="font-size:2rem;">${existing ? t('reportForm.editTitle') : t('reportForm.newTitle')} — ${escapeHtml(client.name)}</h2>
+        <div class="flex gap-2 flex-wrap">
+          <button type="button" class="btn btn-ghost btn-sm" id="importFileBtn">${t('reportForm.importFile')}</button>
+          <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv" class="hidden">
+          ${latestPrior ? `<button type="button" class="btn btn-ghost btn-sm" id="duplicateLastMonth">${t('reportForm.duplicateLastMonth')}</button>` : ''}
+          <button class="btn btn-ghost btn-sm" data-action="back-to-reports">${t('reportForm.back')}</button>
         </div>
       </div>
       <form id="reportForm" class="flex flex-col gap-5" style="max-width:720px;">
         <div class="surface card p-6">
-          <label class="field-label">Mois du rapport *</label>
+          <label class="field-label">${t('reportForm.monthLabel')}</label>
           <input type="month" name="month" required value="${r.month||''}" style="max-width:220px;">
           <div class="err-msg hidden" data-err="month"></div>
         </div>
 
-        ${platformFieldsHtml("meta","Meta Ads", r.meta, [["spend","Dépense (€)"],["impressions","Impressions"],["clicks","Clics"],["leads","Leads"]])}
-        ${platformFieldsHtml("google","Google Ads", r.google, [["spend","Dépense (€)"],["impressions","Impressions"],["clicks","Clics"],["leads","Leads"]])}
-        ${platformFieldsHtml("website","Site web", r.website, [["sessions","Sessions"],["users","Utilisateurs"],["conversions","Conversions"]])}
-        ${platformFieldsHtml("email","Email", r.email, [["sent","Emails envoyés"],["openRate","Taux d'ouverture (%)"],["clickRate","Taux de clic (%)"]])}
+        ${platformFieldsHtml("meta", t('reportForm.metaAds'), r.meta, ["spend","impressions","clicks","leads"])}
+        ${platformFieldsHtml("google", t('reportForm.googleAds'), r.google, ["spend","impressions","clicks","leads"])}
+        ${platformFieldsHtml("website", t('reportForm.website'), r.website, ["sessions","users","conversions"])}
+        ${platformFieldsHtml("email", t('reportForm.email'), r.email, ["sent","openRate","clickRate"])}
 
         <fieldset class="surface card p-6">
-          <legend class="eyebrow px-1">Métriques personnalisées</legend>
+          <legend class="eyebrow px-1">${t('reportForm.customMetrics')}</legend>
           <div id="customRows" class="flex flex-col gap-2 mt-3"></div>
-          <button type="button" class="btn btn-ghost btn-sm mt-3" id="addCustomRow">+ Ajouter une métrique</button>
+          <button type="button" class="btn btn-ghost btn-sm mt-3" id="addCustomRow">${t('reportForm.addMetric')}</button>
         </fieldset>
 
         <div class="flex gap-2">
-          <button type="submit" class="btn btn-primary">Enregistrer le rapport</button>
-          <button type="button" class="btn btn-ghost" id="cancelReport">Annuler</button>
+          <button type="submit" class="btn btn-primary">${t('reportForm.save')}</button>
+          <button type="button" class="btn btn-ghost" id="cancelReport">${t('reportForm.cancel')}</button>
         </div>
       </form>
     `;
@@ -776,8 +1157,8 @@
       const row = document.createElement("div");
       row.className = "flex gap-2 items-start custom-row";
       row.innerHTML = `
-        <input type="text" class="custom-label" placeholder="Nom de la métrique" value="${escapeAttr(label)}" style="flex:2;">
-        <input type="number" step="any" class="custom-value" placeholder="Valeur" value="${value}" style="flex:1;">
+        <input type="text" class="custom-label" placeholder="${t('reportForm.metricNamePlaceholder')}" value="${escapeAttr(label)}" style="flex:2;">
+        <input type="number" step="any" class="custom-value" placeholder="${t('reportForm.valuePlaceholder')}" value="${value}" style="flex:1;">
         <button type="button" class="btn btn-danger btn-sm remove-row">✕</button>
       `;
       row.querySelector(".remove-row").onclick = () => row.remove();
@@ -803,6 +1184,29 @@
       };
     }
 
+    /* ---- Excel / CSV import ---- */
+    document.getElementById("importFileBtn").onclick = () => document.getElementById("importFileInput").click();
+    document.getElementById("importFileInput").onchange = (e) => {
+      const file = e.target.files[0];
+      e.target.value = "";
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try{
+          const wb = XLSX.read(ev.target.result, {type:"array"});
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, defval:""})
+            .map(row => row.map(cell => cell===null||cell===undefined ? "" : cell))
+            .filter(row => row.some(cell => String(cell).trim() !== ""));
+          if(rows.length === 0){ alert(t('importModal.noData')); return; }
+          openImportModal(rows, document.getElementById("reportForm"));
+        }catch(err){
+          alert(t('importModal.parseError'));
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    };
+
     document.getElementById("cancelReport").onclick = () => { state.mode = "reports"; render(); };
 
     document.getElementById("reportForm").onsubmit = (e) => {
@@ -814,7 +1218,7 @@
 
       const monthInput = form.querySelector('[name="month"]');
       if(!monthInput.value){
-        showErr(form, "month", "Le mois est obligatoire.");
+        showErr(form, "month", t('reportForm.monthRequired'));
         monthInput.classList.add("field-err");
         hasError = true;
       }
@@ -823,7 +1227,7 @@
       metricFields.forEach(input => {
         const v = input.value;
         if(!isValidMetric(v, true)){
-          showErr(form, input.dataset.metric, "Doit être un nombre positif.");
+          showErr(form, input.dataset.metric, t('reportForm.metricPositive'));
           input.classList.add("field-err");
           hasError = true;
         }
@@ -833,7 +1237,7 @@
       ["email.openRate","email.clickRate"].forEach(key=>{
         const input = form.querySelector(`[data-metric="${key}"]`);
         if(input && input.value !== "" && Number(input.value) > 100){
-          showErr(form, key, "Doit être compris entre 0 et 100.");
+          showErr(form, key, t('reportForm.metricRange'));
           input.classList.add("field-err");
           hasError = true;
         }
@@ -859,7 +1263,7 @@
       // prevent duplicate month for same client (except when editing same report)
       const dup = data.reports.find(rep => rep.clientId===client.id && rep.month===newReport.month && rep.id!==newReport.id);
       if(dup){
-        showErr(form, "month", "Un rapport existe déjà pour ce mois.");
+        showErr(form, "month", t('reportForm.monthDuplicate'));
         monthInput.classList.add("field-err");
         return;
       }
@@ -882,6 +1286,81 @@
     }
   }
 
+  /* ---------- Import mapping modal ---------- */
+  function guessColumn(headerRow, fieldKey){
+    const synonyms = FIELD_SYNONYMS[fieldKey] || [];
+    const platform = fieldKey.split('.')[0]; // meta | google | website | email
+    for(let i=0;i<headerRow.length;i++){
+      const h = String(headerRow[i]).toLowerCase().trim();
+      if(!h) continue;
+      const matchesSynonym = synonyms.some(s => h.includes(s));
+      if(matchesSynonym){
+        if(platform==='meta' && /google|adwords/.test(h)) continue;
+        if(platform==='google' && /meta|facebook/.test(h)) continue;
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  function openImportModal(rows, form){
+    const headerRow = rows[0] || [];
+    const defaultDataRow = rows.length > 1 ? 1 : 0;
+
+    const backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop no-print";
+    backdrop.innerHTML = `
+      <div class="modal-panel">
+        <h3 class="headline font-bold mb-2" style="font-size:1.4rem;">${t('importModal.title')}</h3>
+        <p class="text-muted text-sm mb-5">${t('importModal.desc')}</p>
+
+        <label class="field-label">${t('importModal.rowLabel')}</label>
+        <select id="importRowSelect" class="mb-5">
+          ${rows.map((row,i)=>`<option value="${i}" ${i===defaultDataRow?'selected':''}>${escapeHtml(t('importModal.rowOption',{n:i+1, preview:row.slice(0,4).join(', ')}))}</option>`).join("")}
+        </select>
+
+        <div id="importFieldMaps"></div>
+
+        <div class="flex gap-2 mt-6">
+          <button type="button" class="btn btn-primary" id="importConfirmBtn">${t('importModal.confirm')}</button>
+          <button type="button" class="btn btn-ghost" id="importCancelBtn">${t('clientForm.cancel')}</button>
+        </div>
+      </div>`;
+    document.body.appendChild(backdrop);
+
+    const mapsEl = backdrop.querySelector("#importFieldMaps");
+    mapsEl.innerHTML = FIELD_DEFS.map(([section,key])=>{
+      const fieldKey = section+'.'+key;
+      const guessed = guessColumn(headerRow, fieldKey);
+      return `
+        <div class="map-row">
+          <label class="field-label" style="margin-bottom:0;">${t('reportForm.'+(section==='meta'||section==='google'?(section==='meta'?'metaAds':'googleAds'):section==='website'?'website':'email'))} — ${t('reportForm.'+key)}</label>
+          <select data-field="${fieldKey}">
+            <option value="">${t('common.ignore')}</option>
+            ${headerRow.map((h,i)=>`<option value="${i}" ${i===guessed?'selected':''}>${escapeHtml(String(h) || ('Col ' + (i+1)))}</option>`).join("")}
+          </select>
+        </div>`;
+    }).join("");
+
+    function closeModal(){ backdrop.remove(); }
+    backdrop.addEventListener("click", (e) => { if(e.target === backdrop) closeModal(); });
+    backdrop.querySelector("#importCancelBtn").onclick = closeModal;
+    backdrop.querySelector("#importConfirmBtn").onclick = () => {
+      const rowIdx = parseInt(backdrop.querySelector("#importRowSelect").value, 10);
+      const dataRow = rows[rowIdx] || [];
+      mapsEl.querySelectorAll('[data-field]').forEach(sel => {
+        const colIdx = sel.value;
+        if(colIdx === "") return;
+        const val = dataRow[parseInt(colIdx,10)];
+        if(val === undefined) return;
+        const input = form.querySelector(`[name="${sel.dataset.field}"]`);
+        if(input) input.value = String(val).trim();
+      });
+      closeModal();
+      alert(t('importModal.imported'));
+    };
+  }
+
   /* ---------- Report preview ---------- */
   let chartInstances = [];
   function destroyCharts(){ chartInstances.forEach(c=>c.destroy()); chartInstances = []; }
@@ -902,64 +1381,64 @@
 
     main.innerHTML = `
       <div class="flex items-center justify-between mb-5 no-print flex-wrap gap-2">
-        <button class="btn btn-ghost btn-sm" data-action="back-to-reports">← Retour aux rapports</button>
+        <button class="btn btn-ghost btn-sm" data-action="back-to-reports">${t('preview.back')}</button>
         <div class="flex gap-2">
-          <button class="btn btn-ghost btn-sm" data-action="edit-report" data-id="${report.id}">Modifier</button>
-          <button class="btn btn-primary btn-sm" data-action="export-csv" data-id="${report.id}">Exporter en CSV</button>
+          <button class="btn btn-ghost btn-sm" data-action="edit-report" data-id="${report.id}">${t('preview.edit')}</button>
+          <button class="btn btn-primary btn-sm" data-action="export-csv" data-id="${report.id}">${t('preview.exportCsv')}</button>
         </div>
       </div>
 
       <div class="no-print surface card text-sm flex items-center gap-2.5 mb-8" style="color:var(--muted); padding:.9rem 1.25rem;">
         <span style="width:1.5rem; height:1.5rem; border-radius:999px; background:var(--accent-soft); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:.75rem; flex-shrink:0;">i</span>
-        <span>Pour enregistrer en PDF, utilisez la fonction d'impression de votre navigateur (Ctrl+P / Cmd+P).</span>
+        <span>${t('preview.pdfNote')}</span>
       </div>
 
       <div id="reportSheet" class="surface card" style="max-width:920px; padding:3rem; overflow:hidden; position:relative;">
         <div style="position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg, ${escapeAttr(client.color||'#2D7FE0')}, var(--accent-2));"></div>
         <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
-          <div>
-            <h2 class="headline font-bold" style="font-size:2.75rem; line-height:1.08;">${escapeHtml(client.name)}</h2>
-            <p class="text-muted mt-3" style="font-size:1.02rem;">Rapport mensuel — ${monthLabel(report.month)} ${report.isExample?'<span class="badge badge-example">EXEMPLE</span>':''}</p>
+          <div style="min-width:0;">
+            <h2 class="headline font-bold" style="font-size:2.5rem; line-height:1.1; overflow-wrap:break-word;">${escapeHtml(client.name)}</h2>
+            <p class="text-muted mt-3" style="font-size:1.02rem;">${t('preview.monthly',{month:monthLabel(report.month)})} ${report.isExample?`<span class="badge badge-example">${t('common.example')}</span>`:''}</p>
           </div>
         </div>
 
         <div class="grid gap-4 mt-10 mb-4" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));">
           <div class="kpi-card">
-            <span class="eyebrow">Dépense totale</span>
+            <span class="eyebrow">${t('preview.kpiSpend')}</span>
             <p class="kpi-value">${fmtCur(totalSpend)}</p>
             ${deltaBadge(delta(totalSpend, prevTotalSpend))}
           </div>
           <div class="kpi-card">
-            <span class="eyebrow">Leads totaux</span>
+            <span class="eyebrow">${t('preview.kpiLeads')}</span>
             <p class="kpi-value">${fmtInt(totalLeads)}</p>
             ${deltaBadge(delta(totalLeads, prevTotalLeads))}
           </div>
           <div class="kpi-card">
-            <span class="eyebrow">CPL moyen</span>
+            <span class="eyebrow">${t('preview.kpiCpl')}</span>
             <p class="kpi-value">${fmtCur(blendedCpl)}</p>
             ${deltaBadge(delta(blendedCpl, dPrev ? safeDiv(prevTotalSpend, prevTotalLeads) : null))}
           </div>
           <div class="kpi-card">
-            <span class="eyebrow">Conversions site</span>
+            <span class="eyebrow">${t('preview.kpiConversions')}</span>
             <p class="kpi-value">${fmtInt(d.website.conversions)}</p>
             ${deltaBadge(delta(d.website.conversions, dPrev ? dPrev.website.conversions : null))}
           </div>
         </div>
 
         <div class="flex flex-col gap-4 mt-6">
-          <div class="surface card p-6">${platformTable("Meta Ads", d.meta, dPrev?dPrev.meta:null, [["spend","Dépense","cur"],["impressions","Impressions","int"],["clicks","Clics","int"],["leads","Leads","int"],["ctr","CTR","pct"],["cpc","CPC","cur"],["cpl","CPL","cur"]])}</div>
-          <div class="surface card p-6">${platformTable("Google Ads", d.google, dPrev?dPrev.google:null, [["spend","Dépense","cur"],["impressions","Impressions","int"],["clicks","Clics","int"],["leads","Leads","int"],["ctr","CTR","pct"],["cpc","CPC","cur"],["cpl","CPL","cur"]])}</div>
-          <div class="surface card p-6">${platformTable("Site web", d.website, dPrev?dPrev.website:null, [["sessions","Sessions","int"],["users","Utilisateurs","int"],["conversions","Conversions","int"],["convRate","Taux de conversion","pct"]])}</div>
-          <div class="surface card p-6">${platformTable("Email", d.email, dPrev?dPrev.email:null, [["sent","Envoyés","int"],["openRate","Taux d'ouverture","pct"],["clickRate","Taux de clic","pct"]])}</div>
+          <div class="surface card p-6">${platformTable(t('reportForm.metaAds'), d.meta, dPrev?dPrev.meta:null, [["spend","cur"],["impressions","int"],["clicks","int"],["leads","int"],["ctr","pct"],["cpc","cur"],["cpl","cur"]])}</div>
+          <div class="surface card p-6">${platformTable(t('reportForm.googleAds'), d.google, dPrev?dPrev.google:null, [["spend","cur"],["impressions","int"],["clicks","int"],["leads","int"],["ctr","pct"],["cpc","cur"],["cpl","cur"]])}</div>
+          <div class="surface card p-6">${platformTable(t('reportForm.website'), d.website, dPrev?dPrev.website:null, [["sessions","int"],["users","int"],["conversions","int"],["convRate","pct"]])}</div>
+          <div class="surface card p-6">${platformTable(t('reportForm.email'), d.email, dPrev?dPrev.email:null, [["sent","int"],["openRate","pct"],["clickRate","pct"]])}</div>
           ${d.custom.length ? `<div class="surface card p-6">${customTable(d.custom, dPrev?dPrev.custom:null)}</div>` : ""}
         </div>
 
         <div class="mt-8">
-          <div class="eyebrow mb-4">Visualisations</div>
+          <div class="eyebrow mb-4">${t('preview.visualizations')}</div>
           <div class="grid gap-4" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));">
-            <div class="surface card p-5"><p class="eyebrow mb-3">Répartition des dépenses</p><canvas id="chartSpend" height="200"></canvas></div>
-            <div class="surface card p-5"><p class="eyebrow mb-3">Leads &amp; conversions</p><canvas id="chartLeads" height="200"></canvas></div>
-            <div class="surface card p-5"><p class="eyebrow mb-3">Évolution du budget</p><canvas id="chartTrend" height="200"></canvas></div>
+            <div class="surface card p-5"><p class="eyebrow mb-3">${t('preview.chartSpend')}</p><canvas id="chartSpend" height="200"></canvas></div>
+            <div class="surface card p-5"><p class="eyebrow mb-3">${t('preview.chartLeads')}</p><canvas id="chartLeads" height="200"></canvas></div>
+            <div class="surface card p-5"><p class="eyebrow mb-3">${t('preview.chartTrend')}</p><canvas id="chartTrend" height="200"></canvas></div>
           </div>
         </div>
       </div>
@@ -967,9 +1446,8 @@
 
     destroyCharts();
     const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#6D7178';
-    const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#EDEBE6';
+    const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#E7EDF3';
     const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2D7FE0';
-    const accentColor2 = getComputedStyle(document.documentElement).getPropertyValue('--accent-2').trim() || '#5FA8F0';
     Chart.defaults.color = muted;
     Chart.defaults.borderColor = border;
     Chart.defaults.font.family = "'Inter', sans-serif";
@@ -979,7 +1457,7 @@
     chartInstances.push(new Chart(document.getElementById('chartSpend'), {
       type: 'doughnut',
       data: {
-        labels: ['Meta Ads','Google Ads'],
+        labels: [t('reportForm.metaAds'), t('reportForm.googleAds')],
         datasets: [{ data: [d.meta.spend||0, d.google.spend||0], backgroundColor: [accentColor, border], borderWidth:0 }]
       },
       options: { plugins:{legend:{position:'bottom', labels:legendLabelOpts}}, cutout:'72%' }
@@ -988,7 +1466,7 @@
     chartInstances.push(new Chart(document.getElementById('chartLeads'), {
       type: 'bar',
       data: {
-        labels: ['Meta Ads','Google Ads','Site web'],
+        labels: [t('reportForm.metaAds'), t('reportForm.googleAds'), t('reportForm.website')],
         datasets: [{ label:'Volume', data: [d.meta.leads||0, d.google.leads||0, d.website.conversions||0], backgroundColor: accentColor, borderRadius:8, maxBarThickness:40 }]
       },
       options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } } }
@@ -1004,7 +1482,7 @@
       data: {
         labels: clientReports.map(r=>monthLabel(r.month)),
         datasets: [{
-          label:'Dépense totale (€)',
+          label: t('preview.kpiSpend'),
           data: clientReports.map(r=>{ const cd = computeReport(r); return (cd.meta.spend||0)+(cd.google.spend||0); }),
           borderColor: accentColor, backgroundColor: trendGradient,
           fill:true, tension:.4, borderWidth:2.5, pointRadius: clientReports.map(r=> r.id===report.id ? 5 : 3), pointBackgroundColor: accentColor, pointBorderColor: '#fff', pointBorderWidth:2
@@ -1022,28 +1500,30 @@
       <td class="py-3 text-right">${prevVal===undefined ? '' : deltaBadge(delta(curr, prevVal))}</td>
     </tr>`;
   }
+  const PREVIEW_ONLY_KEYS = ['ctr','cpc','cpl','convRate'];
+  function metricLabel(key){ return PREVIEW_ONLY_KEYS.includes(key) ? t('preview.'+key) : t('reportForm.'+key); }
   function platformTable(title, curr, prev, defs){
     return `
       <div class="eyebrow mb-4">${title}</div>
       <table>
         <thead><tr class="text-left">
-          <th class="py-2 text-xs text-muted font-semibold">Indicateur</th>
-          <th class="py-2 text-xs text-muted font-semibold text-right">Valeur</th>
-          <th class="py-2 text-xs text-muted font-semibold text-right">vs mois précédent</th>
+          <th class="py-2 text-xs text-muted font-semibold">${t('preview.indicator')}</th>
+          <th class="py-2 text-xs text-muted font-semibold text-right">${t('preview.value')}</th>
+          <th class="py-2 text-xs text-muted font-semibold text-right">${t('preview.vsPrevious')}</th>
         </tr></thead>
         <tbody>
-          ${defs.map(([key,label,type]) => rowMetric(label, type, curr[key], prev ? prev[key] : undefined)).join("")}
+          ${defs.map(([key,type]) => rowMetric(metricLabel(key), type, curr[key], prev ? prev[key] : undefined)).join("")}
         </tbody>
       </table>`;
   }
   function customTable(curr, prev){
     return `
-      <div class="eyebrow mb-4">Métriques personnalisées</div>
+      <div class="eyebrow mb-4">${t('preview.customMetrics')}</div>
       <table>
         <thead><tr class="text-left">
-          <th class="py-2 text-xs text-muted font-semibold">Indicateur</th>
-          <th class="py-2 text-xs text-muted font-semibold text-right">Valeur</th>
-          <th class="py-2 text-xs text-muted font-semibold text-right">vs mois précédent</th>
+          <th class="py-2 text-xs text-muted font-semibold">${t('preview.indicator')}</th>
+          <th class="py-2 text-xs text-muted font-semibold text-right">${t('preview.value')}</th>
+          <th class="py-2 text-xs text-muted font-semibold text-right">${t('preview.vsPrevious')}</th>
         </tr></thead>
         <tbody>
           ${curr.map(c => {
@@ -1059,25 +1539,27 @@
     const report = data.reports.find(r=>r.id===reportId);
     const client = data.clients.find(c=>c.id===report.clientId);
     const d = computeReport(report);
-    const rows = [["Section","Indicateur","Valeur"]];
-    rows.push(["Client","Nom",client.name]);
-    rows.push(["Rapport","Mois",monthLabel(report.month)]);
+    const rows = [[t('csvExport.section'), t('csvExport.indicator'), t('csvExport.value')]];
+    rows.push([t('csvExport.client'), t('csvExport.name'), client.name]);
+    rows.push([t('csvExport.report'), t('csvExport.month'), monthLabel(report.month)]);
     const push = (section, label, val) => rows.push([section,label, val===null||val===undefined||isNaN(val) ? "" : val]);
 
-    push("Meta Ads","Dépense (€)", d.meta.spend); push("Meta Ads","Impressions", d.meta.impressions);
-    push("Meta Ads","Clics", d.meta.clicks); push("Meta Ads","Leads", d.meta.leads);
-    push("Meta Ads","CTR (%)", d.meta.ctr); push("Meta Ads","CPC (€)", d.meta.cpc); push("Meta Ads","CPL (€)", d.meta.cpl);
+    const metaAds = t('reportForm.metaAds'), googleAds = t('reportForm.googleAds'), website = t('reportForm.website'), email = t('reportForm.email');
 
-    push("Google Ads","Dépense (€)", d.google.spend); push("Google Ads","Impressions", d.google.impressions);
-    push("Google Ads","Clics", d.google.clicks); push("Google Ads","Leads", d.google.leads);
-    push("Google Ads","CTR (%)", d.google.ctr); push("Google Ads","CPC (€)", d.google.cpc); push("Google Ads","CPL (€)", d.google.cpl);
+    push(metaAds, t('reportForm.spend'), d.meta.spend); push(metaAds, t('reportForm.impressions'), d.meta.impressions);
+    push(metaAds, t('reportForm.clicks'), d.meta.clicks); push(metaAds, t('reportForm.leads'), d.meta.leads);
+    push(metaAds, t('preview.ctr'), d.meta.ctr); push(metaAds, t('preview.cpc'), d.meta.cpc); push(metaAds, t('preview.cpl'), d.meta.cpl);
 
-    push("Site web","Sessions", d.website.sessions); push("Site web","Utilisateurs", d.website.users);
-    push("Site web","Conversions", d.website.conversions); push("Site web","Taux de conversion (%)", d.website.convRate);
+    push(googleAds, t('reportForm.spend'), d.google.spend); push(googleAds, t('reportForm.impressions'), d.google.impressions);
+    push(googleAds, t('reportForm.clicks'), d.google.clicks); push(googleAds, t('reportForm.leads'), d.google.leads);
+    push(googleAds, t('preview.ctr'), d.google.ctr); push(googleAds, t('preview.cpc'), d.google.cpc); push(googleAds, t('preview.cpl'), d.google.cpl);
 
-    push("Email","Envoyés", d.email.sent); push("Email","Taux d'ouverture (%)", d.email.openRate); push("Email","Taux de clic (%)", d.email.clickRate);
+    push(website, t('reportForm.sessions'), d.website.sessions); push(website, t('reportForm.users'), d.website.users);
+    push(website, t('reportForm.conversions'), d.website.conversions); push(website, t('preview.convRate'), d.website.convRate);
 
-    d.custom.forEach(c => push("Personnalisé", c.label, c.value));
+    push(email, t('reportForm.sent'), d.email.sent); push(email, t('reportForm.openRate'), d.email.openRate); push(email, t('reportForm.clickRate'), d.email.clickRate);
+
+    d.custom.forEach(c => push(t('csvExport.custom'), c.label, c.value));
 
     const csv = rows.map(row => row.map(cell => {
       const s = String(cell===null||cell===undefined?"":cell);
@@ -1109,11 +1591,12 @@
     else if(action === "clear-example"){ removeExampleData(); }
     else if(action === "go-dashboard"){ state = {clientId:null, reportId:null, mode:"welcome"}; render(); }
     else if(action === "go-settings"){ state.mode = "settings"; render(); }
+    else if(action === "set-lang"){ setLang(el.dataset.lang); }
     else if(action === "new-report"){ state.reportId = null; state.mode = "form"; render(); }
     else if(action === "open-report"){ state.reportId = id; state.mode = "preview"; render(); }
     else if(action === "edit-report"){ state.reportId = id; state.mode = "form"; render(); }
     else if(action === "delete-report"){
-      if(confirm("Supprimer ce rapport ?")){
+      if(confirm(t('reportsList.confirmDeleteReport'))){
         data.reports = data.reports.filter(r=>r.id!==id);
         saveData();
         render();
@@ -1123,7 +1606,10 @@
     else if(action === "export-csv"){ exportCsv(id); }
   });
 
+  window.addEventListener("resize", () => { fitKpiValues(); });
+
   /* ---------- Init ---------- */
+  document.documentElement.lang = currentLang;
   render();
 
   // offer example removal via console-accessible hook if example exists and user wants to clear it
