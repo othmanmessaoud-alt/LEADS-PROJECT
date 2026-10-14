@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rapport — Reporting marketing mensuel</title>
+<title>Metrio — Reporting marketing mensuel</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 /* Chart.js v4.4.4 — embedded inline (not loaded from a CDN) so charts never silently fail to render because cdnjs.cloudflare.com is blocked by an ad-blocker, browser privacy shield, or network policy. Source: npm chart.js@4.4.4, dist/chart.umd.js. MIT License. */
@@ -329,7 +329,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       <button class="btn btn-ghost w-full justify-center btn-sm" data-action="load-example" id="loadExampleBtn">Charger client exemple</button>
     </div>
 
-    <div class="px-5 pt-5 flex items-center gap-1" id="langSwitchSidebar"></div>
+    <div class="px-5 pt-5 flex items-center gap-1 flex-wrap" id="langSwitchSidebar"></div>
 
     <nav class="pt-3 pb-7 flex flex-col gap-1" style="border-top:1px solid var(--border); margin-top:.75rem; padding-top:1rem;">
       <div class="nav-item flex items-center gap-2.5" id="navSettings" data-action="go-settings"><span id="navSettingsIcon" style="display:flex; flex-shrink:0;"></span><span id="navSettingsLabel">Paramètres</span></div>
@@ -346,14 +346,14 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
   /* ---------- i18n ---------- */
   const I18N = {
     fr: {
-      appName:"Rapport", tagline:"Reporting marketing",
+      appName:"Metrio", tagline:"Reporting marketing",
       nav:{ home:"Accueil", dashboard:"Tableau de bord", settings:"Paramètres", clients:"Clients" },
       sidebar:{ noClients:"Aucun client pour l'instant.", newClient:"+ Nouveau client", loadExample:"Charger client exemple" },
       common:{ ignore:"— Ignorer —", example:"EXEMPLE", yes:"Oui", no:"Non" },
       landing:{
         eyebrow:"Reporting marketing simplifié",
         headlineLead:"Des rapports clients clairs,", headlineAccent:"en quelques minutes",
-        sub:"Rapport est un outil de reporting mensuel pour les freelances et petites agences. Collez vos chiffres (ou importez un fichier Excel), obtenez des métriques calculées automatiquement et un rapport prêt à partager — sans serveur, sans compte, sans IA.",
+        sub:"Metrio est un outil de reporting mensuel pour les freelances et petites agences. Collez vos chiffres (ou importez un fichier Excel), obtenez des métriques calculées automatiquement et un rapport prêt à partager — sans serveur, sans compte, sans IA.",
         ctaNew:"+ Nouveau client", ctaExample:"Voir un exemple",
         trust:"Gratuit · 100 % local · Sans création de compte",
         statBandQuote:"Le reporting mensuel ne devrait pas vous manger une après-midi entière.",
@@ -487,14 +487,14 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       months:["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."]
     },
     en: {
-      appName:"Rapport", tagline:"Marketing reporting",
+      appName:"Metrio", tagline:"Marketing reporting",
       nav:{ home:"Home", dashboard:"Dashboard", settings:"Settings", clients:"Clients" },
       sidebar:{ noClients:"No clients yet.", newClient:"+ New client", loadExample:"Load example client" },
       common:{ ignore:"— Ignore —", example:"EXAMPLE", yes:"Yes", no:"No" },
       landing:{
         eyebrow:"Simplified marketing reporting",
         headlineLead:"Clear client reports,", headlineAccent:"in minutes",
-        sub:"Rapport is a monthly reporting tool for freelancers and small agencies. Paste your numbers (or import an Excel file), get automatically calculated metrics and a report ready to share — no server, no account, no AI.",
+        sub:"Metrio is a monthly reporting tool for freelancers and small agencies. Paste your numbers (or import an Excel file), get automatically calculated metrics and a report ready to share — no server, no account, no AI.",
         ctaNew:"+ New client", ctaExample:"See an example",
         trust:"Free · 100% local · No account needed",
         statBandQuote:"Monthly reporting shouldn't eat your whole afternoon.",
@@ -626,11 +626,729 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       alerts:{ exampleLoaded:"The example client is already loaded.", confirmClearExample:"Remove the example client and its reports?" },
       charts:{ unavailable:"Charts unavailable — check your internet connection and reload the page." },
       months:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    },
+    es: {
+      appName:"Metrio", tagline:"Informes de marketing",
+      nav:{ home:"Inicio", dashboard:"Panel", settings:"Ajustes", clients:"Clientes" },
+      sidebar:{ noClients:"Aún no hay clientes.", newClient:"+ Nuevo cliente", loadExample:"Cargar cliente de ejemplo" },
+      common:{ ignore:"— Ignorar —", example:"EJEMPLO", yes:"Sí", no:"No" },
+      landing:{
+        eyebrow:"Informes de marketing simplificados",
+        headlineLead:"Informes claros para tus clientes,", headlineAccent:"en minutos",
+        sub:"Metrio es una herramienta de informes mensuales para freelances y pequeñas agencias. Pega tus cifras (o importa un archivo Excel), obtén métricas calculadas automáticamente y un informe listo para compartir — sin servidor, sin cuenta, sin IA.",
+        ctaNew:"+ Nuevo cliente", ctaExample:"Ver un ejemplo",
+        trust:"Gratis · 100 % local · Sin necesidad de cuenta",
+        statBandQuote:"El informe mensual no debería quitarte toda la tarde.",
+        mockupClient:"Agence Nord", mockupTitle:"Informe mensual — mayo de 2026",
+        mockupCaption:"Vista previa ilustrativa — tus informes usan tus propias cifras y colores de marca.",
+        kpiSpend:"Gasto total", kpiLeads:"Leads totales", kpiCpl:"CPL medio",
+        chartLabel:"Leads por canal",
+        chipLeads:"Leads", chipReports:"Informes", chipGoal:"Objetivo",
+        howEyebrow:"Cómo funciona", howTitle:"Tres pasos, cada mes.",
+        step1Title:"Añade un cliente", step1Desc:"Nombre, logo y color de marca para informes a su imagen.",
+        step2Title:"Añade tus cifras", step2Desc:"Pégalas a mano o importa un archivo Excel/CSV existente.",
+        step3Title:"Comparte el informe", step3Desc:"Métricas calculadas automáticamente, gráficos, exportación CSV y PDF.",
+        featEyebrow:"Funciones", featTitle:"Pensado para profesionales del marketing.",
+        feat1T:"Cálculos automáticos", feat1D:"CTR, CPC, CPL y tasa de conversión calculados por ti, sin fórmulas.",
+        feat2T:"Seguimiento mensual", feat2D:"Comparación automática con el mes anterior, de un vistazo.",
+        feat3T:"Multicliente", feat3D:"Un espacio por cliente, con su propio logo y color de marca.",
+        feat4T:"Exportación CSV e impresión", feat4D:"Exporta tus datos o imprime un informe listo para compartir en PDF.",
+        feat5T:"Importación Excel / CSV", feat5D:"Importa las cifras de un cliente desde un archivo existente, sin reescribir.",
+        feat6T:"100 % local", feat6D:"Sin IA, sin cuenta, sin servidor. Tus datos permanecen en tu navegador.",
+        ctaTitle:"¿Listo para crear tu primer informe?", ctaDesc:"Añade tu primer cliente y crea un informe en minutos."
+      },
+      dashboard:{
+        title:"Panel", sub:"Resumen de {n} cliente{plural}.",
+        kpiClients:"Clientes", kpiReports:"Informes totales", kpiSpend:"Gasto total",
+        kpiSpendCaption:"Suma del último informe de cada cliente",
+        kpiUpToDate:"Al día este mes",
+        chartSpendByClient:"Gasto por cliente (último informe)",
+        chartTrend:"Tendencia general del gasto",
+        yourClients:"Tus clientes",
+        lastReport:"Último informe — {month} · {amount}",
+        noReport:"Sin informes aún",
+        upToDate:"Al día", missing:"Falta el informe de este mes"
+      },
+      settings:{
+        title:"Ajustes", sub:"Gestiona tus datos locales. No se envía nada a un servidor: todo permanece en el almacenamiento de tu navegador.",
+        storageOverview:"Resumen de almacenamiento", clients:"Clientes", reports:"Informes",
+        exampleData:"Datos de ejemplo", exampleDataDesc:"El cliente de ejemplo está claramente identificado y separado de tus datos reales.",
+        loadExample:"Cargar el cliente de ejemplo", clearExample:"Eliminar datos de ejemplo",
+        language:"Idioma", languageDesc:"Elige el idioma de la interfaz.",
+        currency:"Moneda", currencyDesc:"Elige la moneda utilizada para todos los importes mostrados."
+      },
+      clientForm:{
+        newTitle:"Nuevo cliente", editTitle:"Editar cliente",
+        nameLabel:"Nombre del cliente *", logoLabel:"Logo (URL, opcional)", colorLabel:"Color de marca",
+        save:"Guardar", cancel:"Cancelar", deleteClient:"Eliminar cliente",
+        nameRequired:"El nombre es obligatorio.",
+        confirmDelete:"¿Eliminar \"{name}\" y todos sus informes?"
+      },
+      reportsList:{
+        editClient:"Editar cliente", newReport:"+ Nuevo informe",
+        count:"{n} informe{plural}", recent:"Informes recientes",
+        emptyTitle:"No hay informes para este cliente", emptyDesc:"Crea el primer informe mensual para empezar.",
+        totalSpend:"Gasto total — {amount}",
+        spendChartTitle:"Gasto por mes",
+        edit:"Editar", delete:"Eliminar",
+        confirmDeleteReport:"¿Eliminar este informe?"
+      },
+      reportForm:{
+        newTitle:"Nuevo informe", editTitle:"Editar informe", back:"← Volver",
+        monthLabel:"Mes del informe *",
+        monthRequired:"El mes es obligatorio.", monthDuplicate:"Ya existe un informe para este mes.",
+        metricPositive:"Debe ser un número positivo.", metricRange:"Debe estar entre 0 y 100.",
+        metaAds:"Meta Ads", googleAds:"Google Ads", website:"Sitio web", email:"Email",
+        spend:"Gasto (€)", impressions:"Impresiones", clicks:"Clics", leads:"Leads",
+        sessions:"Sesiones", users:"Usuarios", conversions:"Conversiones",
+        sent:"Emails enviados", openRate:"Tasa de apertura (%)", clickRate:"Tasa de clics (%)",
+        customMetrics:"Métricas personalizadas", addMetric:"+ Añadir una métrica",
+        metricNamePlaceholder:"Nombre de la métrica", valuePlaceholder:"Valor",
+        save:"Guardar informe", cancel:"Cancelar",
+        duplicateLastMonth:"Duplicar el mes anterior",
+        importFile:"Importar un archivo (Excel/CSV)",
+        notesLabel:"Notas de contexto (opcional)",
+        notesPlaceholder:"¿Qué campañas se ejecutaron? ¿Qué cambió este mes?",
+        pasteToggle:"Pegar desde una hoja de cálculo",
+        pasteLabel:"Pega tus datos (con encabezados en la primera línea)",
+        pastePlaceholder:"Gasto\tImpresiones\tClics\tLeads\n1200\t85000\t1700\t42",
+        pasteAnalyze:"Analizar",
+        pasteFill:"Rellenar campos",
+        pasteUnmapped:"Columnas no reconocidas (ignoradas)",
+        pasteConfirmOverwrite:"Estos campos ya tienen valores. ¿Reemplazarlos?",
+        pasteNoRows:"Pega al menos una línea de encabezados y una línea de valores."
+      },
+      importModal:{
+        title:"Importar un archivo",
+        desc:"Asocia las columnas de tu archivo a cada métrica y luego impórtalas. Las columnas no reconocidas se ignoran.",
+        rowLabel:"Fila de datos",
+        rowOption:"Fila {n}: {preview}",
+        cancel:"Cancelar", confirm:"Importar valores",
+        parseError:"No se pudo leer este archivo. Comprueba que sea un archivo Excel (.xlsx) o CSV válido.",
+        noData:"Este archivo no contiene filas de datos.",
+        imported:"Valores importados. Revísalos antes de guardar el informe.",
+        noMatches:"No se pudo asociar ninguna columna a una métrica. Revisa los encabezados de tu archivo o haz la correspondencia manualmente arriba."
+      },
+      preview:{
+        back:"← Volver a los informes", edit:"Editar", exportCsv:"Exportar como CSV",
+        pdfNote:"Para guardar como PDF, usa la función de impresión de tu navegador (Ctrl+P / Cmd+P).",
+        monthly:"Informe mensual — {month}",
+        kpiSpend:"Gasto total", kpiLeads:"Leads totales", kpiCpl:"CPL medio", kpiConversions:"Conversiones del sitio",
+        indicator:"Indicador", value:"Valor", vsPrevious:"vs mes anterior",
+        ctr:"CTR", cpc:"CPC", cpl:"CPL", convRate:"Tasa de conversión",
+        customMetrics:"Métricas personalizadas", visualizations:"Visualizaciones",
+        chartSpend:"Desglose del gasto", chartLeads:"Leads y conversiones", chartTrend:"Evolución del presupuesto"
+      },
+      csvExport:{ section:"Sección", indicator:"Indicador", value:"Valor", client:"Cliente", name:"Nombre", report:"Informe", month:"Mes", custom:"Personalizado", notes:"Notas" },
+      changes:{
+        title:"Qué ha cambiado", noPrevious:"No hay comparación disponible — primer informe de este cliente.",
+        none:"No hay cambios comparables este mes.",
+        metaSpend:"Gasto Meta", metaClicks:"Clics Meta", metaLeads:"Leads Meta",
+        googleSpend:"Gasto Google", googleClicks:"Clics Google", googleLeads:"Leads Google",
+        sessions:"Sesiones del sitio", conversions:"Conversiones del sitio", openRate:"Tasa de apertura", clickRate:"Tasa de clics"
+      },
+      goals:{
+        title:"Objetivos", desc:"Define objetivos mensuales para este cliente. Se aplican a todos sus informes.",
+        addGoal:"Añadir un objetivo", type:"Tipo de objetivo",
+        leadsLabel:"Leads (por mes)", spendLabel:"Gasto máximo (por mes)", cplLabel:"CPL objetivo", customLabel:"Personalizado",
+        customNamePlaceholder:"Nombre de la métrica personalizada", target:"Valor objetivo",
+        direction:"Sentido del objetivo", directionMore:"Más es mejor (p. ej. leads)", directionLess:"Menos es mejor (p. ej. coste)",
+        noGoals:"No hay objetivos definidos.", remove:"Eliminar", add:"Añadir",
+        reached:"Alcanzado", inProgress:"En curso", exceeded:"Superado"
+      },
+      yearView:{
+        tabReports:"Informes", tabYear:"Vista anual",
+        empty:"Añade al menos dos informes para ver una tendencia.",
+        metric:"Indicador", metricLeads:"Leads", metricSpend:"Gasto", metricCpl:"CPL", metricConversions:"Conversiones",
+        totalLeads:"Leads (periodo)", totalSpend:"Gasto (periodo)", avgCpl:"CPL medio (periodo)",
+        chartTitle:"Evolución — {metric}"
+      },
+      currency:{ EUR:"Euro (€)", USD:"Dólar estadounidense ($)", GBP:"Libra esterlina (£)", MAD:"Dirham marroquí (DH)", CAD:"Dólar canadiense ($)", CHF:"Franco suizo (CHF)" },
+      alerts:{ exampleLoaded:"El cliente de ejemplo ya está cargado.", confirmClearExample:"¿Eliminar el cliente de ejemplo y sus informes?" },
+      charts:{ unavailable:"Gráficos no disponibles — comprueba tu conexión a internet y recarga la página." },
+      months:["ene.","feb.","mar.","abr.","may.","jun.","jul.","ago.","sept.","oct.","nov.","dic."]
+    },
+    de: {
+      appName:"Metrio", tagline:"Marketing-Reporting",
+      nav:{ home:"Start", dashboard:"Dashboard", settings:"Einstellungen", clients:"Kunden" },
+      sidebar:{ noClients:"Noch keine Kunden.", newClient:"+ Neuer Kunde", loadExample:"Beispielkunde laden" },
+      common:{ ignore:"— Ignorieren —", example:"BEISPIEL", yes:"Ja", no:"Nein" },
+      landing:{
+        eyebrow:"Marketing-Reporting leicht gemacht",
+        headlineLead:"Klare Kundenberichte,", headlineAccent:"in wenigen Minuten",
+        sub:"Metrio ist ein Tool für monatliches Reporting für Freelancer und kleine Agenturen. Fügen Sie Ihre Zahlen ein (oder importieren Sie eine Excel-Datei), erhalten Sie automatisch berechnete Kennzahlen und einen teilbaren Bericht — ohne Server, ohne Konto, ohne KI.",
+        ctaNew:"+ Neuer Kunde", ctaExample:"Beispiel ansehen",
+        trust:"Kostenlos · 100 % lokal · Kein Konto nötig",
+        statBandQuote:"Das monatliche Reporting sollte Ihnen nicht den ganzen Nachmittag kosten.",
+        mockupClient:"Agence Nord", mockupTitle:"Monatsbericht — Mai 2026",
+        mockupCaption:"Illustrative Vorschau — Ihre Berichte verwenden Ihre eigenen Zahlen und Markenfarben.",
+        kpiSpend:"Gesamtausgaben", kpiLeads:"Leads gesamt", kpiCpl:"Durchschnittlicher CPL",
+        chartLabel:"Leads nach Kanal",
+        chipLeads:"Leads", chipReports:"Berichte", chipGoal:"Ziel",
+        howEyebrow:"So funktioniert's", howTitle:"Drei Schritte, jeden Monat.",
+        step1Title:"Kunden hinzufügen", step1Desc:"Name, Logo und Markenfarbe für Berichte in seinem Look.",
+        step2Title:"Zahlen hinzufügen", step2Desc:"Von Hand einfügen oder eine vorhandene Excel-/CSV-Datei importieren.",
+        step3Title:"Bericht teilen", step3Desc:"Automatisch berechnete Kennzahlen, Diagramme, CSV- und PDF-Export.",
+        featEyebrow:"Funktionen", featTitle:"Gemacht für Marketing-Profis.",
+        feat1T:"Automatische Berechnungen", feat1D:"CTR, CPC, CPL und Conversion-Rate werden für Sie berechnet, ohne Formeln.",
+        feat2T:"Monatliches Tracking", feat2D:"Automatischer Vergleich mit dem Vormonat, auf einen Blick.",
+        feat3T:"Mehrere Kunden", feat3D:"Ein eigener Bereich pro Kunde, mit eigenem Logo und eigener Markenfarbe.",
+        feat4T:"CSV-Export & Druck", feat4D:"Exportieren Sie Ihre Daten oder drucken Sie einen teilbaren Bericht als PDF.",
+        feat5T:"Excel-/CSV-Import", feat5D:"Importieren Sie die Zahlen eines Kunden aus einer vorhandenen Datei, ohne erneute Eingabe.",
+        feat6T:"100 % lokal", feat6D:"Keine KI, kein Konto, kein Server. Ihre Daten bleiben in Ihrem Browser.",
+        ctaTitle:"Bereit für Ihren ersten Bericht?", ctaDesc:"Fügen Sie Ihren ersten Kunden hinzu und erstellen Sie in wenigen Minuten einen Bericht."
+      },
+      dashboard:{
+        title:"Dashboard", sub:"Übersicht über {n} Kunde{plural}.",
+        kpiClients:"Kunden", kpiReports:"Berichte gesamt", kpiSpend:"Gesamtausgaben",
+        kpiSpendCaption:"Summe des letzten Berichts jedes Kunden",
+        kpiUpToDate:"Diesen Monat aktuell",
+        chartSpendByClient:"Ausgaben nach Kunde (letzter Bericht)",
+        chartTrend:"Gesamttrend der Ausgaben",
+        yourClients:"Ihre Kunden",
+        lastReport:"Letzter Bericht — {month} · {amount}",
+        noReport:"Noch kein Bericht",
+        upToDate:"Aktuell", missing:"Bericht für diesen Monat fehlt"
+      },
+      settings:{
+        title:"Einstellungen", sub:"Verwalten Sie Ihre lokalen Daten. Es wird nichts an einen Server gesendet: Alles bleibt im Speicher Ihres Browsers.",
+        storageOverview:"Speicherübersicht", clients:"Kunden", reports:"Berichte",
+        exampleData:"Beispieldaten", exampleDataDesc:"Der Beispielkunde ist klar gekennzeichnet und von Ihren echten Daten getrennt.",
+        loadExample:"Beispielkunden laden", clearExample:"Beispieldaten entfernen",
+        language:"Sprache", languageDesc:"Wählen Sie die Sprache der Oberfläche.",
+        currency:"Währung", currencyDesc:"Wählen Sie die Währung für alle angezeigten Beträge."
+      },
+      clientForm:{
+        newTitle:"Neuer Kunde", editTitle:"Kunde bearbeiten",
+        nameLabel:"Kundenname *", logoLabel:"Logo (URL, optional)", colorLabel:"Markenfarbe",
+        save:"Speichern", cancel:"Abbrechen", deleteClient:"Kunde löschen",
+        nameRequired:"Name ist erforderlich.",
+        confirmDelete:"\"{name}\" und alle zugehörigen Berichte löschen?"
+      },
+      reportsList:{
+        editClient:"Kunde bearbeiten", newReport:"+ Neuer Bericht",
+        count:"{n} Bericht{plural}", recent:"Letzte Berichte",
+        emptyTitle:"Keine Berichte für diesen Kunden", emptyDesc:"Erstellen Sie den ersten Monatsbericht, um zu starten.",
+        totalSpend:"Gesamtausgaben — {amount}",
+        spendChartTitle:"Ausgaben nach Monat",
+        edit:"Bearbeiten", delete:"Löschen",
+        confirmDeleteReport:"Diesen Bericht löschen?"
+      },
+      reportForm:{
+        newTitle:"Neuer Bericht", editTitle:"Bericht bearbeiten", back:"← Zurück",
+        monthLabel:"Berichtsmonat *",
+        monthRequired:"Monat ist erforderlich.", monthDuplicate:"Für diesen Monat existiert bereits ein Bericht.",
+        metricPositive:"Muss eine positive Zahl sein.", metricRange:"Muss zwischen 0 und 100 liegen.",
+        metaAds:"Meta Ads", googleAds:"Google Ads", website:"Website", email:"E-Mail",
+        spend:"Ausgaben (€)", impressions:"Impressionen", clicks:"Klicks", leads:"Leads",
+        sessions:"Sitzungen", users:"Nutzer", conversions:"Conversions",
+        sent:"Gesendete E-Mails", openRate:"Öffnungsrate (%)", clickRate:"Klickrate (%)",
+        customMetrics:"Benutzerdefinierte Kennzahlen", addMetric:"+ Kennzahl hinzufügen",
+        metricNamePlaceholder:"Name der Kennzahl", valuePlaceholder:"Wert",
+        save:"Bericht speichern", cancel:"Abbrechen",
+        duplicateLastMonth:"Letzten Monat duplizieren",
+        importFile:"Datei importieren (Excel/CSV)",
+        notesLabel:"Kontextnotizen (optional)",
+        notesPlaceholder:"Welche Kampagnen liefen? Was hat sich diesen Monat geändert?",
+        pasteToggle:"Aus einer Tabelle einfügen",
+        pasteLabel:"Fügen Sie Ihre Daten ein (Kopfzeile in der ersten Zeile)",
+        pastePlaceholder:"Ausgaben\tImpressionen\tKlicks\tLeads\n1200\t85000\t1700\t42",
+        pasteAnalyze:"Analysieren",
+        pasteFill:"Felder ausfüllen",
+        pasteUnmapped:"Nicht erkannte Spalten (ignoriert)",
+        pasteConfirmOverwrite:"Diese Felder enthalten bereits Werte. Ersetzen?",
+        pasteNoRows:"Fügen Sie mindestens eine Kopfzeile und eine Wertezeile ein."
+      },
+      importModal:{
+        title:"Datei importieren",
+        desc:"Ordnen Sie die Spalten Ihrer Datei den einzelnen Kennzahlen zu und importieren Sie dann. Nicht erkannte Spalten werden ignoriert.",
+        rowLabel:"Datenzeile",
+        rowOption:"Zeile {n}: {preview}",
+        cancel:"Abbrechen", confirm:"Werte importieren",
+        parseError:"Diese Datei konnte nicht gelesen werden. Stellen Sie sicher, dass es sich um eine gültige Excel- (.xlsx) oder CSV-Datei handelt.",
+        noData:"Diese Datei enthält keine Datenzeilen.",
+        imported:"Werte importiert. Prüfen Sie sie, bevor Sie den Bericht speichern.",
+        noMatches:"Keine Spalte konnte einer Kennzahl zugeordnet werden. Prüfen Sie die Kopfzeilen Ihrer Datei oder ordnen Sie die Spalten oben manuell zu."
+      },
+      preview:{
+        back:"← Zurück zu den Berichten", edit:"Bearbeiten", exportCsv:"Als CSV exportieren",
+        pdfNote:"Um als PDF zu speichern, nutzen Sie die Druckfunktion Ihres Browsers (Strg+P / Cmd+P).",
+        monthly:"Monatsbericht — {month}",
+        kpiSpend:"Gesamtausgaben", kpiLeads:"Leads gesamt", kpiCpl:"Durchschnittlicher CPL", kpiConversions:"Website-Conversions",
+        indicator:"Kennzahl", value:"Wert", vsPrevious:"vs. Vormonat",
+        ctr:"CTR", cpc:"CPC", cpl:"CPL", convRate:"Conversion-Rate",
+        customMetrics:"Benutzerdefinierte Kennzahlen", visualizations:"Visualisierungen",
+        chartSpend:"Ausgabenverteilung", chartLeads:"Leads & Conversions", chartTrend:"Budgetentwicklung"
+      },
+      csvExport:{ section:"Bereich", indicator:"Kennzahl", value:"Wert", client:"Kunde", name:"Name", report:"Bericht", month:"Monat", custom:"Benutzerdefiniert", notes:"Notizen" },
+      changes:{
+        title:"Was sich geändert hat", noPrevious:"Kein Vergleich verfügbar — erster Bericht für diesen Kunden.",
+        none:"Keine vergleichbaren Änderungen diesen Monat.",
+        metaSpend:"Meta-Ausgaben", metaClicks:"Meta-Klicks", metaLeads:"Meta-Leads",
+        googleSpend:"Google-Ausgaben", googleClicks:"Google-Klicks", googleLeads:"Google-Leads",
+        sessions:"Website-Sitzungen", conversions:"Website-Conversions", openRate:"Öffnungsrate", clickRate:"Klickrate"
+      },
+      goals:{
+        title:"Ziele", desc:"Legen Sie monatliche Ziele für diesen Kunden fest. Sie gelten für alle seine Berichte.",
+        addGoal:"Ziel hinzufügen", type:"Zieltyp",
+        leadsLabel:"Leads (pro Monat)", spendLabel:"Max. Ausgaben (pro Monat)", cplLabel:"Ziel-CPL", customLabel:"Benutzerdefiniert",
+        customNamePlaceholder:"Name der benutzerdefinierten Kennzahl", target:"Zielwert",
+        direction:"Zielrichtung", directionMore:"Mehr ist besser (z. B. Leads)", directionLess:"Weniger ist besser (z. B. Kosten)",
+        noGoals:"Keine Ziele definiert.", remove:"Entfernen", add:"Hinzufügen",
+        reached:"Erreicht", inProgress:"In Bearbeitung", exceeded:"Übertroffen"
+      },
+      yearView:{
+        tabReports:"Berichte", tabYear:"Jahresübersicht",
+        empty:"Fügen Sie mindestens zwei Berichte hinzu, um einen Trend zu sehen.",
+        metric:"Kennzahl", metricLeads:"Leads", metricSpend:"Ausgaben", metricCpl:"CPL", metricConversions:"Conversions",
+        totalLeads:"Leads (Zeitraum)", totalSpend:"Ausgaben (Zeitraum)", avgCpl:"Durchschnittlicher CPL (Zeitraum)",
+        chartTitle:"Entwicklung — {metric}"
+      },
+      currency:{ EUR:"Euro (€)", USD:"US-Dollar ($)", GBP:"Britisches Pfund (£)", MAD:"Marokkanischer Dirham (DH)", CAD:"Kanadischer Dollar ($)", CHF:"Schweizer Franken (CHF)" },
+      alerts:{ exampleLoaded:"Der Beispielkunde ist bereits geladen.", confirmClearExample:"Beispielkunden und seine Berichte entfernen?" },
+      charts:{ unavailable:"Diagramme nicht verfügbar — prüfen Sie Ihre Internetverbindung und laden Sie die Seite neu." },
+      months:["Jan.","Feb.","März","Apr.","Mai","Juni","Juli","Aug.","Sept.","Okt.","Nov.","Dez."]
+    },
+    nl: {
+      appName:"Metrio", tagline:"Marketingrapportage",
+      nav:{ home:"Start", dashboard:"Dashboard", settings:"Instellingen", clients:"Klanten" },
+      sidebar:{ noClients:"Nog geen klanten.", newClient:"+ Nieuwe klant", loadExample:"Voorbeeldklant laden" },
+      common:{ ignore:"— Negeren —", example:"VOORBEELD", yes:"Ja", no:"Nee" },
+      landing:{
+        eyebrow:"Marketingrapportage vereenvoudigd",
+        headlineLead:"Duidelijke klantrapporten,", headlineAccent:"in enkele minuten",
+        sub:"Metrio is een tool voor maandelijkse rapportage voor freelancers en kleine bureaus. Plak je cijfers (of importeer een Excel-bestand), krijg automatisch berekende statistieken en een rapport dat klaar is om te delen — zonder server, zonder account, zonder AI.",
+        ctaNew:"+ Nieuwe klant", ctaExample:"Bekijk een voorbeeld",
+        trust:"Gratis · 100% lokaal · Geen account nodig",
+        statBandQuote:"Maandelijkse rapportage hoort niet je hele middag te kosten.",
+        mockupClient:"Agence Nord", mockupTitle:"Maandrapport — mei 2026",
+        mockupCaption:"Illustratieve weergave — je rapporten gebruiken je eigen cijfers en merkkleuren.",
+        kpiSpend:"Totale uitgaven", kpiLeads:"Totaal leads", kpiCpl:"Gemiddelde CPL",
+        chartLabel:"Leads per kanaal",
+        chipLeads:"Leads", chipReports:"Rapporten", chipGoal:"Doel",
+        howEyebrow:"Hoe het werkt", howTitle:"Drie stappen, elke maand.",
+        step1Title:"Voeg een klant toe", step1Desc:"Naam, logo en merkkleur voor rapporten in hun stijl.",
+        step2Title:"Voeg je cijfers toe", step2Desc:"Plak ze handmatig of importeer een bestaand Excel-/CSV-bestand.",
+        step3Title:"Deel het rapport", step3Desc:"Automatisch berekende statistieken, grafieken, CSV- en PDF-export.",
+        featEyebrow:"Functies", featTitle:"Gemaakt voor marketingprofessionals.",
+        feat1T:"Automatische berekeningen", feat1D:"CTR, CPC, CPL en conversiepercentage voor je berekend, zonder formules.",
+        feat2T:"Maandelijkse opvolging", feat2D:"Automatische vergelijking met de vorige maand, in één oogopslag.",
+        feat3T:"Meerdere klanten", feat3D:"Een eigen ruimte per klant, met eigen logo en merkkleur.",
+        feat4T:"CSV-export & afdrukken", feat4D:"Exporteer je gegevens of druk een deelbaar rapport af als PDF.",
+        feat5T:"Excel-/CSV-import", feat5D:"Importeer de cijfers van een klant uit een bestaand bestand, zonder opnieuw in te typen.",
+        feat6T:"100% lokaal", feat6D:"Geen AI, geen account, geen server. Je gegevens blijven in je browser.",
+        ctaTitle:"Klaar om je eerste rapport te maken?", ctaDesc:"Voeg je eerste klant toe en maak binnen enkele minuten een rapport."
+      },
+      dashboard:{
+        title:"Dashboard", sub:"Overzicht van {n} klant{plural}.",
+        kpiClients:"Klanten", kpiReports:"Totaal rapporten", kpiSpend:"Totale uitgaven",
+        kpiSpendCaption:"Som van het laatste rapport van elke klant",
+        kpiUpToDate:"Up-to-date deze maand",
+        chartSpendByClient:"Uitgaven per klant (laatste rapport)",
+        chartTrend:"Algemene uitgaventrend",
+        yourClients:"Jouw klanten",
+        lastReport:"Laatste rapport — {month} · {amount}",
+        noReport:"Nog geen rapport",
+        upToDate:"Up-to-date", missing:"Rapport van deze maand ontbreekt"
+      },
+      settings:{
+        title:"Instellingen", sub:"Beheer je lokale gegevens. Er wordt niets naar een server verzonden: alles blijft in de opslag van je browser.",
+        storageOverview:"Opslagoverzicht", clients:"Klanten", reports:"Rapporten",
+        exampleData:"Voorbeeldgegevens", exampleDataDesc:"De voorbeeldklant is duidelijk gelabeld en gescheiden van je echte gegevens.",
+        loadExample:"Voorbeeldklant laden", clearExample:"Voorbeeldgegevens verwijderen",
+        language:"Taal", languageDesc:"Kies de taal van de interface.",
+        currency:"Valuta", currencyDesc:"Kies de valuta die wordt gebruikt voor alle weergegeven bedragen."
+      },
+      clientForm:{
+        newTitle:"Nieuwe klant", editTitle:"Klant bewerken",
+        nameLabel:"Klantnaam *", logoLabel:"Logo (URL, optioneel)", colorLabel:"Merkkleur",
+        save:"Opslaan", cancel:"Annuleren", deleteClient:"Klant verwijderen",
+        nameRequired:"Naam is verplicht.",
+        confirmDelete:"\"{name}\" en alle bijbehorende rapporten verwijderen?"
+      },
+      reportsList:{
+        editClient:"Klant bewerken", newReport:"+ Nieuw rapport",
+        count:"{n} rapport{plural}", recent:"Recente rapporten",
+        emptyTitle:"Geen rapporten voor deze klant", emptyDesc:"Maak het eerste maandrapport om te beginnen.",
+        totalSpend:"Totale uitgaven — {amount}",
+        spendChartTitle:"Uitgaven per maand",
+        edit:"Bewerken", delete:"Verwijderen",
+        confirmDeleteReport:"Dit rapport verwijderen?"
+      },
+      reportForm:{
+        newTitle:"Nieuw rapport", editTitle:"Rapport bewerken", back:"← Terug",
+        monthLabel:"Rapportmaand *",
+        monthRequired:"Maand is verplicht.", monthDuplicate:"Er bestaat al een rapport voor deze maand.",
+        metricPositive:"Moet een positief getal zijn.", metricRange:"Moet tussen 0 en 100 liggen.",
+        metaAds:"Meta Ads", googleAds:"Google Ads", website:"Website", email:"E-mail",
+        spend:"Uitgaven (€)", impressions:"Weergaven", clicks:"Klikken", leads:"Leads",
+        sessions:"Sessies", users:"Gebruikers", conversions:"Conversies",
+        sent:"Verzonden e-mails", openRate:"Openingspercentage (%)", clickRate:"Klikpercentage (%)",
+        customMetrics:"Aangepaste statistieken", addMetric:"+ Statistiek toevoegen",
+        metricNamePlaceholder:"Naam van de statistiek", valuePlaceholder:"Waarde",
+        save:"Rapport opslaan", cancel:"Annuleren",
+        duplicateLastMonth:"Vorige maand dupliceren",
+        importFile:"Bestand importeren (Excel/CSV)",
+        notesLabel:"Contextnotities (optioneel)",
+        notesPlaceholder:"Welke campagnes liepen er? Wat is er deze maand veranderd?",
+        pasteToggle:"Plakken vanuit een spreadsheet",
+        pasteLabel:"Plak je gegevens (met kopteksten op de eerste regel)",
+        pastePlaceholder:"Uitgaven\tWeergaven\tKlikken\tLeads\n1200\t85000\t1700\t42",
+        pasteAnalyze:"Analyseren",
+        pasteFill:"Velden invullen",
+        pasteUnmapped:"Niet-herkende kolommen (genegeerd)",
+        pasteConfirmOverwrite:"Deze velden bevatten al waarden. Vervangen?",
+        pasteNoRows:"Plak minstens één kopregel en één waarderegel."
+      },
+      importModal:{
+        title:"Bestand importeren",
+        desc:"Koppel de kolommen van je bestand aan elke statistiek en importeer vervolgens. Niet-herkende kolommen worden genegeerd.",
+        rowLabel:"Gegevensrij",
+        rowOption:"Rij {n}: {preview}",
+        cancel:"Annuleren", confirm:"Waarden importeren",
+        parseError:"Dit bestand kon niet worden gelezen. Controleer of het een geldig Excel- (.xlsx) of CSV-bestand is.",
+        noData:"Dit bestand bevat geen gegevensrijen.",
+        imported:"Waarden geïmporteerd. Controleer ze voordat je het rapport opslaat.",
+        noMatches:"Geen enkele kolom kon aan een statistiek worden gekoppeld. Controleer de kopteksten van je bestand of koppel de kolommen hierboven handmatig."
+      },
+      preview:{
+        back:"← Terug naar rapporten", edit:"Bewerken", exportCsv:"Exporteren als CSV",
+        pdfNote:"Gebruik de afdrukfunctie van je browser (Ctrl+P / Cmd+P) om als PDF op te slaan.",
+        monthly:"Maandrapport — {month}",
+        kpiSpend:"Totale uitgaven", kpiLeads:"Totaal leads", kpiCpl:"Gemiddelde CPL", kpiConversions:"Siteconversies",
+        indicator:"Indicator", value:"Waarde", vsPrevious:"t.o.v. vorige maand",
+        ctr:"CTR", cpc:"CPC", cpl:"CPL", convRate:"Conversiepercentage",
+        customMetrics:"Aangepaste statistieken", visualizations:"Visualisaties",
+        chartSpend:"Verdeling van uitgaven", chartLeads:"Leads & conversies", chartTrend:"Budgetontwikkeling"
+      },
+      csvExport:{ section:"Sectie", indicator:"Indicator", value:"Waarde", client:"Klant", name:"Naam", report:"Rapport", month:"Maand", custom:"Aangepast", notes:"Notities" },
+      changes:{
+        title:"Wat er is veranderd", noPrevious:"Geen vergelijking beschikbaar — eerste rapport voor deze klant.",
+        none:"Geen vergelijkbare wijzigingen deze maand.",
+        metaSpend:"Meta-uitgaven", metaClicks:"Meta-klikken", metaLeads:"Meta-leads",
+        googleSpend:"Google-uitgaven", googleClicks:"Google-klikken", googleLeads:"Google-leads",
+        sessions:"Sitesessies", conversions:"Siteconversies", openRate:"Openingspercentage", clickRate:"Klikpercentage"
+      },
+      goals:{
+        title:"Doelen", desc:"Stel maandelijkse doelen in voor deze klant. Ze gelden voor al zijn rapporten.",
+        addGoal:"Doel toevoegen", type:"Doeltype",
+        leadsLabel:"Leads (per maand)", spendLabel:"Max. uitgaven (per maand)", cplLabel:"Streef-CPL", customLabel:"Aangepast",
+        customNamePlaceholder:"Naam van de aangepaste statistiek", target:"Streefwaarde",
+        direction:"Richting van het doel", directionMore:"Meer is beter (bv. leads)", directionLess:"Minder is beter (bv. kosten)",
+        noGoals:"Geen doelen ingesteld.", remove:"Verwijderen", add:"Toevoegen",
+        reached:"Bereikt", inProgress:"Bezig", exceeded:"Overschreden"
+      },
+      yearView:{
+        tabReports:"Rapporten", tabYear:"Jaaroverzicht",
+        empty:"Voeg minstens twee rapporten toe om een trend te zien.",
+        metric:"Indicator", metricLeads:"Leads", metricSpend:"Uitgaven", metricCpl:"CPL", metricConversions:"Conversies",
+        totalLeads:"Leads (periode)", totalSpend:"Uitgaven (periode)", avgCpl:"Gemiddelde CPL (periode)",
+        chartTitle:"Verloop — {metric}"
+      },
+      currency:{ EUR:"Euro (€)", USD:"Amerikaanse dollar ($)", GBP:"Brits pond (£)", MAD:"Marokkaanse dirham (DH)", CAD:"Canadese dollar ($)", CHF:"Zwitserse frank (CHF)" },
+      alerts:{ exampleLoaded:"De voorbeeldklant is al geladen.", confirmClearExample:"Voorbeeldklant en bijbehorende rapporten verwijderen?" },
+      charts:{ unavailable:"Grafieken niet beschikbaar — controleer je internetverbinding en herlaad de pagina." },
+      months:["jan.","feb.","mrt.","apr.","mei","jun.","jul.","aug.","sep.","okt.","nov.","dec."]
+    },
+    it: {
+      appName:"Metrio", tagline:"Reportistica marketing",
+      nav:{ home:"Home", dashboard:"Dashboard", settings:"Impostazioni", clients:"Clienti" },
+      sidebar:{ noClients:"Nessun cliente per ora.", newClient:"+ Nuovo cliente", loadExample:"Carica cliente di esempio" },
+      common:{ ignore:"— Ignora —", example:"ESEMPIO", yes:"Sì", no:"No" },
+      landing:{
+        eyebrow:"Reportistica marketing semplificata",
+        headlineLead:"Report chiari per i tuoi clienti,", headlineAccent:"in pochi minuti",
+        sub:"Metrio è uno strumento di reportistica mensile per freelance e piccole agenzie. Incolla i tuoi numeri (o importa un file Excel), ottieni metriche calcolate automaticamente e un report pronto da condividere — senza server, senza account, senza IA.",
+        ctaNew:"+ Nuovo cliente", ctaExample:"Vedi un esempio",
+        trust:"Gratis · 100% locale · Nessun account richiesto",
+        statBandQuote:"Il reporting mensile non dovrebbe portarti via un intero pomeriggio.",
+        mockupClient:"Agence Nord", mockupTitle:"Report mensile — maggio 2026",
+        mockupCaption:"Anteprima illustrativa — i tuoi report usano i tuoi numeri e i colori del tuo brand.",
+        kpiSpend:"Spesa totale", kpiLeads:"Lead totali", kpiCpl:"CPL medio",
+        chartLabel:"Lead per canale",
+        chipLeads:"Lead", chipReports:"Report", chipGoal:"Obiettivo",
+        howEyebrow:"Come funziona", howTitle:"Tre passaggi, ogni mese.",
+        step1Title:"Aggiungi un cliente", step1Desc:"Nome, logo e colore del brand per report su misura.",
+        step2Title:"Aggiungi i tuoi numeri", step2Desc:"Incollali a mano oppure importa un file Excel/CSV esistente.",
+        step3Title:"Condividi il report", step3Desc:"Metriche calcolate automaticamente, grafici, esportazione CSV e PDF.",
+        featEyebrow:"Funzionalità", featTitle:"Pensato per i professionisti del marketing.",
+        feat1T:"Calcoli automatici", feat1D:"CTR, CPC, CPL e tasso di conversione calcolati per te, senza formule.",
+        feat2T:"Monitoraggio mensile", feat2D:"Confronto automatico con il mese precedente, a colpo d'occhio.",
+        feat3T:"Multi-cliente", feat3D:"Uno spazio dedicato per ogni cliente, con logo e colore del brand propri.",
+        feat4T:"Esportazione CSV e stampa", feat4D:"Esporta i tuoi dati o stampa un report pronto da condividere in PDF.",
+        feat5T:"Importazione Excel / CSV", feat5D:"Importa i numeri di un cliente da un file esistente, senza doverli riscrivere.",
+        feat6T:"100% locale", feat6D:"Nessuna IA, nessun account, nessun server. I tuoi dati restano nel tuo browser.",
+        ctaTitle:"Pronto a creare il tuo primo report?", ctaDesc:"Aggiungi il tuo primo cliente e crea un report in pochi minuti."
+      },
+      dashboard:{
+        title:"Dashboard", sub:"Panoramica di {n} cliente{plural}.",
+        kpiClients:"Clienti", kpiReports:"Report totali", kpiSpend:"Spesa totale",
+        kpiSpendCaption:"Somma dell'ultimo report di ogni cliente",
+        kpiUpToDate:"Aggiornato questo mese",
+        chartSpendByClient:"Spesa per cliente (ultimo report)",
+        chartTrend:"Andamento generale della spesa",
+        yourClients:"I tuoi clienti",
+        lastReport:"Ultimo report — {month} · {amount}",
+        noReport:"Nessun report ancora",
+        upToDate:"Aggiornato", missing:"Manca il report di questo mese"
+      },
+      settings:{
+        title:"Impostazioni", sub:"Gestisci i tuoi dati locali. Nulla viene inviato a un server: tutto resta nella memoria del tuo browser.",
+        storageOverview:"Panoramica dell'archiviazione", clients:"Clienti", reports:"Report",
+        exampleData:"Dati di esempio", exampleDataDesc:"Il cliente di esempio è chiaramente etichettato e separato dai tuoi dati reali.",
+        loadExample:"Carica il cliente di esempio", clearExample:"Rimuovi dati di esempio",
+        language:"Lingua", languageDesc:"Scegli la lingua dell'interfaccia.",
+        currency:"Valuta", currencyDesc:"Scegli la valuta usata per tutti gli importi visualizzati."
+      },
+      clientForm:{
+        newTitle:"Nuovo cliente", editTitle:"Modifica cliente",
+        nameLabel:"Nome del cliente *", logoLabel:"Logo (URL, facoltativo)", colorLabel:"Colore del brand",
+        save:"Salva", cancel:"Annulla", deleteClient:"Elimina cliente",
+        nameRequired:"Il nome è obbligatorio.",
+        confirmDelete:"Eliminare \"{name}\" e tutti i suoi report?"
+      },
+      reportsList:{
+        editClient:"Modifica cliente", newReport:"+ Nuovo report",
+        count:"{n} report{plural}", recent:"Report recenti",
+        emptyTitle:"Nessun report per questo cliente", emptyDesc:"Crea il primo report mensile per iniziare.",
+        totalSpend:"Spesa totale — {amount}",
+        spendChartTitle:"Spesa per mese",
+        edit:"Modifica", delete:"Elimina",
+        confirmDeleteReport:"Eliminare questo report?"
+      },
+      reportForm:{
+        newTitle:"Nuovo report", editTitle:"Modifica report", back:"← Indietro",
+        monthLabel:"Mese del report *",
+        monthRequired:"Il mese è obbligatorio.", monthDuplicate:"Esiste già un report per questo mese.",
+        metricPositive:"Deve essere un numero positivo.", metricRange:"Deve essere compreso tra 0 e 100.",
+        metaAds:"Meta Ads", googleAds:"Google Ads", website:"Sito web", email:"Email",
+        spend:"Spesa (€)", impressions:"Impression", clicks:"Clic", leads:"Lead",
+        sessions:"Sessioni", users:"Utenti", conversions:"Conversioni",
+        sent:"Email inviate", openRate:"Tasso di apertura (%)", clickRate:"Tasso di clic (%)",
+        customMetrics:"Metriche personalizzate", addMetric:"+ Aggiungi una metrica",
+        metricNamePlaceholder:"Nome della metrica", valuePlaceholder:"Valore",
+        save:"Salva report", cancel:"Annulla",
+        duplicateLastMonth:"Duplica il mese scorso",
+        importFile:"Importa un file (Excel/CSV)",
+        notesLabel:"Note di contesto (facoltativo)",
+        notesPlaceholder:"Quali campagne sono state attive? Cosa è cambiato questo mese?",
+        pasteToggle:"Incolla da un foglio di calcolo",
+        pasteLabel:"Incolla i tuoi dati (intestazioni sulla prima riga)",
+        pastePlaceholder:"Spesa\tImpression\tClic\tLead\n1200\t85000\t1700\t42",
+        pasteAnalyze:"Analizza",
+        pasteFill:"Compila i campi",
+        pasteUnmapped:"Colonne non riconosciute (ignorate)",
+        pasteConfirmOverwrite:"Questi campi contengono già dei valori. Sostituirli?",
+        pasteNoRows:"Incolla almeno una riga di intestazioni e una riga di valori."
+      },
+      importModal:{
+        title:"Importa un file",
+        desc:"Associa le colonne del tuo file a ciascuna metrica, quindi importa. Le colonne non riconosciute vengono ignorate.",
+        rowLabel:"Riga di dati",
+        rowOption:"Riga {n}: {preview}",
+        cancel:"Annulla", confirm:"Importa valori",
+        parseError:"Impossibile leggere questo file. Assicurati che sia un file Excel (.xlsx) o CSV valido.",
+        noData:"Questo file non contiene righe di dati.",
+        imported:"Valori importati. Controllali prima di salvare il report.",
+        noMatches:"Nessuna colonna è stata associata a una metrica. Controlla le intestazioni del file o esegui la corrispondenza manuale qui sopra."
+      },
+      preview:{
+        back:"← Torna ai report", edit:"Modifica", exportCsv:"Esporta come CSV",
+        pdfNote:"Per salvare come PDF, usa la funzione di stampa del tuo browser (Ctrl+P / Cmd+P).",
+        monthly:"Report mensile — {month}",
+        kpiSpend:"Spesa totale", kpiLeads:"Lead totali", kpiCpl:"CPL medio", kpiConversions:"Conversioni del sito",
+        indicator:"Indicatore", value:"Valore", vsPrevious:"vs mese precedente",
+        ctr:"CTR", cpc:"CPC", cpl:"CPL", convRate:"Tasso di conversione",
+        customMetrics:"Metriche personalizzate", visualizations:"Visualizzazioni",
+        chartSpend:"Ripartizione della spesa", chartLeads:"Lead e conversioni", chartTrend:"Andamento del budget"
+      },
+      csvExport:{ section:"Sezione", indicator:"Indicatore", value:"Valore", client:"Cliente", name:"Nome", report:"Report", month:"Mese", custom:"Personalizzato", notes:"Note" },
+      changes:{
+        title:"Cosa è cambiato", noPrevious:"Nessun confronto disponibile — primo report per questo cliente.",
+        none:"Nessuna variazione confrontabile questo mese.",
+        metaSpend:"Spesa Meta", metaClicks:"Clic Meta", metaLeads:"Lead Meta",
+        googleSpend:"Spesa Google", googleClicks:"Clic Google", googleLeads:"Lead Google",
+        sessions:"Sessioni del sito", conversions:"Conversioni del sito", openRate:"Tasso di apertura", clickRate:"Tasso di clic"
+      },
+      goals:{
+        title:"Obiettivi", desc:"Imposta obiettivi mensili per questo cliente. Si applicano a tutti i suoi report.",
+        addGoal:"Aggiungi un obiettivo", type:"Tipo di obiettivo",
+        leadsLabel:"Lead (al mese)", spendLabel:"Spesa massima (al mese)", cplLabel:"CPL target", customLabel:"Personalizzato",
+        customNamePlaceholder:"Nome della metrica personalizzata", target:"Valore target",
+        direction:"Direzione dell'obiettivo", directionMore:"Più è meglio (es. lead)", directionLess:"Meno è meglio (es. costo)",
+        noGoals:"Nessun obiettivo definito.", remove:"Rimuovi", add:"Aggiungi",
+        reached:"Raggiunto", inProgress:"In corso", exceeded:"Superato"
+      },
+      yearView:{
+        tabReports:"Report", tabYear:"Vista annuale",
+        empty:"Aggiungi almeno due report per vedere un andamento.",
+        metric:"Indicatore", metricLeads:"Lead", metricSpend:"Spesa", metricCpl:"CPL", metricConversions:"Conversioni",
+        totalLeads:"Lead (periodo)", totalSpend:"Spesa (periodo)", avgCpl:"CPL medio (periodo)",
+        chartTitle:"Andamento — {metric}"
+      },
+      currency:{ EUR:"Euro (€)", USD:"Dollaro USA ($)", GBP:"Sterlina britannica (£)", MAD:"Dirham marocchino (DH)", CAD:"Dollaro canadese ($)", CHF:"Franco svizzero (CHF)" },
+      alerts:{ exampleLoaded:"Il cliente di esempio è già caricato.", confirmClearExample:"Rimuovere il cliente di esempio e i suoi report?" },
+      charts:{ unavailable:"Grafici non disponibili — controlla la connessione internet e ricarica la pagina." },
+      months:["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"]
+    },
+    th: {
+      appName:"Metrio", tagline:"รายงานการตลาด",
+      nav:{ home:"หน้าแรก", dashboard:"แดชบอร์ด", settings:"การตั้งค่า", clients:"ลูกค้า" },
+      sidebar:{ noClients:"ยังไม่มีลูกค้า", newClient:"+ เพิ่มลูกค้าใหม่", loadExample:"โหลดลูกค้าตัวอย่าง" },
+      common:{ ignore:"— ไม่ใช้ —", example:"ตัวอย่าง", yes:"ใช่", no:"ไม่ใช่" },
+      landing:{
+        eyebrow:"รายงานการตลาดที่ง่ายขึ้น",
+        headlineLead:"รายงานลูกค้าที่ชัดเจน", headlineAccent:"ภายในไม่กี่นาที",
+        sub:"Metrio คือเครื่องมือทำรายงานประจำเดือนสำหรับฟรีแลนซ์และเอเจนซีขนาดเล็ก วางตัวเลขของคุณ (หรือนำเข้าไฟล์ Excel) แล้วรับค่าตัวชี้วัดที่คำนวณอัตโนมัติ พร้อมรายงานที่พร้อมแชร์ — ไม่มีเซิร์ฟเวอร์ ไม่ต้องสมัครบัญชี ไม่มี AI",
+        ctaNew:"+ เพิ่มลูกค้าใหม่", ctaExample:"ดูตัวอย่าง",
+        trust:"ฟรี · ใช้งานในเครื่อง 100% · ไม่ต้องสมัครบัญชี",
+        statBandQuote:"การทำรายงานประจำเดือนไม่ควรกินเวลาทั้งบ่ายของคุณ",
+        mockupClient:"Agence Nord", mockupTitle:"รายงานประจำเดือน — พฤษภาคม 2026",
+        mockupCaption:"ตัวอย่างประกอบ — รายงานของคุณจะใช้ตัวเลขและสีแบรนด์ของคุณเอง",
+        kpiSpend:"ยอดใช้จ่ายรวม", kpiLeads:"ลีดรวม", kpiCpl:"CPL เฉลี่ย",
+        chartLabel:"ลีดแยกตามช่องทาง",
+        chipLeads:"ลีด", chipReports:"รายงาน", chipGoal:"เป้าหมาย",
+        howEyebrow:"วิธีการทำงาน", howTitle:"สามขั้นตอน ทุกเดือน",
+        step1Title:"เพิ่มลูกค้า", step1Desc:"ชื่อ โลโก้ และสีแบรนด์ เพื่อรายงานที่เป็นสไตล์ของลูกค้า",
+        step2Title:"เพิ่มตัวเลขของคุณ", step2Desc:"วางด้วยตนเองหรือนำเข้าไฟล์ Excel/CSV ที่มีอยู่",
+        step3Title:"แชร์รายงาน", step3Desc:"ตัวชี้วัดคำนวณอัตโนมัติ กราฟ และส่งออกเป็น CSV และ PDF",
+        featEyebrow:"ฟีเจอร์", featTitle:"ออกแบบมาเพื่อมืออาชีพด้านการตลาด",
+        feat1T:"คำนวณอัตโนมัติ", feat1D:"CTR, CPC, CPL และอัตราการแปลงคำนวณให้คุณโดยอัตโนมัติ ไม่ต้องใช้สูตร",
+        feat2T:"ติดตามรายเดือน", feat2D:"เปรียบเทียบกับเดือนก่อนหน้าโดยอัตโนมัติ เห็นได้ในพริบตา",
+        feat3T:"รองรับหลายลูกค้า", feat3D:"พื้นที่แยกสำหรับลูกค้าแต่ละราย พร้อมโลโก้และสีแบรนด์ของตนเอง",
+        feat4T:"ส่งออก CSV และพิมพ์", feat4D:"ส่งออกข้อมูลของคุณหรือพิมพ์รายงานที่พร้อมแชร์เป็น PDF",
+        feat5T:"นำเข้า Excel / CSV", feat5D:"นำเข้าตัวเลขของลูกค้าจากไฟล์ที่มีอยู่ โดยไม่ต้องพิมพ์ใหม่",
+        feat6T:"ใช้งานในเครื่อง 100%", feat6D:"ไม่มี AI ไม่ต้องสมัครบัญชี ไม่มีเซิร์ฟเวอร์ ข้อมูลของคุณอยู่ในเบราว์เซอร์ของคุณเท่านั้น",
+        ctaTitle:"พร้อมสร้างรายงานแรกของคุณหรือยัง?", ctaDesc:"เพิ่มลูกค้าคนแรกของคุณแล้วสร้างรายงานภายในไม่กี่นาที"
+      },
+      dashboard:{
+        title:"แดชบอร์ด", sub:"ภาพรวมของลูกค้า {n} ราย",
+        kpiClients:"ลูกค้า", kpiReports:"รายงานทั้งหมด", kpiSpend:"ยอดใช้จ่ายรวม",
+        kpiSpendCaption:"ผลรวมจากรายงานล่าสุดของลูกค้าแต่ละราย",
+        kpiUpToDate:"อัปเดตแล้วในเดือนนี้",
+        chartSpendByClient:"ยอดใช้จ่ายแยกตามลูกค้า (รายงานล่าสุด)",
+        chartTrend:"แนวโน้มยอดใช้จ่ายโดยรวม",
+        yourClients:"ลูกค้าของคุณ",
+        lastReport:"รายงานล่าสุด — {month} · {amount}",
+        noReport:"ยังไม่มีรายงาน",
+        upToDate:"อัปเดตแล้ว", missing:"ยังไม่มีรายงานของเดือนนี้"
+      },
+      settings:{
+        title:"การตั้งค่า", sub:"จัดการข้อมูลในเครื่องของคุณ ไม่มีการส่งข้อมูลไปยังเซิร์ฟเวอร์ใดๆ ทุกอย่างจะถูกเก็บไว้ในที่เก็บข้อมูลของเบราว์เซอร์คุณ",
+        storageOverview:"ภาพรวมพื้นที่จัดเก็บ", clients:"ลูกค้า", reports:"รายงาน",
+        exampleData:"ข้อมูลตัวอย่าง", exampleDataDesc:"ลูกค้าตัวอย่างถูกระบุไว้อย่างชัดเจนและแยกจากข้อมูลจริงของคุณ",
+        loadExample:"โหลดลูกค้าตัวอย่าง", clearExample:"ลบข้อมูลตัวอย่าง",
+        language:"ภาษา", languageDesc:"เลือกภาษาที่ใช้แสดงผล",
+        currency:"สกุลเงิน", currencyDesc:"เลือกสกุลเงินที่ใช้แสดงจำนวนเงินทั้งหมด"
+      },
+      clientForm:{
+        newTitle:"ลูกค้าใหม่", editTitle:"แก้ไขลูกค้า",
+        nameLabel:"ชื่อลูกค้า *", logoLabel:"โลโก้ (URL ไม่บังคับ)", colorLabel:"สีแบรนด์",
+        save:"บันทึก", cancel:"ยกเลิก", deleteClient:"ลบลูกค้า",
+        nameRequired:"กรุณากรอกชื่อ",
+        confirmDelete:"ลบ \"{name}\" และรายงานทั้งหมดของลูกค้ารายนี้?"
+      },
+      reportsList:{
+        editClient:"แก้ไขลูกค้า", newReport:"+ รายงานใหม่",
+        count:"{n} รายงาน", recent:"รายงานล่าสุด",
+        emptyTitle:"ยังไม่มีรายงานสำหรับลูกค้ารายนี้", emptyDesc:"สร้างรายงานรายเดือนแรกเพื่อเริ่มต้น",
+        totalSpend:"ยอดใช้จ่ายรวม — {amount}",
+        spendChartTitle:"ยอดใช้จ่ายแยกตามเดือน",
+        edit:"แก้ไข", delete:"ลบ",
+        confirmDeleteReport:"ลบรายงานนี้?"
+      },
+      reportForm:{
+        newTitle:"รายงานใหม่", editTitle:"แก้ไขรายงาน", back:"← ย้อนกลับ",
+        monthLabel:"เดือนของรายงาน *",
+        monthRequired:"กรุณาเลือกเดือน", monthDuplicate:"มีรายงานของเดือนนี้อยู่แล้ว",
+        metricPositive:"ต้องเป็นจำนวนที่เป็นบวก", metricRange:"ต้องอยู่ระหว่าง 0 ถึง 100",
+        metaAds:"Meta Ads", googleAds:"Google Ads", website:"เว็บไซต์", email:"อีเมล",
+        spend:"ยอดใช้จ่าย (€)", impressions:"การแสดงผล", clicks:"คลิก", leads:"ลีด",
+        sessions:"เซสชัน", users:"ผู้ใช้", conversions:"คอนเวอร์ชัน",
+        sent:"อีเมลที่ส่ง", openRate:"อัตราการเปิดอ่าน (%)", clickRate:"อัตราการคลิก (%)",
+        customMetrics:"ตัวชี้วัดที่กำหนดเอง", addMetric:"+ เพิ่มตัวชี้วัด",
+        metricNamePlaceholder:"ชื่อตัวชี้วัด", valuePlaceholder:"ค่า",
+        save:"บันทึกรายงาน", cancel:"ยกเลิก",
+        duplicateLastMonth:"ทำซ้ำจากเดือนที่แล้ว",
+        importFile:"นำเข้าไฟล์ (Excel/CSV)",
+        notesLabel:"บันทึกบริบท (ไม่บังคับ)",
+        notesPlaceholder:"แคมเปญใดที่เปิดใช้งานบ้าง? มีอะไรเปลี่ยนแปลงในเดือนนี้?",
+        pasteToggle:"วางจากสเปรดชีต",
+        pasteLabel:"วางข้อมูลของคุณ (หัวตารางอยู่บรรทัดแรก)",
+        pastePlaceholder:"ยอดใช้จ่าย\tการแสดงผล\tคลิก\tลีด\n1200\t85000\t1700\t42",
+        pasteAnalyze:"วิเคราะห์",
+        pasteFill:"กรอกข้อมูลลงฟิลด์",
+        pasteUnmapped:"คอลัมน์ที่ไม่รู้จัก (ถูกข้าม)",
+        pasteConfirmOverwrite:"ฟิลด์เหล่านี้มีค่าอยู่แล้ว ต้องการแทนที่หรือไม่?",
+        pasteNoRows:"กรุณาวางอย่างน้อยหนึ่งบรรทัดหัวตารางและหนึ่งบรรทัดค่าข้อมูล"
+      },
+      importModal:{
+        title:"นำเข้าไฟล์",
+        desc:"จับคู่คอลัมน์ในไฟล์ของคุณกับตัวชี้วัดแต่ละตัว จากนั้นนำเข้า คอลัมน์ที่ไม่รู้จักจะถูกข้าม",
+        rowLabel:"แถวข้อมูล",
+        rowOption:"แถว {n}: {preview}",
+        cancel:"ยกเลิก", confirm:"นำเข้าค่า",
+        parseError:"ไม่สามารถอ่านไฟล์นี้ได้ โปรดตรวจสอบว่าเป็นไฟล์ Excel (.xlsx) หรือ CSV ที่ถูกต้อง",
+        noData:"ไฟล์นี้ไม่มีแถวข้อมูล",
+        imported:"นำเข้าค่าสำเร็จแล้ว โปรดตรวจสอบก่อนบันทึกรายงาน",
+        noMatches:"ไม่สามารถจับคู่คอลัมน์ใดกับตัวชี้วัดได้ โปรดตรวจสอบหัวตารางในไฟล์ของคุณ หรือจับคู่คอลัมน์ด้วยตนเองด้านบน"
+      },
+      preview:{
+        back:"← กลับไปที่รายงาน", edit:"แก้ไข", exportCsv:"ส่งออกเป็น CSV",
+        pdfNote:"หากต้องการบันทึกเป็น PDF ให้ใช้ฟังก์ชันพิมพ์ของเบราว์เซอร์ (Ctrl+P / Cmd+P)",
+        monthly:"รายงานประจำเดือน — {month}",
+        kpiSpend:"ยอดใช้จ่ายรวม", kpiLeads:"ลีดรวม", kpiCpl:"CPL เฉลี่ย", kpiConversions:"คอนเวอร์ชันของเว็บไซต์",
+        indicator:"ตัวชี้วัด", value:"ค่า", vsPrevious:"เทียบกับเดือนก่อนหน้า",
+        ctr:"CTR", cpc:"CPC", cpl:"CPL", convRate:"อัตราการแปลง",
+        customMetrics:"ตัวชี้วัดที่กำหนดเอง", visualizations:"การแสดงผลข้อมูล",
+        chartSpend:"สัดส่วนยอดใช้จ่าย", chartLeads:"ลีดและคอนเวอร์ชัน", chartTrend:"แนวโน้มงบประมาณ"
+      },
+      csvExport:{ section:"ส่วน", indicator:"ตัวชี้วัด", value:"ค่า", client:"ลูกค้า", name:"ชื่อ", report:"รายงาน", month:"เดือน", custom:"กำหนดเอง", notes:"บันทึก" },
+      changes:{
+        title:"สิ่งที่เปลี่ยนแปลง", noPrevious:"ไม่มีข้อมูลเปรียบเทียบ — เป็นรายงานแรกของลูกค้ารายนี้",
+        none:"ไม่มีการเปลี่ยนแปลงที่เทียบได้ในเดือนนี้",
+        metaSpend:"ยอดใช้จ่าย Meta", metaClicks:"คลิก Meta", metaLeads:"ลีด Meta",
+        googleSpend:"ยอดใช้จ่าย Google", googleClicks:"คลิก Google", googleLeads:"ลีด Google",
+        sessions:"เซสชันเว็บไซต์", conversions:"คอนเวอร์ชันเว็บไซต์", openRate:"อัตราการเปิดอ่าน", clickRate:"อัตราการคลิก"
+      },
+      goals:{
+        title:"เป้าหมาย", desc:"กำหนดเป้าหมายรายเดือนสำหรับลูกค้ารายนี้ เป้าหมายจะมีผลกับทุกรายงานของลูกค้า",
+        addGoal:"เพิ่มเป้าหมาย", type:"ประเภทเป้าหมาย",
+        leadsLabel:"ลีด (ต่อเดือน)", spendLabel:"ยอดใช้จ่ายสูงสุด (ต่อเดือน)", cplLabel:"CPL เป้าหมาย", customLabel:"กำหนดเอง",
+        customNamePlaceholder:"ชื่อตัวชี้วัดที่กำหนดเอง", target:"ค่าเป้าหมาย",
+        direction:"ทิศทางของเป้าหมาย", directionMore:"ยิ่งมากยิ่งดี (เช่น ลีด)", directionLess:"ยิ่งน้อยยิ่งดี (เช่น ต้นทุน)",
+        noGoals:"ยังไม่มีการกำหนดเป้าหมาย", remove:"ลบ", add:"เพิ่ม",
+        reached:"ถึงเป้าหมายแล้ว", inProgress:"กำลังดำเนินการ", exceeded:"เกินเป้าหมาย"
+      },
+      yearView:{
+        tabReports:"รายงาน", tabYear:"ภาพรวมรายปี",
+        empty:"เพิ่มรายงานอย่างน้อยสองฉบับเพื่อดูแนวโน้ม",
+        metric:"ตัวชี้วัด", metricLeads:"ลีด", metricSpend:"ยอดใช้จ่าย", metricCpl:"CPL", metricConversions:"คอนเวอร์ชัน",
+        totalLeads:"ลีด (ช่วงเวลา)", totalSpend:"ยอดใช้จ่าย (ช่วงเวลา)", avgCpl:"CPL เฉลี่ย (ช่วงเวลา)",
+        chartTitle:"แนวโน้ม — {metric}"
+      },
+      currency:{ EUR:"ยูโร (€)", USD:"ดอลลาร์สหรัฐ ($)", GBP:"ปอนด์สเตอร์ลิง (£)", MAD:"ดีแรห์มโมร็อกโก (DH)", CAD:"ดอลลาร์แคนาดา ($)", CHF:"ฟรังก์สวิส (CHF)" },
+      alerts:{ exampleLoaded:"โหลดลูกค้าตัวอย่างไว้แล้ว", confirmClearExample:"ลบลูกค้าตัวอย่างและรายงานทั้งหมดของลูกค้ารายนี้?" },
+      charts:{ unavailable:"กราฟไม่พร้อมใช้งาน — โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วโหลดหน้านี้ใหม่" },
+      months:["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."]
     }
   };
 
+  /* Supported interface languages: code, short badge shown in the sidebar switcher,
+     native full name shown in Settings, and the Intl locale used for number/date formatting. */
+  const LANGS = [
+    { code:"fr", short:"FR", native:"Français", locale:"fr-FR" },
+    { code:"en", short:"EN", native:"English", locale:"en-US" },
+    { code:"es", short:"ES", native:"Español", locale:"es-ES" },
+    { code:"de", short:"DE", native:"Deutsch", locale:"de-DE" },
+    { code:"nl", short:"NL", native:"Nederlands", locale:"nl-NL" },
+    { code:"it", short:"IT", native:"Italiano", locale:"it-IT" },
+    { code:"th", short:"TH", native:"ไทย", locale:"th-TH" }
+  ];
+  const LANG_CODES = LANGS.map(l => l.code);
+
   let currentLang = (function(){
-    try{ const saved = localStorage.getItem("rapport_lang"); if(saved==='fr'||saved==='en') return saved; }catch(e){}
+    try{ const saved = localStorage.getItem("rapport_lang"); if(LANG_CODES.includes(saved)) return saved; }catch(e){}
     return 'fr';
   })();
 
@@ -642,19 +1360,16 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     if(vars){ Object.keys(vars).forEach(k=>{ str = str.replace(new RegExp('\\{'+k+'\\}','g'), vars[k]); }); }
     return str;
   }
-  function loc(){ return currentLang === 'en' ? 'en-US' : 'fr-FR'; }
+  function loc(){ return (LANGS.find(l => l.code === currentLang) || LANGS[0]).locale; }
   function setLang(lang){
-    if(lang!=='fr' && lang!=='en') return;
+    if(!LANG_CODES.includes(lang)) return;
     currentLang = lang;
     try{ localStorage.setItem("rapport_lang", lang); }catch(e){}
     document.documentElement.lang = lang;
     render();
   }
   function renderLangSwitch(){
-    const html = `
-      <button class="lang-btn ${currentLang==='fr'?'active':''}" data-action="set-lang" data-lang="fr">FR</button>
-      <button class="lang-btn ${currentLang==='en'?'active':''}" data-action="set-lang" data-lang="en">EN</button>
-    `;
+    const html = LANGS.map(l => `<button class="lang-btn ${currentLang===l.code?'active':''}" data-action="set-lang" data-lang="${l.code}">${l.short}</button>`).join('');
     const el = document.getElementById("langSwitchSidebar");
     if(el) el.innerHTML = html;
   }
@@ -1449,9 +2164,8 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
 
         <div class="eyebrow mb-3">${t('settings.language')}</div>
         <p class="text-muted text-sm mb-4">${t('settings.languageDesc')}</p>
-        <div class="flex gap-2 mb-12">
-          <button class="btn ${currentLang==='fr'?'btn-primary':'btn-ghost'} btn-sm" data-action="set-lang" data-lang="fr">Français</button>
-          <button class="btn ${currentLang==='en'?'btn-primary':'btn-ghost'} btn-sm" data-action="set-lang" data-lang="en">English</button>
+        <div class="flex gap-2 mb-12 flex-wrap">
+          ${LANGS.map(l => `<button class="btn ${currentLang===l.code?'btn-primary':'btn-ghost'} btn-sm" data-action="set-lang" data-lang="${l.code}">${l.native}</button>`).join('')}
         </div>
 
         <div class="eyebrow mb-3">${t('settings.currency')}</div>
