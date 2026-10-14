@@ -52,8 +52,25 @@
   .text-accent{ color:var(--accent); }
   .border-base{ border-color:var(--border); }
 
-  .surface{ background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); }
+  .surface{ background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); transition:transform .2s ease, box-shadow .2s ease; }
   .card{ border-radius:20px; }
+  .surface.card:hover{ transform:translateY(-3px); box-shadow:var(--shadow-md); }
+
+  /* Icon chips: a colored rounded square behind each feature/step SVG icon */
+  .icon-chip{
+    width:2.75rem; height:2.75rem; border-radius:12px; background:var(--accent-soft); color:var(--accent);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .icon-chip svg{ width:1.4rem; height:1.4rem; }
+
+  /* Scroll-reveal: sections start faded/offset, .reveal-visible is toggled on by an
+     IntersectionObserver as each one enters the viewport. */
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal-visible{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity:1; transform:none; transition:none; }
+    .surface.card:hover{ transform:none; }
+  }
 
   .btn{
     display:inline-flex; align-items:center; gap:.5rem; padding:.7rem 1.4rem;
@@ -147,6 +164,31 @@
   .hero-glow::before{ width:420px; height:420px; background:var(--accent); top:-160px; left:10%; }
   .hero-glow::after{ width:340px; height:340px; background:var(--accent-2); bottom:-140px; right:12%; opacity:.25; }
 
+  /* Hero background: a faint dot-grid texture, under the glow blobs, under the content. */
+  .hero-dotgrid{
+    position:absolute; inset:0; z-index:0; pointer-events:none;
+    background-image:radial-gradient(circle, var(--border) 1.5px, transparent 1.5px);
+    background-size:28px 28px;
+    mask-image:radial-gradient(ellipse 60% 55% at 50% 30%, black 40%, transparent 90%);
+    -webkit-mask-image:radial-gradient(ellipse 60% 55% at 50% 30%, black 40%, transparent 90%);
+  }
+
+  /* Floating stat/graph chips scattered around the hero copy, for visual interest without
+     external images — each carries real-looking (but illustrative) numbers and a tiny chart. */
+  .float-chip{
+    position:absolute; z-index:1; background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; box-shadow:var(--shadow-md); padding:.85rem 1.1rem; pointer-events:none;
+    animation:floaty 6s ease-in-out infinite;
+  }
+  .float-chip .fc-label{ font-size:.65rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  .float-chip .fc-value{ font-family:'Outfit',sans-serif; font-weight:700; font-size:1.3rem; margin-top:.15rem; }
+  @keyframes floaty{
+    0%, 100%{ transform:translateY(0px); }
+    50%{ transform:translateY(-10px); }
+  }
+  @media (prefers-reduced-motion: reduce){ .float-chip{ animation:none; } }
+  @media (max-width: 960px){ .float-chip{ display:none; } }
+
   .modal-backdrop{
     position:fixed; inset:0; background:rgba(15,20,30,.45); backdrop-filter:blur(2px);
     display:flex; align-items:center; justify-content:center; z-index:100; padding:1.5rem;
@@ -201,8 +243,8 @@
     </div>
 
     <nav class="flex flex-col gap-1">
-      <div class="nav-item" id="navHome" data-action="go-home">Accueil</div>
-      <div class="nav-item" id="navDashboard" data-action="go-dashboard">Tableau de bord</div>
+      <div class="nav-item flex items-center gap-2.5" id="navHome" data-action="go-home"><span id="navHomeIcon" style="display:flex; flex-shrink:0;"></span><span id="navHomeLabel">Accueil</span></div>
+      <div class="nav-item flex items-center gap-2.5" id="navDashboard" data-action="go-dashboard"><span id="navDashboardIcon" style="display:flex; flex-shrink:0;"></span><span id="navDashboardLabel">Tableau de bord</span></div>
     </nav>
 
     <div class="px-5 pt-7 pb-2">
@@ -218,7 +260,7 @@
     <div class="px-5 pt-5 flex items-center gap-1" id="langSwitchSidebar"></div>
 
     <nav class="pt-3 pb-7 flex flex-col gap-1" style="border-top:1px solid var(--border); margin-top:.75rem; padding-top:1rem;">
-      <div class="nav-item" id="navSettings" data-action="go-settings">Paramètres</div>
+      <div class="nav-item flex items-center gap-2.5" id="navSettings" data-action="go-settings"><span id="navSettingsIcon" style="display:flex; flex-shrink:0;"></span><span id="navSettingsLabel">Paramètres</span></div>
     </nav>
   </aside>
 
@@ -246,6 +288,7 @@
         mockupCaption:"Aperçu illustratif — vos rapports utilisent vos propres chiffres et couleurs de marque.",
         kpiSpend:"Dépense totale", kpiLeads:"Leads totaux", kpiCpl:"CPL moyen",
         chartLabel:"Leads par canal",
+        chipLeads:"Leads", chipReports:"Rapports", chipGoal:"Objectif",
         howEyebrow:"Comment ça marche", howTitle:"Trois étapes, chaque mois.",
         step1Title:"Ajoutez un client", step1Desc:"Nom, logo et couleur de marque pour des rapports à son image.",
         step2Title:"Ajoutez vos chiffres", step2Desc:"Collez-les à la main ou importez un fichier Excel/CSV existant.",
@@ -366,6 +409,7 @@
       },
       currency:{ EUR:"Euro (€)", USD:"Dollar US ($)", GBP:"Livre sterling (£)", MAD:"Dirham marocain (DH)", CAD:"Dollar canadien ($)", CHF:"Franc suisse (CHF)" },
       alerts:{ exampleLoaded:"Le client exemple est déjà chargé.", confirmClearExample:"Supprimer le client exemple et ses rapports ?" },
+      charts:{ unavailable:"Graphiques indisponibles — vérifiez votre connexion internet et rechargez la page." },
       months:["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."]
     },
     en: {
@@ -383,6 +427,7 @@
         mockupCaption:"Illustrative preview — your reports use your own numbers and brand colors.",
         kpiSpend:"Total spend", kpiLeads:"Total leads", kpiCpl:"Average CPL",
         chartLabel:"Leads by channel",
+        chipLeads:"Leads", chipReports:"Reports", chipGoal:"Goal",
         howEyebrow:"How it works", howTitle:"Three steps, every month.",
         step1Title:"Add a client", step1Desc:"Name, logo and brand color for reports that look like them.",
         step2Title:"Add your numbers", step2Desc:"Paste them by hand or import an existing Excel/CSV file.",
@@ -503,6 +548,7 @@
       },
       currency:{ EUR:"Euro (€)", USD:"US Dollar ($)", GBP:"British Pound (£)", MAD:"Moroccan Dirham (DH)", CAD:"Canadian Dollar ($)", CHF:"Swiss Franc (CHF)" },
       alerts:{ exampleLoaded:"The example client is already loaded.", confirmClearExample:"Remove the example client and its reports?" },
+      charts:{ unavailable:"Charts unavailable — check your internet connection and reload the page." },
       months:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
     }
   };
@@ -844,12 +890,15 @@
   function renderSidebar(){
     document.getElementById("appNameLabel").textContent = t('appName');
     document.getElementById("taglineLabel").textContent = t('tagline');
-    document.getElementById("navHome").textContent = t('nav.home');
-    document.getElementById("navDashboard").textContent = t('nav.dashboard');
+    document.getElementById("navHomeIcon").innerHTML = icon('home', 17);
+    document.getElementById("navHomeLabel").textContent = t('nav.home');
+    document.getElementById("navDashboardIcon").innerHTML = icon('barChart', 17);
+    document.getElementById("navDashboardLabel").textContent = t('nav.dashboard');
     document.getElementById("clientsLabel").textContent = t('nav.clients');
     document.getElementById("newClientBtn").textContent = t('sidebar.newClient');
     document.getElementById("loadExampleBtn").textContent = t('sidebar.loadExample');
-    document.getElementById("navSettings").textContent = t('nav.settings');
+    document.getElementById("navSettingsIcon").innerHTML = icon('settings', 17);
+    document.getElementById("navSettingsLabel").textContent = t('nav.settings');
     renderLangSwitch();
 
     const list = document.getElementById("clientList");
@@ -874,6 +923,77 @@
 
   function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
   function escapeAttr(s){ return escapeHtml(s); }
+
+  /* ---------- Icons ----------
+     Small hand-written line-icon set (24x24, stroke=currentColor), in the Feather/Lucide
+     style. Self-contained inline SVG — no icon font or external request, themes automatically
+     via currentColor, and each is cheap enough to inline repeatedly without real file weight. */
+  const ICONS = {
+    userPlus: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
+    clipboard: '<rect x="6" y="4" width="12" height="18" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1M9 11h6M9 15h6"/>',
+    share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5 15.4 6.5M8.6 13.5l6.8 4"/>',
+    barChart: '<path d="M4 20V10M12 20V4M20 20v-7"/>',
+    trendUp: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+    users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16.5 6.5a3.5 3.5 0 1 1 0 7"/><path d="M21.5 20a6 6 0 0 0-5-5.9"/>',
+    download: '<path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',
+    sliders: '<path d="M4 6h10M18 6h2M4 12h2M8 12h12M4 18h14M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+    lock: '<rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+    target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+    sparkle: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/>',
+    globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+    home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1V15a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4.5a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1V10"/>',
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'
+  };
+  function icon(name, size){
+    const s = size || 24;
+    return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]||''}</svg>`;
+  }
+
+  /* ---------- Scroll reveal ---------- */
+  let revealObserver = null;
+  function initRevealObserver(){
+    if(revealObserver || !('IntersectionObserver' in window)) return;
+    revealObserver = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){ entry.target.classList.add('reveal-visible'); revealObserver.unobserve(entry.target); }
+      });
+    }, { threshold: 0.12 });
+  }
+  function observeReveals(root){
+    initRevealObserver();
+    const els = root.querySelectorAll('.reveal');
+    if(!revealObserver){ els.forEach(el=>el.classList.add('reveal-visible')); return; }
+    els.forEach(el=>revealObserver.observe(el));
+  }
+
+  /* ---------- Chart.js defensive wrapper ----------
+     Chart.js loads from a CDN; if that request is blocked (ad-blocker, offline, corporate
+     firewall) or the script otherwise fails, `Chart` stays undefined and `new Chart(...)`
+     throws. Previously that exception propagated straight out of whichever render function
+     was building charts, leaving every canvas on the page a silent blank box with no
+     explanation — and, since the throw happened mid-function, it could even skip unrelated
+     code that ran after it (like the KPI auto-fit sizing). safeChart() runs any chart-creation
+     block in isolation: on failure it prints one console.error for debugging and swaps each
+     canvas for a visible "Graphiques indisponibles" message, so a CDN hiccup degrades
+     gracefully instead of silently breaking the page. */
+  function safeChart(fn){
+    try{
+      if(typeof Chart === 'undefined') throw new Error('Chart.js failed to load (CDN blocked or offline)');
+      fn();
+    }catch(err){
+      console.error('Chart rendering failed:', err);
+      document.querySelectorAll('canvas').forEach(canvas=>{
+        if(canvas.dataset.chartFallbackShown) return;
+        canvas.dataset.chartFallbackShown = '1';
+        const msg = document.createElement('p');
+        msg.className = 'text-muted text-sm';
+        msg.style.textAlign = 'center';
+        msg.style.padding = '1.5rem 0';
+        msg.textContent = t('charts.unavailable');
+        canvas.replaceWith(msg);
+      });
+    }
+  }
 
   /* ---------- Rendering: main router ---------- */
   function render(){
@@ -905,8 +1025,29 @@
     main.innerHTML = `
       <div style="max-width:980px; margin:0 auto;">
 
-        <section style="position:relative; overflow:hidden; padding-bottom:1rem;">
+        <section style="position:relative; overflow:hidden; padding-bottom:1rem; padding-top:.5rem;">
+          <div class="hero-dotgrid"></div>
           <div class="hero-glow"></div>
+
+          <div class="float-chip" style="top:2rem; left:-1rem; animation-delay:0s;">
+            <div class="flex items-center gap-2">
+              <span class="icon-chip" style="width:1.9rem; height:1.9rem; border-radius:9px;">${icon('trendUp',15)}</span>
+              <div><div class="fc-label">${t('landing.chipLeads')}</div><div class="fc-value" style="font-size:1.05rem; color:var(--success);">+24%</div></div>
+            </div>
+          </div>
+          <div class="float-chip" style="top:5.5rem; right:-1.5rem; animation-delay:1.4s;">
+            <div class="flex items-center gap-2">
+              <span class="icon-chip" style="width:1.9rem; height:1.9rem; border-radius:9px;">${icon('barChart',15)}</span>
+              <div><div class="fc-label">${t('landing.chipReports')}</div><div class="fc-value" style="font-size:1.05rem;">128</div></div>
+            </div>
+          </div>
+          <div class="float-chip" style="bottom:-1rem; left:2%; animation-delay:2.8s;">
+            <div class="flex items-center gap-2">
+              <span class="icon-chip" style="width:1.9rem; height:1.9rem; border-radius:9px;">${icon('target',15)}</span>
+              <div><div class="fc-label">${t('landing.chipGoal')}</div><div class="fc-value" style="font-size:1.05rem;">92%</div></div>
+            </div>
+          </div>
+
           <div style="position:relative; z-index:1; text-align:center; max-width:640px; margin:0 auto;">
             <span class="eyebrow" style="color:var(--accent);">${t('landing.eyebrow')}</span>
             <h2 class="headline font-bold mt-4 mb-4" style="font-size:3rem; line-height:1.06;">${t('landing.headline')}</h2>
@@ -928,12 +1069,16 @@
               <div style="background:var(--bg-soft); border-radius:14px; padding:2rem;">
                 <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
                   <div class="flex items-center gap-3">
-                    <span style="width:2.75rem; height:2.75rem; border-radius:12px; display:inline-block; background:linear-gradient(135deg, var(--accent), var(--accent-2));"></span>
+                    <span style="width:2.75rem; height:2.75rem; border-radius:12px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:var(--accent-fg);">${icon('barChart',18)}</span>
                     <div style="text-align:left;">
                       <p class="headline font-bold" style="font-size:1.3rem; line-height:1.1;">${t('landing.mockupClient')}</p>
                       <p class="text-muted text-xs">${t('landing.mockupTitle')} <span class="badge badge-example">${t('common.example')}</span></p>
                     </div>
                   </div>
+                  <svg width="110" height="36" viewBox="0 0 110 36" fill="none">
+                    <polyline points="0,28 18,24 36,26 54,14 72,18 90,6 110,10" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="110" cy="10" r="3.5" fill="var(--accent)"/>
+                  </svg>
                 </div>
                 <div class="grid gap-3 mb-6" style="grid-template-columns:repeat(3,1fr);">
                   <div class="surface card p-4" style="text-align:left; min-width:0;">
@@ -975,42 +1120,52 @@
           </div>
         </section>
 
-        <section class="mt-24">
+        <section class="mt-24 reveal">
           <div class="eyebrow text-center mb-3">${t('landing.howEyebrow')}</div>
           <h3 class="headline font-bold text-center mb-10" style="font-size:1.9rem;">${t('landing.howTitle')}</h3>
           <div class="grid gap-4" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
             <div class="surface card p-6">
-              <span class="eyebrow" style="color:var(--accent);">01</span>
-              <p class="font-semibold mt-2 mb-1">${t('landing.step1Title')}</p>
+              <div class="flex items-center gap-3 mb-3">
+                <span class="icon-chip">${icon('userPlus')}</span>
+                <span class="eyebrow" style="color:var(--accent);">01</span>
+              </div>
+              <p class="font-semibold mb-1">${t('landing.step1Title')}</p>
               <p class="text-muted text-sm">${t('landing.step1Desc')}</p>
             </div>
             <div class="surface card p-6">
-              <span class="eyebrow" style="color:var(--accent);">02</span>
-              <p class="font-semibold mt-2 mb-1">${t('landing.step2Title')}</p>
+              <div class="flex items-center gap-3 mb-3">
+                <span class="icon-chip">${icon('clipboard')}</span>
+                <span class="eyebrow" style="color:var(--accent);">02</span>
+              </div>
+              <p class="font-semibold mb-1">${t('landing.step2Title')}</p>
               <p class="text-muted text-sm">${t('landing.step2Desc')}</p>
             </div>
             <div class="surface card p-6">
-              <span class="eyebrow" style="color:var(--accent);">03</span>
-              <p class="font-semibold mt-2 mb-1">${t('landing.step3Title')}</p>
+              <div class="flex items-center gap-3 mb-3">
+                <span class="icon-chip">${icon('share')}</span>
+                <span class="eyebrow" style="color:var(--accent);">03</span>
+              </div>
+              <p class="font-semibold mb-1">${t('landing.step3Title')}</p>
               <p class="text-muted text-sm">${t('landing.step3Desc')}</p>
             </div>
           </div>
         </section>
 
-        <section class="mt-24">
+        <section class="mt-24 reveal">
           <div class="eyebrow text-center mb-3">${t('landing.featEyebrow')}</div>
           <h3 class="headline font-bold text-center mb-10" style="font-size:1.9rem;">${t('landing.featTitle')}</h3>
           <div class="grid gap-4" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
-            <div class="surface card p-6"><p class="font-semibold mb-1">${t('landing.feat1T')}</p><p class="text-muted text-sm">${t('landing.feat1D')}</p></div>
-            <div class="surface card p-6"><p class="font-semibold mb-1">${t('landing.feat2T')}</p><p class="text-muted text-sm">${t('landing.feat2D')}</p></div>
-            <div class="surface card p-6"><p class="font-semibold mb-1">${t('landing.feat3T')}</p><p class="text-muted text-sm">${t('landing.feat3D')}</p></div>
-            <div class="surface card p-6"><p class="font-semibold mb-1">${t('landing.feat4T')}</p><p class="text-muted text-sm">${t('landing.feat4D')}</p></div>
-            <div class="surface card p-6"><p class="font-semibold mb-1">${t('landing.feat5T')}</p><p class="text-muted text-sm">${t('landing.feat5D')}</p></div>
-            <div class="surface card p-6"><p class="font-semibold mb-1">${t('landing.feat6T')}</p><p class="text-muted text-sm">${t('landing.feat6D')}</p></div>
+            <div class="surface card p-6"><span class="icon-chip mb-3" style="display:flex;">${icon('barChart')}</span><p class="font-semibold mb-1">${t('landing.feat1T')}</p><p class="text-muted text-sm">${t('landing.feat1D')}</p></div>
+            <div class="surface card p-6"><span class="icon-chip mb-3" style="display:flex;">${icon('trendUp')}</span><p class="font-semibold mb-1">${t('landing.feat2T')}</p><p class="text-muted text-sm">${t('landing.feat2D')}</p></div>
+            <div class="surface card p-6"><span class="icon-chip mb-3" style="display:flex;">${icon('users')}</span><p class="font-semibold mb-1">${t('landing.feat3T')}</p><p class="text-muted text-sm">${t('landing.feat3D')}</p></div>
+            <div class="surface card p-6"><span class="icon-chip mb-3" style="display:flex;">${icon('download')}</span><p class="font-semibold mb-1">${t('landing.feat4T')}</p><p class="text-muted text-sm">${t('landing.feat4D')}</p></div>
+            <div class="surface card p-6"><span class="icon-chip mb-3" style="display:flex;">${icon('sliders')}</span><p class="font-semibold mb-1">${t('landing.feat5T')}</p><p class="text-muted text-sm">${t('landing.feat5D')}</p></div>
+            <div class="surface card p-6"><span class="icon-chip mb-3" style="display:flex;">${icon('lock')}</span><p class="font-semibold mb-1">${t('landing.feat6T')}</p><p class="text-muted text-sm">${t('landing.feat6D')}</p></div>
           </div>
         </section>
 
-        <section class="mt-24 mb-16" style="background:var(--accent-soft); border-radius:24px; padding:3.5rem 2rem; text-align:center;">
+        <section class="mt-24 mb-16 reveal" style="background:var(--accent-soft); border-radius:24px; padding:3.5rem 2rem; text-align:center;">
+          <span class="icon-chip mb-4" style="display:inline-flex; background:var(--surface);">${icon('sparkle')}</span>
           <h3 class="headline font-bold mb-3" style="font-size:2rem;">${t('landing.ctaTitle')}</h3>
           <p class="text-muted mb-7" style="max-width:420px; margin-left:auto; margin-right:auto;">${t('landing.ctaDesc')}</p>
           <div class="flex gap-3 justify-center">
@@ -1020,6 +1175,7 @@
         </section>
 
       </div>`;
+    observeReveals(main);
   }
 
   /* ---------- Dashboard overview (returning users) ---------- */
@@ -1098,63 +1254,65 @@
     destroyDashboardCharts();
     if(!hasAnyReports) return;
 
-    const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#6D7178';
-    const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#E7EDF3';
-    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2D7FE0';
-    Chart.defaults.color = muted;
-    Chart.defaults.borderColor = border;
-    Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.font.size = 11;
+    safeChart(() => {
+      const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#6D7178';
+      const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#E7EDF3';
+      const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2D7FE0';
+      Chart.defaults.color = muted;
+      Chart.defaults.borderColor = border;
+      Chart.defaults.font.family = "'Inter', sans-serif";
+      Chart.defaults.font.size = 11;
 
-    const clientsWithLatest = data.clients.map(c=>({ c, latest: latestReportFor(c.id) })).filter(x=>x.latest);
-    const spendCtx = document.getElementById('chartClientSpend');
-    if(spendCtx){
-      dashboardCharts.push(new Chart(spendCtx, {
-        type: 'bar',
-        data: {
-          labels: clientsWithLatest.map(x=>x.c.name),
-          datasets: [{
-            label: t('dashboard.kpiSpend'),
-            data: clientsWithLatest.map(x=>{ const cd = computeReport(x.latest); return (cd.meta.spend||0)+(cd.google.spend||0); }),
-            backgroundColor: clientsWithLatest.map(x=>x.c.color||accentColor),
-            borderRadius: 8, maxBarThickness: 44
-          }]
-        },
-        options: {
-          plugins:{ legend:{display:false} },
-          scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } }
-        }
-      }));
-    }
+      const clientsWithLatest = data.clients.map(c=>({ c, latest: latestReportFor(c.id) })).filter(x=>x.latest);
+      const spendCtx = document.getElementById('chartClientSpend');
+      if(spendCtx){
+        dashboardCharts.push(new Chart(spendCtx, {
+          type: 'bar',
+          data: {
+            labels: clientsWithLatest.map(x=>x.c.name),
+            datasets: [{
+              label: t('dashboard.kpiSpend'),
+              data: clientsWithLatest.map(x=>{ const cd = computeReport(x.latest); return (cd.meta.spend||0)+(cd.google.spend||0); }),
+              backgroundColor: clientsWithLatest.map(x=>x.c.color||accentColor),
+              borderRadius: 8, maxBarThickness: 44
+            }]
+          },
+          options: {
+            plugins:{ legend:{display:false} },
+            scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } }
+          }
+        }));
+      }
 
-    const allMonths = Array.from(new Set(data.reports.map(r=>r.month))).sort();
-    const trendCtx = document.getElementById('chartGlobalTrend');
-    if(trendCtx){
-      const ctx2d = trendCtx.getContext('2d');
-      const grad = ctx2d.createLinearGradient(0,0,0,200);
-      grad.addColorStop(0, accentColor+'33');
-      grad.addColorStop(1, accentColor+'00');
-      dashboardCharts.push(new Chart(ctx2d, {
-        type: 'line',
-        data: {
-          labels: allMonths.map(m=>monthLabel(m)),
-          datasets: [{
-            label: t('dashboard.kpiSpend'),
-            data: allMonths.map(m=>{
-              return data.reports.filter(r=>r.month===m).reduce((sum,r)=>{
-                const cd = computeReport(r);
-                return sum + (cd.meta.spend||0) + (cd.google.spend||0);
-              }, 0);
-            }),
-            borderColor: accentColor, backgroundColor: grad, fill:true, tension:.35, borderWidth:2.5, pointRadius:3, pointBackgroundColor: accentColor, pointBorderColor:'#fff', pointBorderWidth:2
-          }]
-        },
-        options: {
-          plugins:{ legend:{display:false} },
-          scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } }
-        }
-      }));
-    }
+      const allMonths = Array.from(new Set(data.reports.map(r=>r.month))).sort();
+      const trendCtx = document.getElementById('chartGlobalTrend');
+      if(trendCtx){
+        const ctx2d = trendCtx.getContext('2d');
+        const grad = ctx2d.createLinearGradient(0,0,0,200);
+        grad.addColorStop(0, accentColor+'33');
+        grad.addColorStop(1, accentColor+'00');
+        dashboardCharts.push(new Chart(ctx2d, {
+          type: 'line',
+          data: {
+            labels: allMonths.map(m=>monthLabel(m)),
+            datasets: [{
+              label: t('dashboard.kpiSpend'),
+              data: allMonths.map(m=>{
+                return data.reports.filter(r=>r.month===m).reduce((sum,r)=>{
+                  const cd = computeReport(r);
+                  return sum + (cd.meta.spend||0) + (cd.google.spend||0);
+                }, 0);
+              }),
+              borderColor: accentColor, backgroundColor: grad, fill:true, tension:.35, borderWidth:2.5, pointRadius:3, pointBackgroundColor: accentColor, pointBorderColor:'#fff', pointBorderWidth:2
+            }]
+          },
+          options: {
+            plugins:{ legend:{display:false} },
+            scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } }
+          }
+        }));
+      }
+    });
   }
 
   /* ---------- Settings ---------- */
@@ -1389,21 +1547,23 @@
     if(yearChartInstance){ yearChartInstance.destroy(); yearChartInstance = null; }
     const canvas = document.getElementById('yearChart');
     if(!canvas) return;
-    const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#E7EDF3';
-    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2D7FE0';
-    const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#6D7178';
-    Chart.defaults.color = muted;
-    Chart.defaults.font.family = "'Inter', sans-serif";
-    yearChartInstance = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: reports.map(r=>monthLabel(r.month)),
-        datasets: [{ data: reports.map(r=>getYearMetricValue(r, metricKey) || 0), backgroundColor: client.color||accentColor, borderRadius:8, maxBarThickness:48 }]
-      },
-      options: {
-        plugins:{ legend:{display:false} },
-        scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5}, ticks:{font:{family:"'IBM Plex Mono', monospace"}} }, x:{ border:{display:false}, grid:{display:false} } }
-      }
+    safeChart(() => {
+      const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#E7EDF3';
+      const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2D7FE0';
+      const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#6D7178';
+      Chart.defaults.color = muted;
+      Chart.defaults.font.family = "'Inter', sans-serif";
+      yearChartInstance = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: reports.map(r=>monthLabel(r.month)),
+          datasets: [{ data: reports.map(r=>getYearMetricValue(r, metricKey) || 0), backgroundColor: client.color||accentColor, borderRadius:8, maxBarThickness:48 }]
+        },
+        options: {
+          plugins:{ legend:{display:false} },
+          scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5}, ticks:{font:{family:"'IBM Plex Mono', monospace"}} }, x:{ border:{display:false}, grid:{display:false} } }
+        }
+      });
     });
   }
   // Always-visible spend chart on the client's main "Rapports" tab — unlike the Vue
@@ -1415,30 +1575,32 @@
     if(clientSpendChartInstance){ clientSpendChartInstance.destroy(); clientSpendChartInstance = null; }
     const canvas = document.getElementById('clientSpendChart');
     if(!canvas) return;
-    const chronological = reports.slice().sort((a,b)=> a.month < b.month ? -1 : 1);
-    const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#E7EDF3';
-    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2D7FE0';
-    const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#6D7178';
-    Chart.defaults.color = muted;
-    Chart.defaults.font.family = "'Inter', sans-serif";
-    const ctx2d = canvas.getContext('2d');
-    const grad = ctx2d.createLinearGradient(0,0,0,160);
-    const barColor = client.color || accentColor;
-    grad.addColorStop(0, barColor+'CC');
-    grad.addColorStop(1, barColor+'66');
-    clientSpendChartInstance = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: chronological.map(r=>monthLabel(r.month)),
-        datasets: [{
-          data: chronological.map(r=>{ const cd = computeReport(r); return (cd.meta.spend||0)+(cd.google.spend||0); }),
-          backgroundColor: grad, borderRadius:8, maxBarThickness:56
-        }]
-      },
-      options: {
-        plugins:{ legend:{display:false} },
-        scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5}, ticks:{font:{family:"'IBM Plex Mono', monospace"}} }, x:{ border:{display:false}, grid:{display:false} } }
-      }
+    safeChart(() => {
+      const chronological = reports.slice().sort((a,b)=> a.month < b.month ? -1 : 1);
+      const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#E7EDF3';
+      const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2D7FE0';
+      const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#6D7178';
+      Chart.defaults.color = muted;
+      Chart.defaults.font.family = "'Inter', sans-serif";
+      const ctx2d = canvas.getContext('2d');
+      const grad = ctx2d.createLinearGradient(0,0,0,160);
+      const barColor = client.color || accentColor;
+      grad.addColorStop(0, barColor+'CC');
+      grad.addColorStop(1, barColor+'66');
+      clientSpendChartInstance = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: chronological.map(r=>monthLabel(r.month)),
+          datasets: [{
+            data: chronological.map(r=>{ const cd = computeReport(r); return (cd.meta.spend||0)+(cd.google.spend||0); }),
+            backgroundColor: grad, borderRadius:8, maxBarThickness:56
+          }]
+        },
+        options: {
+          plugins:{ legend:{display:false} },
+          scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5}, ticks:{font:{family:"'IBM Plex Mono', monospace"}} }, x:{ border:{display:false}, grid:{display:false} } }
+        }
+      });
     });
   }
   function renderYearSummary(reports, metricKey){
@@ -2058,51 +2220,53 @@
     `;
 
     destroyCharts();
-    const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#6D7178';
-    const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#E7EDF3';
-    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2D7FE0';
-    Chart.defaults.color = muted;
-    Chart.defaults.borderColor = border;
-    Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.font.size = 11;
-    const legendLabelOpts = { color: muted, font:{ size:11, family:"'Inter', sans-serif", weight:'600' }, boxWidth:8, boxHeight:8, padding:16, usePointStyle:true, pointStyle:'circle' };
+    safeChart(() => {
+      const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#6D7178';
+      const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#E7EDF3';
+      const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2D7FE0';
+      Chart.defaults.color = muted;
+      Chart.defaults.borderColor = border;
+      Chart.defaults.font.family = "'Inter', sans-serif";
+      Chart.defaults.font.size = 11;
+      const legendLabelOpts = { color: muted, font:{ size:11, family:"'Inter', sans-serif", weight:'600' }, boxWidth:8, boxHeight:8, padding:16, usePointStyle:true, pointStyle:'circle' };
 
-    chartInstances.push(new Chart(document.getElementById('chartSpend'), {
-      type: 'doughnut',
-      data: {
-        labels: [t('reportForm.metaAds'), t('reportForm.googleAds')],
-        datasets: [{ data: [d.meta.spend||0, d.google.spend||0], backgroundColor: [accentColor, border], borderWidth:0 }]
-      },
-      options: { plugins:{legend:{position:'bottom', labels:legendLabelOpts}}, cutout:'72%' }
-    }));
+      chartInstances.push(new Chart(document.getElementById('chartSpend'), {
+        type: 'doughnut',
+        data: {
+          labels: [t('reportForm.metaAds'), t('reportForm.googleAds')],
+          datasets: [{ data: [d.meta.spend||0, d.google.spend||0], backgroundColor: [accentColor, border], borderWidth:0 }]
+        },
+        options: { plugins:{legend:{position:'bottom', labels:legendLabelOpts}}, cutout:'72%' }
+      }));
 
-    chartInstances.push(new Chart(document.getElementById('chartLeads'), {
-      type: 'bar',
-      data: {
-        labels: [t('reportForm.metaAds'), t('reportForm.googleAds'), t('reportForm.website')],
-        datasets: [{ label:'Volume', data: [d.meta.leads||0, d.google.leads||0, d.website.conversions||0], backgroundColor: accentColor, borderRadius:8, maxBarThickness:40 }]
-      },
-      options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } } }
-    }));
+      chartInstances.push(new Chart(document.getElementById('chartLeads'), {
+        type: 'bar',
+        data: {
+          labels: [t('reportForm.metaAds'), t('reportForm.googleAds'), t('reportForm.website')],
+          datasets: [{ label:'Volume', data: [d.meta.leads||0, d.google.leads||0, d.website.conversions||0], backgroundColor: accentColor, borderRadius:8, maxBarThickness:40 }]
+        },
+        options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } } }
+      }));
 
-    const clientReports = data.reports.filter(r=>r.clientId===client.id).sort((a,b)=> a.month < b.month ? -1 : 1);
-    const trendCtx = document.getElementById('chartTrend').getContext('2d');
-    const trendGradient = trendCtx.createLinearGradient(0,0,0,200);
-    trendGradient.addColorStop(0, accentColor+'3D');
-    trendGradient.addColorStop(1, accentColor+'00');
-    chartInstances.push(new Chart(trendCtx, {
-      type: 'line',
-      data: {
-        labels: clientReports.map(r=>monthLabel(r.month)),
-        datasets: [{
-          label: t('preview.kpiSpend'),
-          data: clientReports.map(r=>{ const cd = computeReport(r); return (cd.meta.spend||0)+(cd.google.spend||0); }),
-          borderColor: accentColor, backgroundColor: trendGradient,
-          fill:true, tension:.4, borderWidth:2.5, pointRadius: clientReports.map(r=> r.id===report.id ? 5 : 3), pointBackgroundColor: accentColor, pointBorderColor: '#fff', pointBorderWidth:2
-        }]
-      },
-      options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } } }
-    }));
+      const clientReports = data.reports.filter(r=>r.clientId===client.id).sort((a,b)=> a.month < b.month ? -1 : 1);
+      const trendCtx = document.getElementById('chartTrend').getContext('2d');
+      const trendGradient = trendCtx.createLinearGradient(0,0,0,200);
+      trendGradient.addColorStop(0, accentColor+'3D');
+      trendGradient.addColorStop(1, accentColor+'00');
+      chartInstances.push(new Chart(trendCtx, {
+        type: 'line',
+        data: {
+          labels: clientReports.map(r=>monthLabel(r.month)),
+          datasets: [{
+            label: t('preview.kpiSpend'),
+            data: clientReports.map(r=>{ const cd = computeReport(r); return (cd.meta.spend||0)+(cd.google.spend||0); }),
+            borderColor: accentColor, backgroundColor: trendGradient,
+            fill:true, tension:.4, borderWidth:2.5, pointRadius: clientReports.map(r=> r.id===report.id ? 5 : 3), pointBackgroundColor: accentColor, pointBorderColor: '#fff', pointBorderWidth:2
+          }]
+        },
+        options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } } }
+      }));
+    });
   }
 
   function rowMetric(label, type, curr, prevVal){
