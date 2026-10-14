@@ -2561,7 +2561,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
 
     if(activeTab === 'year'){
       if(reports.length < 2){
-        main.innerHTML = header + `<div class="text-center py-20 surface card"><p class="headline font-semibold" style="font-size:1.5rem;">${t('yearView.empty')}</p></div>`;
+        main.innerHTML = header + `<div class="text-center py-20 surface card"><span class="icon-chip" style="display:inline-flex; width:3.5rem; height:3.5rem; border-radius:16px; background:var(--accent); color:#fff; margin-bottom:1.25rem;">${icon('trendUp',22)}</span><p class="headline font-semibold" style="font-size:1.5rem;">${t('yearView.empty')}</p></div>`;
         return;
       }
       const yearReports = reports.slice().sort((a,b)=> a.month < b.month ? -1 : 1).slice(-12);
@@ -2594,8 +2594,10 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       <p class="text-muted text-sm mb-10">${t('reportsList.count',{n:reports.length, plural:plural(reports.length)})}</p>
       ${reports.length===0 ? `
         <div class="text-center py-20 surface card">
+          <span class="icon-chip" style="display:inline-flex; width:3.5rem; height:3.5rem; border-radius:16px; background:var(--ink); color:#fff; margin-bottom:1.25rem;">${icon('barChart',22)}</span>
           <p class="headline font-semibold" style="font-size:1.5rem;">${t('reportsList.emptyTitle')}</p>
-          <p class="text-muted text-sm mt-3">${t('reportsList.emptyDesc')}</p>
+          <p class="text-muted text-sm mt-3 mb-6">${t('reportsList.emptyDesc')}</p>
+          <button class="btn btn-primary" data-action="new-report">${t('reportsList.newReport')}</button>
         </div>
       ` : `
         <div class="surface card p-6 mb-6">
