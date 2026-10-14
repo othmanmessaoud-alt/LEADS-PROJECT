@@ -11,38 +11,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#FFFFFF; --bg-soft:#F7F6F2; --surface:#FFFFFF; --ink:#14151A; --fg:#14151A;
-    --muted:#6D7178; --border:#EDEBE6;
-    --accent:#5B4FE8; --accent-2:#8B7BFF; --accent-soft:#F0EEFE; --accent-fg:#FFFFFF;
+    --bg:#FFFFFF; --bg-soft:#F4F8FC; --surface:#FFFFFF; --ink:#14151A; --fg:#14151A;
+    --muted:#6D7178; --border:#E7EDF3;
+    --accent:#2D7FE0; --accent-2:#5FA8F0; --accent-soft:#EAF3FD; --accent-fg:#FFFFFF;
     --success:#129463; --success-soft:#E7F7EF; --danger:#DF4B4B; --danger-soft:#FCEAEA;
     --shadow-sm:0 1px 2px rgba(20,20,35,.05), 0 1px 1px rgba(20,20,35,.03);
     --shadow-md:0 16px 36px -12px rgba(20,20,35,.12), 0 4px 10px -4px rgba(20,20,35,.06);
     --shadow-lg:0 32px 72px -20px rgba(20,20,35,.20);
-    --shadow-accent:0 14px 30px -10px rgba(91,79,232,.38);
+    --shadow-accent:0 14px 30px -10px rgba(45,127,224,.35);
     color-scheme: light;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#0A0A0D; --bg-soft:#131318; --surface:#131318; --ink:#F2F2F6; --fg:#F2F2F6;
-      --muted:#9A9AA8; --border:#232329;
-      --accent:#8B7FFF; --accent-2:#A89BFF; --accent-soft:#1C1A33; --accent-fg:#0A0A0D;
-      --success:#34D399; --success-soft:#0F2A22; --danger:#F87171; --danger-soft:#2A1414;
-      --shadow-sm:0 1px 2px rgba(0,0,0,.4);
-      --shadow-md:0 16px 36px -12px rgba(0,0,0,.5), 0 4px 10px -4px rgba(0,0,0,.4);
-      --shadow-lg:0 32px 72px -20px rgba(0,0,0,.6);
-      --shadow-accent:0 14px 34px -8px rgba(139,127,255,.45);
-      color-scheme: dark;
-    }
-  }
+  /* Dark mode is opt-in only (data-theme="dark"); the app always renders light by default
+     regardless of OS/browser preference, since this is a reporting tool meant to read as
+     bright and clear rather than follow system dark mode. */
   :root[data-theme="dark"]{
     --bg:#0A0A0D; --bg-soft:#131318; --surface:#131318; --ink:#F2F2F6; --fg:#F2F2F6;
     --muted:#9A9AA8; --border:#232329;
-    --accent:#8B7FFF; --accent-2:#A89BFF; --accent-soft:#1C1A33; --accent-fg:#0A0A0D;
+    --accent:#5FA8F0; --accent-2:#8CC3F7; --accent-soft:#132A3D; --accent-fg:#0A0A0D;
     --success:#34D399; --success-soft:#0F2A22; --danger:#F87171; --danger-soft:#2A1414;
     --shadow-sm:0 1px 2px rgba(0,0,0,.4);
     --shadow-md:0 16px 36px -12px rgba(0,0,0,.5), 0 4px 10px -4px rgba(0,0,0,.4);
     --shadow-lg:0 32px 72px -20px rgba(0,0,0,.6);
-    --shadow-accent:0 14px 34px -8px rgba(139,127,255,.45);
+    --shadow-accent:0 14px 34px -8px rgba(95,168,240,.4);
     color-scheme: dark;
   }
   *{box-sizing:border-box;}
@@ -286,7 +276,7 @@
 
   /* ---------- Example data ---------- */
   function exampleClient(){
-    return { id: uid("client"), name: "Client Exemple (Démo)", logo: "", color: "#5B4FE8", isExample: true };
+    return { id: uid("client"), name: "Client Exemple (Démo)", logo: "", color: "#2D7FE0", isExample: true };
   }
   function exampleReports(clientId){
     const months = ["2026-05","2026-06","2026-07"];
@@ -330,7 +320,7 @@
     }else{
       list.innerHTML = data.clients.map(c => `
         <div class="sidebar-item ${c.id===state.clientId?'active':''}" data-action="select-client" data-id="${c.id}">
-          ${c.logo ? `<img src="${escapeAttr(c.logo)}" class="w-5 h-5 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'">` : `<span class="w-5 h-5 rounded-full inline-block flex-shrink-0" style="background:${escapeAttr(c.color||'#5B4FE8')}"></span>`}
+          ${c.logo ? `<img src="${escapeAttr(c.logo)}" class="w-5 h-5 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'">` : `<span class="w-5 h-5 rounded-full inline-block flex-shrink-0" style="background:${escapeAttr(c.color||'#2D7FE0')}"></span>`}
           <span class="cname text-sm flex-1 truncate">${escapeHtml(c.name)}</span>
           ${c.isExample ? '<span class="badge badge-example">EX</span>' : ''}
         </div>
@@ -454,7 +444,7 @@
           <div class="surface card p-6 flex flex-col gap-3 cursor-pointer" data-action="select-client" data-id="${c.id}">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                ${c.logo ? `<img src="${escapeAttr(c.logo)}" class="w-10 h-10 rounded-xl object-cover" onerror="this.style.display='none'">` : `<span class="w-10 h-10 rounded-xl inline-block" style="background:${escapeAttr(c.color||'#5B4FE8')}"></span>`}
+                ${c.logo ? `<img src="${escapeAttr(c.logo)}" class="w-10 h-10 rounded-xl object-cover" onerror="this.style.display='none'">` : `<span class="w-10 h-10 rounded-xl inline-block" style="background:${escapeAttr(c.color||'#2D7FE0')}"></span>`}
                 <span class="font-semibold">${escapeHtml(c.name)}</span>
               </div>
               ${c.isExample ? '<span class="badge badge-example">EX</span>' : ''}
@@ -512,7 +502,7 @@
           </div>
           <div>
             <label class="field-label">Couleur de marque</label>
-            <input type="color" name="color" value="${existing?existing.color:'#5B4FE8'}" style="height:2.8rem; padding:.3rem;">
+            <input type="color" name="color" value="${existing?existing.color:'#2D7FE0'}" style="height:2.8rem; padding:.3rem;">
           </div>
           <div class="flex gap-2 mt-2">
             <button type="submit" class="btn btn-primary">Enregistrer</button>
@@ -550,7 +540,7 @@
       errEl.classList.add("hidden");
       nameInput.classList.remove("field-err");
       const logo = (fd.get("logo")||"").toString().trim();
-      const color = (fd.get("color")||"#5B4FE8").toString();
+      const color = (fd.get("color")||"#2D7FE0").toString();
       if(existing){
         existing.name = name; existing.logo = logo; existing.color = color;
       }else{
@@ -821,7 +811,7 @@
       </div>
 
       <div id="reportSheet" class="surface card" style="max-width:920px; padding:3rem; overflow:hidden; position:relative;">
-        <div style="position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg, ${escapeAttr(client.color||'#5B4FE8')}, var(--accent-2));"></div>
+        <div style="position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg, ${escapeAttr(client.color||'#2D7FE0')}, var(--accent-2));"></div>
         <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
           <div>
             <h2 class="headline font-bold" style="font-size:2.75rem; line-height:1.08;">${escapeHtml(client.name)}</h2>
@@ -874,8 +864,8 @@
     destroyCharts();
     const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#6D7178';
     const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#EDEBE6';
-    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#5B4FE8';
-    const accentColor2 = getComputedStyle(document.documentElement).getPropertyValue('--accent-2').trim() || '#8B7BFF';
+    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2D7FE0';
+    const accentColor2 = getComputedStyle(document.documentElement).getPropertyValue('--accent-2').trim() || '#5FA8F0';
     Chart.defaults.color = muted;
     Chart.defaults.borderColor = border;
     Chart.defaults.font.family = "'Inter', sans-serif";
