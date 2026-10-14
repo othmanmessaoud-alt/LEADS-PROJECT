@@ -362,7 +362,20 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     </nav>
   </aside>
 
-  <main id="main" class="flex-1 overflow-y-auto" style="padding:4rem 4.5rem; position:relative;"></main>
+  <div class="flex-1 overflow-y-auto" style="display:flex; flex-direction:column;">
+    <header id="topbar" class="no-print" style="position:sticky; top:0; z-index:20; background:var(--bg); border-bottom:1px solid var(--border); padding:1rem 2.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+      <div style="position:relative; flex:1; max-width:300px; min-width:160px;">
+        <span id="topbarSearchIcon" style="position:absolute; left:.9rem; top:50%; transform:translateY(-50%); color:var(--muted); display:flex; pointer-events:none;"></span>
+        <input id="topbarSearch" type="text" style="padding-left:2.5rem; border-radius:999px; background:var(--bg-soft);">
+      </div>
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <span class="badge" id="topbarMonthBadge" style="color:var(--accent); background:var(--accent-soft);"></span>
+        <button class="btn btn-ghost btn-sm" data-action="go-settings" style="padding:.55rem .65rem;"><span id="topbarSettingsIcon" style="display:flex;"></span></button>
+        <button class="btn btn-primary btn-sm" data-action="new-client" id="topbarNewClientBtn"></button>
+      </div>
+    </header>
+    <main id="main" style="padding:2.5rem 4.5rem; position:relative; flex:1;"></main>
+  </div>
 </div>
 
 <script>
@@ -375,6 +388,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       appName:"Metrixia", tagline:"Reporting marketing",
       nav:{ home:"Accueil", dashboard:"Tableau de bord", settings:"Paramètres", clients:"Clients" },
       sidebar:{ noClients:"Aucun client pour l'instant.", newClient:"+ Nouveau client", loadExample:"Charger client exemple" },
+      topbar:{ searchPlaceholder:"Rechercher un client…", noResults:"Aucun client ne correspond." },
       common:{ ignore:"— Ignorer —", example:"EXEMPLE", yes:"Oui", no:"Non" },
       landing:{
         eyebrow:"Reporting marketing simplifié",
@@ -516,6 +530,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       appName:"Metrixia", tagline:"Marketing reporting",
       nav:{ home:"Home", dashboard:"Dashboard", settings:"Settings", clients:"Clients" },
       sidebar:{ noClients:"No clients yet.", newClient:"+ New client", loadExample:"Load example client" },
+      topbar:{ searchPlaceholder:"Search clients…", noResults:"No clients match." },
       common:{ ignore:"— Ignore —", example:"EXAMPLE", yes:"Yes", no:"No" },
       landing:{
         eyebrow:"Simplified marketing reporting",
@@ -657,6 +672,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       appName:"Metrixia", tagline:"Informes de marketing",
       nav:{ home:"Inicio", dashboard:"Panel", settings:"Ajustes", clients:"Clientes" },
       sidebar:{ noClients:"Aún no hay clientes.", newClient:"+ Nuevo cliente", loadExample:"Cargar cliente de ejemplo" },
+      topbar:{ searchPlaceholder:"Buscar un cliente…", noResults:"Ningún cliente coincide." },
       common:{ ignore:"— Ignorar —", example:"EJEMPLO", yes:"Sí", no:"No" },
       landing:{
         eyebrow:"Informes de marketing simplificados",
@@ -798,6 +814,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       appName:"Metrixia", tagline:"Marketing-Reporting",
       nav:{ home:"Start", dashboard:"Dashboard", settings:"Einstellungen", clients:"Kunden" },
       sidebar:{ noClients:"Noch keine Kunden.", newClient:"+ Neuer Kunde", loadExample:"Beispielkunde laden" },
+      topbar:{ searchPlaceholder:"Kunde suchen…", noResults:"Kein Kunde gefunden." },
       common:{ ignore:"— Ignorieren —", example:"BEISPIEL", yes:"Ja", no:"Nein" },
       landing:{
         eyebrow:"Marketing-Reporting leicht gemacht",
@@ -939,6 +956,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       appName:"Metrixia", tagline:"Marketingrapportage",
       nav:{ home:"Start", dashboard:"Dashboard", settings:"Instellingen", clients:"Klanten" },
       sidebar:{ noClients:"Nog geen klanten.", newClient:"+ Nieuwe klant", loadExample:"Voorbeeldklant laden" },
+      topbar:{ searchPlaceholder:"Klant zoeken…", noResults:"Geen klant komt overeen." },
       common:{ ignore:"— Negeren —", example:"VOORBEELD", yes:"Ja", no:"Nee" },
       landing:{
         eyebrow:"Marketingrapportage vereenvoudigd",
@@ -1080,6 +1098,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       appName:"Metrixia", tagline:"Reportistica marketing",
       nav:{ home:"Home", dashboard:"Dashboard", settings:"Impostazioni", clients:"Clienti" },
       sidebar:{ noClients:"Nessun cliente per ora.", newClient:"+ Nuovo cliente", loadExample:"Carica cliente di esempio" },
+      topbar:{ searchPlaceholder:"Cerca un cliente…", noResults:"Nessun cliente corrisponde." },
       common:{ ignore:"— Ignora —", example:"ESEMPIO", yes:"Sì", no:"No" },
       landing:{
         eyebrow:"Reportistica marketing semplificata",
@@ -1221,6 +1240,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       appName:"Metrixia", tagline:"รายงานการตลาด",
       nav:{ home:"หน้าแรก", dashboard:"แดชบอร์ด", settings:"การตั้งค่า", clients:"ลูกค้า" },
       sidebar:{ noClients:"ยังไม่มีลูกค้า", newClient:"+ เพิ่มลูกค้าใหม่", loadExample:"โหลดลูกค้าตัวอย่าง" },
+      topbar:{ searchPlaceholder:"ค้นหาลูกค้า…", noResults:"ไม่พบลูกค้าที่ตรงกัน" },
       common:{ ignore:"— ไม่ใช้ —", example:"ตัวอย่าง", yes:"ใช่", no:"ไม่ใช่" },
       landing:{
         eyebrow:"รายงานการตลาดที่ง่ายขึ้น",
@@ -1444,7 +1464,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
   }
 
   let data = loadData();
-  let state = { clientId: null, reportId: null, mode: "home" }; // mode: home|welcome|reports|form|preview|new-client|edit-client|settings
+  let state = { clientId: null, reportId: null, mode: "home", clientSearchQuery: "" }; // mode: home|welcome|reports|form|preview|new-client|edit-client|settings
   let yearViewMetric = null; // selected metric on the "Vue annuelle" tab, resets to 'leads' per client
 
   function uid(prefix){ return prefix + "_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
@@ -1718,11 +1738,29 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     document.getElementById("navSettingsLabel").textContent = t('nav.settings');
     renderLangSwitch();
 
+    // Topbar: search field (live-filters the client list below), current month badge,
+    // settings shortcut and a quick "new client" action — all real, functional controls.
+    const topbarSearch = document.getElementById("topbarSearch");
+    if(topbarSearch) topbarSearch.placeholder = t('topbar.searchPlaceholder');
+    const topbarSearchIcon = document.getElementById("topbarSearchIcon");
+    if(topbarSearchIcon) topbarSearchIcon.innerHTML = icon('search', 15);
+    const topbarMonthBadge = document.getElementById("topbarMonthBadge");
+    if(topbarMonthBadge) topbarMonthBadge.textContent = monthLabel(currentMonthStr());
+    const topbarSettingsIcon = document.getElementById("topbarSettingsIcon");
+    if(topbarSettingsIcon) topbarSettingsIcon.innerHTML = icon('settings', 15);
+    const topbarNewClientBtn = document.getElementById("topbarNewClientBtn");
+    if(topbarNewClientBtn) topbarNewClientBtn.textContent = t('sidebar.newClient');
+
+    const query = (state.clientSearchQuery||"").trim().toLowerCase();
+    const visibleClients = query ? data.clients.filter(c => c.name.toLowerCase().includes(query)) : data.clients;
+
     const list = document.getElementById("clientList");
     if(data.clients.length === 0){
       list.innerHTML = `<p class="text-muted text-xs py-2 px-5">${t('sidebar.noClients')}</p>`;
+    }else if(visibleClients.length === 0){
+      list.innerHTML = `<p class="text-muted text-xs py-2 px-5">${t('topbar.noResults')}</p>`;
     }else{
-      list.innerHTML = data.clients.map(c => `
+      list.innerHTML = visibleClients.map(c => `
         <div class="sidebar-item ${c.id===state.clientId?'active':''}" data-action="select-client" data-id="${c.id}">
           ${c.logo ? `<img src="${escapeAttr(c.logo)}" class="w-5 h-5 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'">` : `<span class="w-5 h-5 rounded-full inline-block flex-shrink-0" style="background:${escapeAttr(c.color||'#2D7FE0')}"></span>`}
           <span class="cname text-sm flex-1 truncate">${escapeHtml(c.name)}</span>
@@ -1759,7 +1797,8 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     sparkle: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/>',
     globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
     home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1V15a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4.5a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1V10"/>',
-    settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>'
   };
   function icon(name, size){
     const s = size || 24;
@@ -3355,6 +3394,27 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
   });
 
   window.addEventListener("resize", () => { fitKpiValues(); });
+
+  const topbarSearchInput = document.getElementById("topbarSearch");
+  if(topbarSearchInput){
+    topbarSearchInput.addEventListener("input", (e) => {
+      state.clientSearchQuery = e.target.value;
+      renderSidebar();
+    });
+    topbarSearchInput.addEventListener("keydown", (e) => {
+      if(e.key !== "Enter") return;
+      const query = state.clientSearchQuery.trim().toLowerCase();
+      if(!query) return;
+      const match = data.clients.find(c => c.name.toLowerCase().includes(query));
+      if(match){
+        state.clientId = match.id;
+        state.mode = "reports";
+        state.clientSearchQuery = "";
+        topbarSearchInput.value = "";
+        render();
+      }
+    });
+  }
 
   /* ---------- Init ---------- */
   document.documentElement.lang = currentLang;
