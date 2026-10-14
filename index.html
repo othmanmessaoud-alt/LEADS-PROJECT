@@ -8,100 +8,154 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F6F7F5; --surface:#FFFFFF; --surface-2:#EFF1EE; --border:#E2E5E1;
-    --fg:#1B1F1C; --muted:#6B7268; --accent:#1F6F5C; --accent-fg:#FFFFFF;
-    --danger:#B3412E; --success:#1F6F5C; --warn:#A56A1F;
+    --bg:#FAF7F2; --bg-2:#F2EBDF; --ink:#1E1A16; --fg:#1E1A16;
+    --muted:#8C8072; --muted-2:#D9CFBF; --rule:#D9CFBF;
+    --accent:#7A2B26; --accent-fg:#FAF7F2;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#111513; --surface:#171C19; --surface-2:#1D2320; --border:#262B27;
-      --fg:#E7EAE6; --muted:#9AA39A; --accent:#3FA98A; --accent-fg:#0C1210;
-      --danger:#E07A63; --success:#3FA98A; --warn:#D9A24B;
+      --bg:#15120F; --bg-2:#1E1A15; --ink:#F3ECE1; --fg:#F3ECE1;
+      --muted:#A89C8C; --muted-2:#3A332B; --rule:#3A332B;
+      --accent:#C1584C; --accent-fg:#15120F;
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"]{
-    --bg:#111513; --surface:#171C19; --surface-2:#1D2320; --border:#262B27;
-    --fg:#E7EAE6; --muted:#9AA39A; --accent:#3FA98A; --accent-fg:#0C1210;
-    --danger:#E07A63; --success:#3FA98A; --warn:#D9A24B;
+    --bg:#15120F; --bg-2:#1E1A15; --ink:#F3ECE1; --fg:#F3ECE1;
+    --muted:#A89C8C; --muted-2:#3A332B; --rule:#3A332B;
+    --accent:#C1584C; --accent-fg:#15120F;
     color-scheme: dark;
   }
   *{box-sizing:border-box;}
   html,body{height:100%;}
   body{
     margin:0; background:var(--bg); color:var(--fg);
-    font-family:'Source Sans 3',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-    -webkit-font-smoothing:antialiased;
+    font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    font-size:15px; -webkit-font-smoothing:antialiased;
   }
-  h1,h2,h3,.font-display{font-family:'Sora',system-ui,sans-serif;}
-  .font-mono{font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums;}
-  .surface{background:var(--surface); border:1px solid var(--border);}
-  .surface-2{background:var(--surface-2);}
-  .text-muted{color:var(--muted);}
-  .text-accent{color:var(--accent);}
-  .bg-accent{background:var(--accent); color:var(--accent-fg);}
-  .border-base{border-color:var(--border);}
-  .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:.6rem;font-weight:600;font-size:.875rem;border:1px solid transparent;cursor:pointer;transition:filter .15s;}
-  .btn:hover{filter:brightness(0.95);}
-  .btn-primary{background:var(--accent); color:var(--accent-fg);}
-  .btn-ghost{background:transparent; color:var(--fg); border-color:var(--border);}
-  .btn-ghost:hover{background:var(--surface-2);}
-  .btn-danger{background:transparent; color:var(--danger); border-color:var(--danger);}
-  .btn-sm{padding:.35rem .7rem; font-size:.8rem;}
+  .font-display, .headline{ font-family:'Fraunces',Georgia,serif; letter-spacing:-.01em; }
+  .font-mono{ font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums; }
+  .eyebrow{ font-family:'Inter',sans-serif; font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); }
+  .text-muted{ color:var(--muted); }
+  .text-accent{ color:var(--accent); }
+  .border-base{ border-color:var(--rule); }
+
+  .surface{ background:var(--bg); border:1px solid var(--rule); }
+  .card{ border-radius:3px; }
+
+  .btn{
+    display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1.15rem;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:.75rem; text-transform:uppercase; letter-spacing:.06em;
+    border-radius:2px; border:1px solid transparent; cursor:pointer; transition:background .15s, color .15s, border-color .15s;
+  }
+  .btn-primary{ background:var(--accent); color:var(--accent-fg); border-color:var(--accent); }
+  .btn-primary:hover{ opacity:.88; }
+  .btn-ghost{ background:transparent; color:var(--ink); border-color:var(--rule); }
+  .btn-ghost:hover{ border-color:var(--ink); }
+  .btn-danger{ background:transparent; color:var(--accent); border-color:transparent; }
+  .btn-danger:hover{ border-color:var(--accent); }
+  .btn-sm{ padding:.42rem .8rem; font-size:.68rem; }
+
+  label.field-label{ display:block; font-family:'Inter',sans-serif; font-size:.68rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:.4rem; }
+
   input[type=text], input[type=month], input[type=number], input[type=color], textarea, select{
-    background:var(--surface); color:var(--fg); border:1px solid var(--border);
-    border-radius:.5rem; padding:.5rem .65rem; font-size:.875rem; width:100%;
+    background:transparent; color:var(--ink); border:1px solid var(--rule);
+    border-radius:2px; padding:.55rem .7rem; font-size:.875rem; width:100%; font-family:'Inter',sans-serif;
+    transition:border-color .15s;
   }
-  input:focus, textarea:focus, select:focus{outline:2px solid var(--accent); outline-offset:1px;}
-  .field-err{border-color:var(--danger) !important;}
-  .err-msg{color:var(--danger); font-size:.75rem; margin-top:.25rem;}
-  .card{border-radius:.75rem;}
-  .kpi{border-radius:.75rem; padding:1rem; background:var(--surface); border:1px solid var(--border);}
-  .badge{font-size:.7rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:.15rem .5rem; border-radius:999px;}
-  .badge-example{background:var(--warn); color:#1B1F1C;}
-  .sidebar-item{border-radius:.6rem; cursor:pointer;}
-  .sidebar-item:hover{background:var(--surface-2);}
-  .sidebar-item.active{background:var(--surface-2); border:1px solid var(--border);}
-  .scrollbar-thin::-webkit-scrollbar{width:8px;}
-  .scrollbar-thin::-webkit-scrollbar-thumb{background:var(--border); border-radius:4px;}
-  .delta-up{color:var(--success);}
-  .delta-down{color:var(--danger);}
-  .delta-flat{color:var(--muted);}
+  input:focus, textarea:focus, select:focus{ outline:none; border-color:var(--accent); }
+  .field-err{ border-color:var(--accent) !important; }
+  .err-msg{ color:var(--accent); font-size:.72rem; margin-top:.35rem; font-weight:500; }
+
+  .badge{
+    font-family:'Inter',sans-serif; font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+    padding:.15rem .4rem; border:1px solid var(--accent); color:var(--accent); border-radius:2px; background:transparent;
+  }
+  .badge-example{ border-color:var(--accent); color:var(--accent); }
+
+  .nav-item{
+    padding:.5rem .9rem .5rem 1rem; border-left:2px solid transparent; color:var(--muted);
+    font-size:.85rem; cursor:pointer; transition:border-color .15s, color .15s;
+  }
+  .nav-item:hover{ color:var(--ink); }
+  .nav-item.active{ border-left-color:var(--accent); color:var(--ink); font-weight:600; }
+
+  .sidebar-item{
+    padding:.45rem .9rem .45rem 1rem; border-left:2px solid transparent; cursor:pointer;
+    display:flex; align-items:center; gap:.55rem; transition:border-color .15s;
+  }
+  .sidebar-item.active{ border-left-color:var(--accent); }
+  .sidebar-item .cname{ color:var(--fg); }
+  .sidebar-item.active .cname{ font-weight:600; }
+
+  .scrollbar-thin::-webkit-scrollbar{ width:5px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb{ background:var(--muted-2); border-radius:2px; }
+
+  .delta-up{ color:var(--ink); font-weight:700; }
+  .delta-down{ color:var(--muted); font-weight:600; font-style:italic; }
+  .delta-flat{ color:var(--muted); }
+
+  table{ border-collapse:collapse; width:100%; }
+  tbody tr{ border-bottom:1px solid var(--rule); }
+  thead tr{ border-bottom:1px solid var(--rule); }
+
+  .kpi-row{ display:flex; flex-wrap:wrap; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+  .kpi-item{ flex:1 1 200px; padding:2.25rem 2rem; border-left:1px solid var(--rule); }
+  .kpi-item:first-child{ border-left:none; padding-left:0; }
+  .kpi-value{ font-family:'Fraunces',Georgia,serif; font-size:3.75rem; font-weight:500; line-height:1; margin:.75rem 0 .75rem; font-variant-numeric:tabular-nums; }
+  @media (max-width: 860px){
+    .kpi-value{ font-size:2.75rem; }
+  }
+
+  .report-section{ }
+  .report-section + .report-section{ border-top:1px solid var(--rule); margin-top:3rem; padding-top:3rem; }
+
   @media print{
-    .no-print{display:none !important;}
-    body{background:#fff; color:#111;}
-    .surface{border:1px solid #ccc;}
+    .no-print{ display:none !important; }
+    body{ background:#fff; color:#111; }
   }
   @media (max-width: 860px){
-    .app-shell{flex-direction:column;}
-    .sidebar{width:100% !important; max-height:none;}
+    .app-shell{ flex-direction:column; }
+    .sidebar{ width:100% !important; max-height:none; position:static !important; border-right:none !important; border-bottom:1px solid var(--rule); }
   }
 </style>
 </head>
 <body>
 
 <div class="app-shell flex min-h-screen">
-  <aside class="sidebar no-print" style="width:280px; border-right:1px solid var(--border); flex-shrink:0;">
-    <div class="p-4 flex items-center gap-2" style="border-bottom:1px solid var(--border);">
-      <div class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center font-display font-bold">R</div>
-      <div>
-        <h1 class="font-display font-bold text-lg leading-none">Rapport</h1>
-        <p class="text-muted text-xs">Reporting marketing mensuel</p>
+  <aside class="sidebar no-print flex flex-col" style="width:220px; flex-shrink:0; background:var(--bg); border-right:1px solid var(--rule); position:sticky; top:0; height:100vh;">
+    <div class="px-5 pt-6 pb-5">
+      <div class="flex items-center gap-2">
+        <span style="width:.5rem; height:.5rem; background:var(--accent); flex-shrink:0;"></span>
+        <h1 class="headline font-semibold" style="font-size:1.6rem; line-height:1;">Rapport</h1>
       </div>
+      <p class="eyebrow mt-2">Reporting marketing</p>
     </div>
-    <div class="p-3 flex flex-col gap-2">
-      <button class="btn btn-primary w-full justify-center" data-action="new-client">+ Nouveau client</button>
+
+    <nav class="flex flex-col gap-1">
+      <div class="nav-item" id="navDashboard" data-action="go-dashboard">Tableau de bord</div>
+    </nav>
+
+    <div class="px-4 pt-6 pb-2">
+      <span class="eyebrow">Clients</span>
+    </div>
+    <div id="clientList" class="flex flex-col gap-0.5 overflow-y-auto scrollbar-thin" style="max-height:calc(100vh - 360px);"></div>
+
+    <div class="px-4 pt-4 flex flex-col gap-2">
+      <button class="btn btn-primary w-full justify-center btn-sm" data-action="new-client">+ Nouveau client</button>
       <button class="btn btn-ghost w-full justify-center btn-sm" data-action="load-example">Charger client exemple</button>
     </div>
-    <div class="px-3 pb-2 text-muted text-xs font-semibold uppercase tracking-wide" style="letter-spacing:.06em;">Clients</div>
-    <div id="clientList" class="px-3 flex flex-col gap-1 overflow-y-auto scrollbar-thin" style="max-height:calc(100vh - 230px);"></div>
+
+    <nav class="pt-4 pb-6 mt-auto flex flex-col gap-1" style="border-top:1px solid var(--rule); margin-top:auto;">
+      <div class="nav-item" id="navSettings" data-action="go-settings">Paramètres</div>
+    </nav>
   </aside>
 
-  <main id="main" class="flex-1 p-6 overflow-y-auto"></main>
+  <main id="main" class="flex-1 overflow-y-auto" style="padding:4.5rem 5rem;"></main>
 </div>
 
 <script>
@@ -124,7 +178,7 @@
   }
 
   let data = loadData();
-  let state = { clientId: null, reportId: null, mode: "welcome" }; // mode: welcome|reports|form|preview
+  let state = { clientId: null, reportId: null, mode: "welcome" }; // mode: welcome|reports|form|preview|new-client|edit-client|settings
 
   function uid(prefix){ return prefix + "_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
 
@@ -196,12 +250,12 @@
     if(d===null||isNaN(d)) return '<span class="text-muted text-xs">—</span>';
     const cls = d>0.001 ? "delta-up" : (d<-0.001 ? "delta-down" : "delta-flat");
     const arrow = d>0.001 ? "▲" : (d<-0.001 ? "▼" : "▬");
-    return `<span class="${cls} text-xs font-semibold font-mono">${arrow} ${Math.abs(d).toLocaleString('fr-FR',{maximumFractionDigits:1})}%</span>`;
+    return `<span class="${cls} text-xs font-mono">${arrow} ${Math.abs(d).toLocaleString('fr-FR',{maximumFractionDigits:1})}%</span>`;
   }
 
   /* ---------- Example data ---------- */
   function exampleClient(){
-    return { id: uid("client"), name: "Client Exemple (Démo)", logo: "", color: "#1F6F5C", isExample: true };
+    return { id: uid("client"), name: "Client Exemple (Démo)", logo: "", color: "#7A2B26", isExample: true };
   }
   function exampleReports(clientId){
     const months = ["2026-05","2026-06","2026-07"];
@@ -241,16 +295,20 @@
   function renderSidebar(){
     const list = document.getElementById("clientList");
     if(data.clients.length === 0){
-      list.innerHTML = `<p class="text-muted text-sm py-2">Aucun client pour l'instant.</p>`;
-      return;
+      list.innerHTML = `<p class="text-muted text-xs py-2 px-4">Aucun client pour l'instant.</p>`;
+    }else{
+      list.innerHTML = data.clients.map(c => `
+        <div class="sidebar-item ${c.id===state.clientId?'active':''}" data-action="select-client" data-id="${c.id}">
+          ${c.logo ? `<img src="${escapeAttr(c.logo)}" class="w-5 h-5 object-cover flex-shrink-0" style="border-radius:1px;" onerror="this.style.display='none'">` : `<span class="w-2.5 h-2.5 inline-block flex-shrink-0" style="background:${escapeAttr(c.color||'#7A2B26')}"></span>`}
+          <span class="cname text-sm flex-1 truncate">${escapeHtml(c.name)}</span>
+          ${c.isExample ? '<span class="badge badge-example">EX</span>' : ''}
+        </div>
+      `).join("");
     }
-    list.innerHTML = data.clients.map(c => `
-      <div class="sidebar-item p-2 flex items-center gap-2 ${c.id===state.clientId?'active':''}" data-action="select-client" data-id="${c.id}">
-        ${c.logo ? `<img src="${escapeAttr(c.logo)}" class="w-6 h-6 rounded object-cover" onerror="this.style.display='none'">` : `<span class="w-6 h-6 rounded-full inline-block flex-shrink-0" style="background:${escapeAttr(c.color||'#1F6F5C')}"></span>`}
-        <span class="text-sm flex-1 truncate">${escapeHtml(c.name)}</span>
-        ${c.isExample ? '<span class="badge badge-example">EX</span>' : ''}
-      </div>
-    `).join("");
+    const navDash = document.getElementById("navDashboard");
+    const navSet = document.getElementById("navSettings");
+    if(navDash) navDash.classList.toggle("active", state.mode === "welcome" || state.mode === "new-client");
+    if(navSet) navSet.classList.toggle("active", state.mode === "settings");
   }
 
   function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
@@ -261,6 +319,7 @@
     renderSidebar();
     const main = document.getElementById("main");
     if(state.mode === "new-client") return renderClientForm(main, null);
+    if(state.mode === "settings") return renderSettings(main);
     if(state.mode === "welcome" || !state.clientId) return renderWelcome(main);
     const client = data.clients.find(c=>c.id===state.clientId);
     if(!client){ state = {clientId:null, reportId:null, mode:"welcome"}; return renderWelcome(main); }
@@ -273,10 +332,10 @@
 
   function renderWelcome(main){
     main.innerHTML = `
-      <div class="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
-        <div class="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center font-display font-bold text-2xl mb-4">R</div>
-        <h2 class="font-display font-semibold text-2xl mb-2">Bienvenue dans Rapport</h2>
-        <p class="text-muted mb-6">Créez un client pour commencer à construire vos rapports marketing mensuels. Toutes les données restent stockées localement dans votre navigateur.</p>
+      <div class="h-full flex flex-col items-center justify-center text-center" style="max-width:480px; margin:0 auto;">
+        <span style="width:.7rem; height:.7rem; background:var(--accent); display:inline-block; margin-bottom:2.25rem;"></span>
+        <h2 class="headline font-semibold mb-5" style="font-size:3rem; line-height:1.05;">Bienvenue dans Rapport</h2>
+        <p class="text-muted mb-10" style="font-size:1rem;">Créez un client pour commencer à construire vos rapports marketing mensuels. Toutes les données restent stockées localement dans votre navigateur.</p>
         <div class="flex gap-2">
           <button class="btn btn-primary" data-action="new-client">+ Nouveau client</button>
           <button class="btn btn-ghost" data-action="load-example">Charger un client exemple</button>
@@ -284,24 +343,53 @@
       </div>`;
   }
 
+  /* ---------- Settings ---------- */
+  function renderSettings(main){
+    const hasExample = data.clients.some(c=>c.isExample);
+    main.innerHTML = `
+      <div style="max-width:640px;">
+        <h2 class="headline font-semibold mb-3" style="font-size:2.75rem;">Paramètres</h2>
+        <p class="text-muted mb-10" style="font-size:1rem;">Gérez vos données locales. Rien n'est envoyé à un serveur : tout reste dans le stockage de votre navigateur.</p>
+
+        <div class="eyebrow mb-4">Aperçu du stockage</div>
+        <div class="kpi-row mb-12">
+          <div class="kpi-item">
+            <span class="eyebrow">Clients</span>
+            <p class="kpi-value">${data.clients.length}</p>
+          </div>
+          <div class="kpi-item">
+            <span class="eyebrow">Rapports</span>
+            <p class="kpi-value">${data.reports.length}</p>
+          </div>
+        </div>
+
+        <div class="eyebrow mb-3">Données exemple</div>
+        <p class="text-muted text-sm mb-4">Le client exemple est clairement identifié et séparé de vos vraies données.</p>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm" data-action="load-example" ${hasExample?'disabled style="opacity:.4;cursor:not-allowed;"':''}>Charger le client exemple</button>
+          <button class="btn btn-danger btn-sm" data-action="clear-example" ${hasExample?'':'disabled style="opacity:.4;cursor:not-allowed;"'}>Supprimer les données exemple</button>
+        </div>
+      </div>`;
+  }
+
   /* ---------- Client form ---------- */
   function renderClientForm(main, existing){
     main.innerHTML = `
-      <div class="surface card p-6 max-w-lg">
-        <h2 class="font-display font-semibold text-xl mb-4">${existing ? "Modifier le client" : "Nouveau client"}</h2>
-        <form id="clientForm" class="flex flex-col gap-4">
+      <div style="max-width:440px;">
+        <h2 class="headline font-semibold mb-8" style="font-size:2.25rem;">${existing ? "Modifier le client" : "Nouveau client"}</h2>
+        <form id="clientForm" class="flex flex-col gap-5">
           <div>
-            <label class="text-sm font-medium mb-1 block">Nom du client *</label>
+            <label class="field-label">Nom du client *</label>
             <input type="text" name="name" required maxlength="80" value="${existing?escapeAttr(existing.name):''}">
             <div class="err-msg hidden" data-err="name"></div>
           </div>
           <div>
-            <label class="text-sm font-medium mb-1 block">Logo (URL, optionnel)</label>
+            <label class="field-label">Logo (URL, optionnel)</label>
             <input type="text" name="logo" value="${existing?escapeAttr(existing.logo||''):''}" placeholder="https://...">
           </div>
           <div>
-            <label class="text-sm font-medium mb-1 block">Couleur de marque</label>
-            <input type="color" name="color" value="${existing?existing.color:'#1F6F5C'}" style="height:2.6rem; padding:.2rem;">
+            <label class="field-label">Couleur de marque</label>
+            <input type="color" name="color" value="${existing?existing.color:'#7A2B26'}" style="height:2.8rem; padding:.25rem;">
           </div>
           <div class="flex gap-2 mt-2">
             <button type="submit" class="btn btn-primary">Enregistrer</button>
@@ -339,7 +427,7 @@
       errEl.classList.add("hidden");
       nameInput.classList.remove("field-err");
       const logo = (fd.get("logo")||"").toString().trim();
-      const color = (fd.get("color")||"#1F6F5C").toString();
+      const color = (fd.get("color")||"#7A2B26").toString();
       if(existing){
         existing.name = name; existing.logo = logo; existing.color = color;
       }else{
@@ -357,12 +445,11 @@
   function renderReportsList(main, client){
     const reports = data.reports.filter(r=>r.clientId===client.id).sort((a,b)=> a.month < b.month ? 1 : -1);
     main.innerHTML = `
-      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div class="flex items-center gap-3">
-          ${client.logo ? `<img src="${escapeAttr(client.logo)}" class="w-10 h-10 rounded-lg object-cover" onerror="this.style.display='none'">` : `<span class="w-10 h-10 rounded-full inline-block" style="background:${escapeAttr(client.color)}"></span>`}
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-3">
+        <div class="flex items-center gap-4">
+          ${client.logo ? `<img src="${escapeAttr(client.logo)}" class="w-12 h-12 object-cover" style="border-radius:2px;" onerror="this.style.display='none'">` : `<span class="w-3.5 h-3.5 inline-block" style="background:${escapeAttr(client.color)}"></span>`}
           <div>
-            <h2 class="font-display font-semibold text-xl flex items-center gap-2">${escapeHtml(client.name)} ${client.isExample?'<span class="badge badge-example">EXEMPLE</span>':''}</h2>
-            <p class="text-muted text-sm">${reports.length} rapport${reports.length===1?'':'s'}</p>
+            <h2 class="headline font-semibold flex items-center gap-3" style="font-size:2.5rem; line-height:1.05;">${escapeHtml(client.name)} ${client.isExample?'<span class="badge badge-example">EXEMPLE</span>':''}</h2>
           </div>
         </div>
         <div class="flex gap-2">
@@ -370,21 +457,26 @@
           <button class="btn btn-primary" data-action="new-report">+ Nouveau rapport</button>
         </div>
       </div>
+      <p class="text-muted text-sm mb-10">${reports.length} rapport${reports.length===1?'':'s'}</p>
+      <div class="eyebrow mb-4">Rapports récents</div>
       ${reports.length===0 ? `
-        <div class="surface card p-8 text-center text-muted">Aucun rapport pour ce client. Créez le premier rapport mensuel.</div>
+        <div class="text-center py-20">
+          <p class="headline text-muted" style="font-size:1.6rem;">Aucun rapport pour ce client.</p>
+          <p class="text-muted text-sm mt-3">Créez le premier rapport mensuel pour commencer.</p>
+        </div>
       ` : `
-        <div class="grid gap-3" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));">
+        <div class="grid gap-0" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); border-top:1px solid var(--rule); border-left:1px solid var(--rule);">
           ${reports.map(r => {
             const d = computeReport(r);
             const totalSpend = (d.meta.spend||0) + (d.google.spend||0);
             return `
-            <div class="surface card p-4 flex flex-col gap-2 cursor-pointer" data-action="open-report" data-id="${r.id}">
+            <div class="p-5 flex flex-col gap-3 cursor-pointer" style="border-right:1px solid var(--rule); border-bottom:1px solid var(--rule);" data-action="open-report" data-id="${r.id}">
               <div class="flex items-center justify-between">
-                <span class="font-display font-semibold">${monthLabel(r.month)}</span>
+                <span class="headline font-semibold" style="font-size:1.1rem;">${monthLabel(r.month)}</span>
                 ${r.isExample?'<span class="badge badge-example">EX</span>':''}
               </div>
-              <p class="text-muted text-xs font-mono">Dépenses totales : ${fmtCur(totalSpend)}</p>
-              <div class="flex gap-2 mt-2">
+              <p class="text-muted text-xs font-mono">Dépenses totales — ${fmtCur(totalSpend)}</p>
+              <div class="flex gap-2 mt-1">
                 <button class="btn btn-ghost btn-sm" data-action="edit-report" data-id="${r.id}">Modifier</button>
                 <button class="btn btn-danger btn-sm" data-action="delete-report" data-id="${r.id}">Supprimer</button>
               </div>
@@ -409,12 +501,12 @@
 
   function platformFieldsHtml(prefix, label, p, fieldDefs){
     return `
-      <fieldset class="surface card p-4">
-        <legend class="font-display font-semibold px-1">${label}</legend>
-        <div class="grid gap-3 mt-2" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
+      <fieldset class="surface card p-5">
+        <legend class="eyebrow px-1">${label}</legend>
+        <div class="grid gap-4 mt-3" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
           ${fieldDefs.map(([key,lbl])=>`
             <div>
-              <label class="text-xs text-muted block mb-1">${lbl}</label>
+              <label class="field-label">${lbl}</label>
               <input type="number" min="0" step="any" name="${prefix}.${key}" value="${p[key]!==undefined && p[key]!==null ? p[key] : ''}" data-metric="${prefix}.${key}">
               <div class="err-msg hidden" data-err="${prefix}.${key}"></div>
             </div>
@@ -429,13 +521,13 @@
     const customRows = r.custom && r.custom.length ? r.custom : [];
 
     main.innerHTML = `
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="font-display font-semibold text-xl">${existing ? "Modifier le rapport" : "Nouveau rapport"} — ${escapeHtml(client.name)}</h2>
+      <div class="flex items-center justify-between mb-8">
+        <h2 class="headline font-semibold" style="font-size:2.1rem;">${existing ? "Modifier le rapport" : "Nouveau rapport"} — ${escapeHtml(client.name)}</h2>
         <button class="btn btn-ghost btn-sm" data-action="back-to-reports">← Retour</button>
       </div>
-      <form id="reportForm" class="flex flex-col gap-4 max-w-3xl">
-        <div class="surface card p-4">
-          <label class="text-sm font-medium mb-1 block">Mois du rapport *</label>
+      <form id="reportForm" class="flex flex-col gap-6" style="max-width:720px;">
+        <div class="surface card p-5">
+          <label class="field-label">Mois du rapport *</label>
           <input type="month" name="month" required value="${r.month||''}" style="max-width:220px;">
           <div class="err-msg hidden" data-err="month"></div>
         </div>
@@ -445,10 +537,10 @@
         ${platformFieldsHtml("website","Site web", r.website, [["sessions","Sessions"],["users","Utilisateurs"],["conversions","Conversions"]])}
         ${platformFieldsHtml("email","Email", r.email, [["sent","Emails envoyés"],["openRate","Taux d'ouverture (%)"],["clickRate","Taux de clic (%)"]])}
 
-        <fieldset class="surface card p-4">
-          <legend class="font-display font-semibold px-1">Métriques personnalisées</legend>
-          <div id="customRows" class="flex flex-col gap-2 mt-2"></div>
-          <button type="button" class="btn btn-ghost btn-sm mt-2" id="addCustomRow">+ Ajouter une métrique</button>
+        <fieldset class="surface card p-5">
+          <legend class="eyebrow px-1">Métriques personnalisées</legend>
+          <div id="customRows" class="flex flex-col gap-2 mt-3"></div>
+          <button type="button" class="btn btn-ghost btn-sm mt-3" id="addCustomRow">+ Ajouter une métrique</button>
         </fieldset>
 
         <div class="flex gap-2">
@@ -571,7 +663,7 @@
     const prevTotalLeads = dPrev ? (dPrev.meta.leads||0) + (dPrev.google.leads||0) : null;
 
     main.innerHTML = `
-      <div class="flex items-center justify-between mb-4 no-print flex-wrap gap-2">
+      <div class="flex items-center justify-between mb-5 no-print flex-wrap gap-2">
         <button class="btn btn-ghost btn-sm" data-action="back-to-reports">← Retour aux rapports</button>
         <div class="flex gap-2">
           <button class="btn btn-ghost btn-sm" data-action="edit-report" data-id="${report.id}">Modifier</button>
@@ -579,142 +671,149 @@
         </div>
       </div>
 
-      <div class="surface-2 no-print rounded-lg p-3 mb-4 text-sm flex items-center gap-2" style="border:1px solid var(--border);">
-        <span>🖨️</span>
+      <div class="no-print text-sm flex items-center gap-2.5 mb-9" style="color:var(--muted); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:.9rem 0;">
+        <span style="width:.4rem; height:.4rem; background:var(--accent); flex-shrink:0;"></span>
         <span>Pour enregistrer en PDF, utilisez la fonction d'impression de votre navigateur (Ctrl+P / Cmd+P).</span>
       </div>
 
-      <div id="reportSheet" class="surface card p-6 max-w-5xl" style="border-top:5px solid ${escapeAttr(client.color||'#1F6F5C')};">
-        <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-          <div class="flex items-center gap-3">
-            ${client.logo ? `<img src="${escapeAttr(client.logo)}" class="w-12 h-12 rounded-lg object-cover" onerror="this.style.display='none'">` : `<span class="w-12 h-12 rounded-full inline-block" style="background:${escapeAttr(client.color)}"></span>`}
-            <div>
-              <h2 class="font-display font-bold text-2xl">${escapeHtml(client.name)}</h2>
-              <p class="text-muted">Rapport mensuel — ${monthLabel(report.month)} ${report.isExample?'<span class="badge badge-example">EXEMPLE</span>':''}</p>
-            </div>
+      <div id="reportSheet" style="max-width:900px; border-top:2px solid ${escapeAttr(client.color||'#7A2B26')}; padding-top:3.5rem;">
+        <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
+          <div>
+            <h2 class="headline font-semibold" style="font-size:3.25rem; line-height:1.05;">${escapeHtml(client.name)}</h2>
+            <p class="text-muted mt-3" style="font-size:1rem;">Rapport mensuel — ${monthLabel(report.month)} ${report.isExample?'<span class="badge badge-example">EXEMPLE</span>':''}</p>
           </div>
         </div>
 
-        <div class="grid gap-3 mb-6" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
-          <div class="kpi">
-            <p class="text-muted text-xs uppercase" style="letter-spacing:.05em;">Dépense totale</p>
-            <p class="font-mono font-semibold text-xl">${fmtCur(totalSpend)}</p>
+        <div class="kpi-row mt-12 mb-2">
+          <div class="kpi-item">
+            <span class="eyebrow">Dépense totale</span>
+            <p class="kpi-value">${fmtCur(totalSpend)}</p>
             ${deltaBadge(delta(totalSpend, prevTotalSpend))}
           </div>
-          <div class="kpi">
-            <p class="text-muted text-xs uppercase" style="letter-spacing:.05em;">Leads totaux</p>
-            <p class="font-mono font-semibold text-xl">${fmtInt(totalLeads)}</p>
+          <div class="kpi-item">
+            <span class="eyebrow">Leads totaux</span>
+            <p class="kpi-value">${fmtInt(totalLeads)}</p>
             ${deltaBadge(delta(totalLeads, prevTotalLeads))}
           </div>
-          <div class="kpi">
-            <p class="text-muted text-xs uppercase" style="letter-spacing:.05em;">CPL moyen</p>
-            <p class="font-mono font-semibold text-xl">${fmtCur(blendedCpl)}</p>
+          <div class="kpi-item">
+            <span class="eyebrow">CPL moyen</span>
+            <p class="kpi-value">${fmtCur(blendedCpl)}</p>
             ${deltaBadge(delta(blendedCpl, dPrev ? safeDiv(prevTotalSpend, prevTotalLeads) : null))}
           </div>
-          <div class="kpi">
-            <p class="text-muted text-xs uppercase" style="letter-spacing:.05em;">Conversions site</p>
-            <p class="font-mono font-semibold text-xl">${fmtInt(d.website.conversions)}</p>
+          <div class="kpi-item">
+            <span class="eyebrow">Conversions site</span>
+            <p class="kpi-value">${fmtInt(d.website.conversions)}</p>
             ${deltaBadge(delta(d.website.conversions, dPrev ? dPrev.website.conversions : null))}
           </div>
         </div>
 
-        ${platformTable("Meta Ads", d.meta, dPrev?dPrev.meta:null, [["spend","Dépense","cur"],["impressions","Impressions","int"],["clicks","Clics","int"],["leads","Leads","int"],["ctr","CTR","pct"],["cpc","CPC","cur"],["cpl","CPL","cur"]])}
-        ${platformTable("Google Ads", d.google, dPrev?dPrev.google:null, [["spend","Dépense","cur"],["impressions","Impressions","int"],["clicks","Clics","int"],["leads","Leads","int"],["ctr","CTR","pct"],["cpc","CPC","cur"],["cpl","CPL","cur"]])}
-        ${platformTable("Site web", d.website, dPrev?dPrev.website:null, [["sessions","Sessions","int"],["users","Utilisateurs","int"],["conversions","Conversions","int"],["convRate","Taux de conversion","pct"]])}
-        ${platformTable("Email", d.email, dPrev?dPrev.email:null, [["sent","Envoyés","int"],["openRate","Taux d'ouverture","pct"],["clickRate","Taux de clic","pct"]])}
-        ${d.custom.length ? customTable(d.custom, dPrev?dPrev.custom:null) : ""}
+        <div class="report-section" style="margin-top:2.5rem;">
+          ${platformTable("Meta Ads", d.meta, dPrev?dPrev.meta:null, [["spend","Dépense","cur"],["impressions","Impressions","int"],["clicks","Clics","int"],["leads","Leads","int"],["ctr","CTR","pct"],["cpc","CPC","cur"],["cpl","CPL","cur"]])}
+        </div>
+        <div class="report-section">
+          ${platformTable("Google Ads", d.google, dPrev?dPrev.google:null, [["spend","Dépense","cur"],["impressions","Impressions","int"],["clicks","Clics","int"],["leads","Leads","int"],["ctr","CTR","pct"],["cpc","CPC","cur"],["cpl","CPL","cur"]])}
+        </div>
+        <div class="report-section">
+          ${platformTable("Site web", d.website, dPrev?dPrev.website:null, [["sessions","Sessions","int"],["users","Utilisateurs","int"],["conversions","Conversions","int"],["convRate","Taux de conversion","pct"]])}
+        </div>
+        <div class="report-section">
+          ${platformTable("Email", d.email, dPrev?dPrev.email:null, [["sent","Envoyés","int"],["openRate","Taux d'ouverture","pct"],["clickRate","Taux de clic","pct"]])}
+        </div>
+        ${d.custom.length ? `<div class="report-section">${customTable(d.custom, dPrev?dPrev.custom:null)}</div>` : ""}
 
-        <div class="grid gap-4 mt-6" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
-          <div class="surface card p-4"><h3 class="font-display font-semibold mb-2 text-sm">Répartition des dépenses</h3><canvas id="chartSpend" height="200"></canvas></div>
-          <div class="surface card p-4"><h3 class="font-display font-semibold mb-2 text-sm">Leads &amp; conversions par canal</h3><canvas id="chartLeads" height="200"></canvas></div>
-          <div class="surface card p-4"><h3 class="font-display font-semibold mb-2 text-sm">Évolution du budget total</h3><canvas id="chartTrend" height="200"></canvas></div>
+        <div class="report-section">
+          <div class="eyebrow mb-4">Visualisations</div>
+          <div class="grid gap-8" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));">
+            <div><p class="eyebrow mb-3">Répartition des dépenses</p><canvas id="chartSpend" height="200"></canvas></div>
+            <div><p class="eyebrow mb-3">Leads &amp; conversions</p><canvas id="chartLeads" height="200"></canvas></div>
+            <div><p class="eyebrow mb-3">Évolution du budget</p><canvas id="chartTrend" height="200"></canvas></div>
+          </div>
         </div>
       </div>
     `;
 
     destroyCharts();
-    const textColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim() || '#1B1F1C';
-    const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#E2E5E1';
-    Chart.defaults.color = textColor;
-    Chart.defaults.borderColor = gridColor;
-    Chart.defaults.font.family = "'Source Sans 3', system-ui, sans-serif";
+    const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#8C8072';
+    const rule = getComputedStyle(document.documentElement).getPropertyValue('--rule').trim() || '#D9CFBF';
+    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#7A2B26';
+    Chart.defaults.color = muted;
+    Chart.defaults.borderColor = rule;
+    Chart.defaults.font.family = "'IBM Plex Mono', ui-monospace, monospace";
+    Chart.defaults.font.size = 10;
+    const legendLabelOpts = { color: muted, font:{ size:10, family:"'Inter', sans-serif", weight:'600' }, boxWidth:8, boxHeight:8, padding:14 };
 
     chartInstances.push(new Chart(document.getElementById('chartSpend'), {
       type: 'doughnut',
       data: {
-        labels: ['Meta Ads','Google Ads'],
-        datasets: [{ data: [d.meta.spend||0, d.google.spend||0], backgroundColor: [client.color||'#1F6F5C', '#6B7268'] }]
+        labels: ['META ADS','GOOGLE ADS'],
+        datasets: [{ data: [d.meta.spend||0, d.google.spend||0], backgroundColor: [accentColor, rule], borderWidth:0 }]
       },
-      options: { plugins:{legend:{position:'bottom'}} }
+      options: { plugins:{legend:{position:'bottom', labels:legendLabelOpts}}, cutout:'72%' }
     }));
 
     chartInstances.push(new Chart(document.getElementById('chartLeads'), {
       type: 'bar',
       data: {
-        labels: ['Meta Ads','Google Ads','Site web'],
-        datasets: [{ label:'Volume', data: [d.meta.leads||0, d.google.leads||0, d.website.conversions||0], backgroundColor: client.color||'#1F6F5C', borderRadius:4 }]
+        labels: ['META ADS','GOOGLE ADS','SITE WEB'],
+        datasets: [{ label:'Volume', data: [d.meta.leads||0, d.google.leads||0, d.website.conversions||0], backgroundColor: accentColor, borderRadius:0, maxBarThickness:40 }]
       },
-      options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true } } }
+      options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:rule, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } } }
     }));
 
     const clientReports = data.reports.filter(r=>r.clientId===client.id).sort((a,b)=> a.month < b.month ? -1 : 1);
     chartInstances.push(new Chart(document.getElementById('chartTrend'), {
       type: 'line',
       data: {
-        labels: clientReports.map(r=>monthLabel(r.month)),
+        labels: clientReports.map(r=>monthLabel(r.month).toUpperCase()),
         datasets: [{
-          label:'Dépense totale (€)',
+          label:'DÉPENSE TOTALE (€)',
           data: clientReports.map(r=>{ const cd = computeReport(r); return (cd.meta.spend||0)+(cd.google.spend||0); }),
-          borderColor: client.color||'#1F6F5C', backgroundColor: (client.color||'#1F6F5C')+'33',
-          fill:true, tension:.3, pointRadius: clientReports.map(r=> r.id===report.id ? 5 : 3)
+          borderColor: accentColor, backgroundColor: accentColor+'14',
+          fill:true, tension:.3, borderWidth:1.5, pointRadius: clientReports.map(r=> r.id===report.id ? 3.5 : 2), pointBackgroundColor: accentColor, pointBorderWidth:0
         }]
       },
-      options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true } } }
+      options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:rule, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } } }
     }));
   }
 
   function rowMetric(label, type, curr, prevVal){
     const fmt = type==='cur' ? fmtCur : (type==='pct' ? fmtPct : (type==='dec' ? fmtDec : fmtInt));
-    return `<tr class="border-b border-base">
-      <td class="py-2 text-sm text-muted">${label}</td>
-      <td class="py-2 text-sm font-mono text-right">${fmt(curr)}</td>
-      <td class="py-2 text-right">${prevVal===undefined ? '' : deltaBadge(delta(curr, prevVal))}</td>
+    return `<tr>
+      <td class="py-2.5 text-sm text-muted">${label}</td>
+      <td class="py-2.5 text-sm font-mono text-right">${fmt(curr)}</td>
+      <td class="py-2.5 text-right">${prevVal===undefined ? '' : deltaBadge(delta(curr, prevVal))}</td>
     </tr>`;
   }
   function platformTable(title, curr, prev, defs){
     return `
-      <div class="mb-5">
-        <h3 class="font-display font-semibold mb-2">${title}</h3>
-        <table class="w-full">
-          <thead><tr class="border-b border-base text-left">
-            <th class="py-1 text-xs text-muted font-medium">Indicateur</th>
-            <th class="py-1 text-xs text-muted font-medium text-right">Valeur</th>
-            <th class="py-1 text-xs text-muted font-medium text-right">vs mois précédent</th>
-          </tr></thead>
-          <tbody>
-            ${defs.map(([key,label,type]) => rowMetric(label, type, curr[key], prev ? prev[key] : undefined)).join("")}
-          </tbody>
-        </table>
-      </div>`;
+      <div class="eyebrow mb-4">${title}</div>
+      <table>
+        <thead><tr class="text-left">
+          <th class="py-2 text-xs text-muted font-semibold" style="font-weight:600;">Indicateur</th>
+          <th class="py-2 text-xs text-muted font-semibold text-right">Valeur</th>
+          <th class="py-2 text-xs text-muted font-semibold text-right">vs mois précédent</th>
+        </tr></thead>
+        <tbody>
+          ${defs.map(([key,label,type]) => rowMetric(label, type, curr[key], prev ? prev[key] : undefined)).join("")}
+        </tbody>
+      </table>`;
   }
   function customTable(curr, prev){
     return `
-      <div class="mb-5">
-        <h3 class="font-display font-semibold mb-2">Métriques personnalisées</h3>
-        <table class="w-full">
-          <thead><tr class="border-b border-base text-left">
-            <th class="py-1 text-xs text-muted font-medium">Indicateur</th>
-            <th class="py-1 text-xs text-muted font-medium text-right">Valeur</th>
-            <th class="py-1 text-xs text-muted font-medium text-right">vs mois précédent</th>
-          </tr></thead>
-          <tbody>
-            ${curr.map(c => {
-              const prevItem = prev ? prev.find(p=>p.label===c.label) : null;
-              return rowMetric(escapeHtml(c.label), 'dec', c.value, prevItem ? prevItem.value : undefined);
-            }).join("")}
-          </tbody>
-        </table>
-      </div>`;
+      <div class="eyebrow mb-4">Métriques personnalisées</div>
+      <table>
+        <thead><tr class="text-left">
+          <th class="py-2 text-xs text-muted font-semibold">Indicateur</th>
+          <th class="py-2 text-xs text-muted font-semibold text-right">Valeur</th>
+          <th class="py-2 text-xs text-muted font-semibold text-right">vs mois précédent</th>
+        </tr></thead>
+        <tbody>
+          ${curr.map(c => {
+            const prevItem = prev ? prev.find(p=>p.label===c.label) : null;
+            return rowMetric(escapeHtml(c.label), 'dec', c.value, prevItem ? prevItem.value : undefined);
+          }).join("")}
+        </tbody>
+      </table>`;
   }
 
   /* ---------- CSV export ---------- */
@@ -769,6 +868,9 @@
     else if(action === "new-client"){ state.mode = "new-client"; render(); }
     else if(action === "edit-client"){ state.mode = "edit-client"; render(); }
     else if(action === "load-example"){ loadExample(); }
+    else if(action === "clear-example"){ removeExampleData(); }
+    else if(action === "go-dashboard"){ state = {clientId:null, reportId:null, mode:"welcome"}; render(); }
+    else if(action === "go-settings"){ state.mode = "settings"; render(); }
     else if(action === "new-report"){ state.reportId = null; state.mode = "form"; render(); }
     else if(action === "open-report"){ state.reportId = id; state.mode = "preview"; render(); }
     else if(action === "edit-report"){ state.reportId = id; state.mode = "form"; render(); }
@@ -782,7 +884,6 @@
     else if(action === "back-to-reports"){ state.mode = "reports"; state.reportId = null; render(); }
     else if(action === "export-csv"){ exportCsv(id); }
   });
-
 
   /* ---------- Init ---------- */
   render();
