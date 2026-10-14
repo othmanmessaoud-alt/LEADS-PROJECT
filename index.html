@@ -16,6 +16,7 @@
     --muted:#6D7178; --border:#E7EDF3;
     --accent:#2D7FE0; --accent-2:#5FA8F0; --accent-soft:#EAF3FD; --accent-fg:#FFFFFF;
     --success:#129463; --success-soft:#E7F7EF; --danger:#DF4B4B; --danger-soft:#FCEAEA;
+    --warn:#B9790B; --warn-soft:#FBF1DE;
     --shadow-sm:0 1px 2px rgba(20,20,35,.05), 0 1px 1px rgba(20,20,35,.03);
     --shadow-md:0 16px 36px -12px rgba(20,20,35,.12), 0 4px 10px -4px rgba(20,20,35,.06);
     --shadow-lg:0 32px 72px -20px rgba(20,20,35,.20);
@@ -30,6 +31,7 @@
     --muted:#9A9AA8; --border:#232329;
     --accent:#5FA8F0; --accent-2:#8CC3F7; --accent-soft:#132A3D; --accent-fg:#0A0A0D;
     --success:#34D399; --success-soft:#0F2A22; --danger:#F87171; --danger-soft:#2A1414;
+    --warn:#FBBF55; --warn-soft:#2A2110;
     --shadow-sm:0 1px 2px rgba(0,0,0,.4);
     --shadow-md:0 16px 36px -12px rgba(0,0,0,.5), 0 4px 10px -4px rgba(0,0,0,.4);
     --shadow-lg:0 32px 72px -20px rgba(0,0,0,.6);
@@ -155,6 +157,26 @@
   }
   .map-row{ display:grid; grid-template-columns:1fr 1.3fr; gap:1rem; align-items:center; padding:.5rem 0; }
 
+  /* Goal progress bars (Feature 2) */
+  .goal-bar-track{ height:5px; background:var(--bg-soft); border-radius:999px; overflow:hidden; }
+  .goal-bar-fill{ height:100%; border-radius:999px; transition:width .2s; }
+  .goal-status{ font-weight:700; }
+  .goal-status-reached{ color:var(--success); background:var(--success-soft); }
+  .goal-status-inprogress{ color:var(--warn); background:var(--warn-soft); }
+  .goal-status-exceeded{ color:var(--danger); background:var(--danger-soft); }
+
+  /* Client tabs (Feature 3) */
+  .tab-btn{
+    padding:.55rem 1rem; border-radius:12px; font-size:.85rem; font-weight:600; color:var(--muted);
+    cursor:pointer; border:none; background:transparent; transition:all .15s;
+  }
+  .tab-btn:hover{ background:var(--bg-soft); color:var(--ink); }
+  .tab-btn.active{ background:var(--accent-soft); color:var(--accent); }
+
+  /* Paste-from-spreadsheet panel (Feature 4B) */
+  .paste-panel{ margin:.75rem 0; padding:1rem; background:var(--bg-soft); border-radius:12px; }
+  .paste-panel textarea{ font-family:'IBM Plex Mono',monospace; font-size:.78rem; min-height:90px; resize:vertical; }
+
   @media print{
     .no-print{ display:none !important; }
     body{ background:#fff; color:#111; }
@@ -179,6 +201,7 @@
     </div>
 
     <nav class="flex flex-col gap-1">
+      <div class="nav-item" id="navHome" data-action="go-home">Accueil</div>
       <div class="nav-item" id="navDashboard" data-action="go-dashboard">Tableau de bord</div>
     </nav>
 
@@ -210,7 +233,7 @@
   const I18N = {
     fr: {
       appName:"Rapport", tagline:"Reporting marketing",
-      nav:{ dashboard:"Tableau de bord", settings:"Paramètres", clients:"Clients" },
+      nav:{ home:"Accueil", dashboard:"Tableau de bord", settings:"Paramètres", clients:"Clients" },
       sidebar:{ noClients:"Aucun client pour l'instant.", newClient:"+ Nouveau client", loadExample:"Charger client exemple" },
       common:{ ignore:"— Ignorer —", example:"EXEMPLE", yes:"Oui", no:"Non" },
       landing:{
@@ -253,7 +276,8 @@
         storageOverview:"Aperçu du stockage", clients:"Clients", reports:"Rapports",
         exampleData:"Données exemple", exampleDataDesc:"Le client exemple est clairement identifié et séparé de vos vraies données.",
         loadExample:"Charger le client exemple", clearExample:"Supprimer les données exemple",
-        language:"Langue", languageDesc:"Choisissez la langue de l'interface."
+        language:"Langue", languageDesc:"Choisissez la langue de l'interface.",
+        currency:"Devise", currencyDesc:"Choisissez la devise utilisée pour tous les montants affichés."
       },
       clientForm:{
         newTitle:"Nouveau client", editTitle:"Modifier le client",
@@ -283,7 +307,17 @@
         metricNamePlaceholder:"Nom de la métrique", valuePlaceholder:"Valeur",
         save:"Enregistrer le rapport", cancel:"Annuler",
         duplicateLastMonth:"Dupliquer le mois dernier",
-        importFile:"Importer un fichier (Excel/CSV)"
+        importFile:"Importer un fichier (Excel/CSV)",
+        notesLabel:"Notes de contexte (optionnel)",
+        notesPlaceholder:"Quelles campagnes ont tourné ? Qu'est-ce qui a changé ce mois-ci ?",
+        pasteToggle:"Coller depuis un tableur",
+        pasteLabel:"Collez vos données (avec en-têtes en première ligne)",
+        pastePlaceholder:"Dépense\tImpressions\tClics\tLeads\n1200\t85000\t1700\t42",
+        pasteAnalyze:"Analyser",
+        pasteFill:"Remplir les champs",
+        pasteUnmapped:"Colonnes non reconnues (ignorées)",
+        pasteConfirmOverwrite:"Des valeurs existent déjà dans ces champs. Les remplacer ?",
+        pasteNoRows:"Collez au moins une ligne d'en-têtes et une ligne de valeurs."
       },
       importModal:{
         title:"Importer un fichier",
@@ -305,13 +339,37 @@
         customMetrics:"Métriques personnalisées", visualizations:"Visualisations",
         chartSpend:"Répartition des dépenses", chartLeads:"Leads & conversions", chartTrend:"Évolution du budget"
       },
-      csvExport:{ section:"Section", indicator:"Indicateur", value:"Valeur", client:"Client", name:"Nom", report:"Rapport", month:"Mois", custom:"Personnalisé" },
+      csvExport:{ section:"Section", indicator:"Indicateur", value:"Valeur", client:"Client", name:"Nom", report:"Rapport", month:"Mois", custom:"Personnalisé", notes:"Notes" },
+      changes:{
+        title:"Ce qui a changé", noPrevious:"Pas de comparaison disponible — premier rapport pour ce client.",
+        none:"Aucun changement comparable ce mois-ci.",
+        metaSpend:"Dépenses Meta", metaClicks:"Clics Meta", metaLeads:"Leads Meta",
+        googleSpend:"Dépenses Google", googleClicks:"Clics Google", googleLeads:"Leads Google",
+        sessions:"Sessions site", conversions:"Conversions site", openRate:"Taux d'ouverture", clickRate:"Taux de clic"
+      },
+      goals:{
+        title:"Objectifs", desc:"Définissez des objectifs mensuels pour ce client. Ils s'appliquent à tous ses rapports.",
+        addGoal:"Ajouter un objectif", type:"Type d'objectif",
+        leadsLabel:"Leads (par mois)", spendLabel:"Dépenses max (par mois)", cplLabel:"CPL cible", customLabel:"Personnalisé",
+        customNamePlaceholder:"Nom de la métrique personnalisée", target:"Valeur cible",
+        direction:"Sens de l'objectif", directionMore:"Plus = mieux (ex. leads)", directionLess:"Moins = mieux (ex. coût)",
+        noGoals:"Aucun objectif défini.", remove:"Supprimer", add:"Ajouter",
+        reached:"Atteint", inProgress:"En cours", exceeded:"Dépassé"
+      },
+      yearView:{
+        tabReports:"Rapports", tabYear:"Vue annuelle",
+        empty:"Ajoutez au moins deux rapports pour voir une tendance.",
+        metric:"Indicateur", metricLeads:"Leads", metricSpend:"Dépenses", metricCpl:"CPL", metricConversions:"Conversions",
+        totalLeads:"Leads (période)", totalSpend:"Dépenses (période)", avgCpl:"CPL moyen (période)",
+        chartTitle:"Évolution — {metric}"
+      },
+      currency:{ EUR:"Euro (€)", USD:"Dollar US ($)", GBP:"Livre sterling (£)", MAD:"Dirham marocain (DH)", CAD:"Dollar canadien ($)", CHF:"Franc suisse (CHF)" },
       alerts:{ exampleLoaded:"Le client exemple est déjà chargé.", confirmClearExample:"Supprimer le client exemple et ses rapports ?" },
       months:["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."]
     },
     en: {
       appName:"Rapport", tagline:"Marketing reporting",
-      nav:{ dashboard:"Dashboard", settings:"Settings", clients:"Clients" },
+      nav:{ home:"Home", dashboard:"Dashboard", settings:"Settings", clients:"Clients" },
       sidebar:{ noClients:"No clients yet.", newClient:"+ New client", loadExample:"Load example client" },
       common:{ ignore:"— Ignore —", example:"EXAMPLE", yes:"Yes", no:"No" },
       landing:{
@@ -354,7 +412,8 @@
         storageOverview:"Storage overview", clients:"Clients", reports:"Reports",
         exampleData:"Example data", exampleDataDesc:"The example client is clearly labeled and kept separate from your real data.",
         loadExample:"Load the example client", clearExample:"Remove example data",
-        language:"Language", languageDesc:"Choose the interface language."
+        language:"Language", languageDesc:"Choose the interface language.",
+        currency:"Currency", currencyDesc:"Choose the currency used for all displayed amounts."
       },
       clientForm:{
         newTitle:"New client", editTitle:"Edit client",
@@ -384,7 +443,17 @@
         metricNamePlaceholder:"Metric name", valuePlaceholder:"Value",
         save:"Save report", cancel:"Cancel",
         duplicateLastMonth:"Duplicate last month",
-        importFile:"Import a file (Excel/CSV)"
+        importFile:"Import a file (Excel/CSV)",
+        notesLabel:"Context notes (optional)",
+        notesPlaceholder:"Which campaigns ran? What changed this month?",
+        pasteToggle:"Paste from a spreadsheet",
+        pasteLabel:"Paste your data (headers on the first line)",
+        pastePlaceholder:"Spend\tImpressions\tClicks\tLeads\n1200\t85000\t1700\t42",
+        pasteAnalyze:"Analyze",
+        pasteFill:"Fill fields",
+        pasteUnmapped:"Unrecognized columns (ignored)",
+        pasteConfirmOverwrite:"These fields already have values. Replace them?",
+        pasteNoRows:"Paste at least one header row and one value row."
       },
       importModal:{
         title:"Import a file",
@@ -406,7 +475,31 @@
         customMetrics:"Custom metrics", visualizations:"Visualizations",
         chartSpend:"Spend breakdown", chartLeads:"Leads & conversions", chartTrend:"Budget trend"
       },
-      csvExport:{ section:"Section", indicator:"Metric", value:"Value", client:"Client", name:"Name", report:"Report", month:"Month", custom:"Custom" },
+      csvExport:{ section:"Section", indicator:"Metric", value:"Value", client:"Client", name:"Name", report:"Report", month:"Month", custom:"Custom", notes:"Notes" },
+      changes:{
+        title:"What changed", noPrevious:"No comparison available — first report for this client.",
+        none:"No comparable changes this month.",
+        metaSpend:"Meta spend", metaClicks:"Meta clicks", metaLeads:"Meta leads",
+        googleSpend:"Google spend", googleClicks:"Google clicks", googleLeads:"Google leads",
+        sessions:"Site sessions", conversions:"Site conversions", openRate:"Open rate", clickRate:"Click rate"
+      },
+      goals:{
+        title:"Goals", desc:"Set monthly goals for this client. They apply across all of its reports.",
+        addGoal:"Add a goal", type:"Goal type",
+        leadsLabel:"Leads (per month)", spendLabel:"Max spend (per month)", cplLabel:"Target CPL", customLabel:"Custom",
+        customNamePlaceholder:"Custom metric name", target:"Target value",
+        direction:"Goal direction", directionMore:"More is better (e.g. leads)", directionLess:"Less is better (e.g. cost)",
+        noGoals:"No goals defined.", remove:"Remove", add:"Add",
+        reached:"Reached", inProgress:"In progress", exceeded:"Exceeded"
+      },
+      yearView:{
+        tabReports:"Reports", tabYear:"Year at a glance",
+        empty:"Add at least two reports to see a trend.",
+        metric:"Metric", metricLeads:"Leads", metricSpend:"Spend", metricCpl:"CPL", metricConversions:"Conversions",
+        totalLeads:"Leads (period)", totalSpend:"Spend (period)", avgCpl:"Average CPL (period)",
+        chartTitle:"Trend — {metric}"
+      },
+      currency:{ EUR:"Euro (€)", USD:"US Dollar ($)", GBP:"British Pound (£)", MAD:"Moroccan Dirham (DH)", CAD:"Canadian Dollar ($)", CHF:"Swiss Franc (CHF)" },
       alerts:{ exampleLoaded:"The example client is already loaded.", confirmClearExample:"Remove the example client and its reports?" },
       months:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
     }
@@ -442,14 +535,42 @@
     if(el) el.innerHTML = html;
   }
 
+  /* ---------- Currency ---------- */
+  const CURRENCIES = {
+    EUR:{ symbol:"€", suffix:true, spaced:true },
+    USD:{ symbol:"$", suffix:false, spaced:false },
+    GBP:{ symbol:"£", suffix:false, spaced:false },
+    MAD:{ symbol:"DH", suffix:true, spaced:true },
+    CAD:{ symbol:"$", suffix:true, spaced:true },
+    CHF:{ symbol:"CHF", suffix:true, spaced:true }
+  };
+  let currentCurrency = (function(){
+    try{ const saved = localStorage.getItem("rapport_currency"); if(saved && CURRENCIES[saved]) return saved; }catch(e){}
+    return 'EUR';
+  })();
+  function setCurrency(code){
+    if(!CURRENCIES[code]) return;
+    currentCurrency = code;
+    try{ localStorage.setItem("rapport_currency", code); }catch(e){}
+    render();
+  }
+
   /* ---------- Storage ---------- */
   const STORAGE_KEY = "rapport_data_v1";
+  // Backwards-compatible migration: older saved reports/clients lack `notes` and
+  // `goals`. We default them here on every load so existing localStorage data
+  // keeps working without any manual migration step from the user.
+  function migrateData(parsed){
+    const clients = (parsed.clients||[]).map(c => ({ ...c, goals: Array.isArray(c.goals) ? c.goals : [] }));
+    const reports = (parsed.reports||[]).map(r => ({ ...r, notes: typeof r.notes === 'string' ? r.notes : "" }));
+    return { clients, reports };
+  }
   function loadData(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) return {clients:[], reports:[]};
       const parsed = JSON.parse(raw);
-      return {clients: parsed.clients||[], reports: parsed.reports||[]};
+      return migrateData(parsed);
     }catch(e){ return {clients:[], reports:[]}; }
   }
   function saveData(){
@@ -458,7 +579,8 @@
   }
 
   let data = loadData();
-  let state = { clientId: null, reportId: null, mode: "welcome" }; // mode: welcome|reports|form|preview|new-client|edit-client|settings
+  let state = { clientId: null, reportId: null, mode: "home" }; // mode: home|welcome|reports|form|preview|new-client|edit-client|settings
+  let yearViewMetric = null; // selected metric on the "Vue annuelle" tab, resets to 'leads' per client
 
   function uid(prefix){ return prefix + "_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
 
@@ -475,8 +597,14 @@
   }
   function fmtInt(v){ return (v===null||v===undefined||isNaN(v)) ? "—" : Math.round(v).toLocaleString(loc()); }
   function fmtDec(v, d=2){ return (v===null||v===undefined||isNaN(v)) ? "—" : v.toLocaleString(loc(),{minimumFractionDigits:d,maximumFractionDigits:d}); }
-  function fmtCur(v){ return (v===null||v===undefined||isNaN(v)) ? "—" : v.toLocaleString(loc(),{minimumFractionDigits:2,maximumFractionDigits:2}) + " €"; }
-  function fmtPct(v, d=2){ return (v===null||v===undefined||isNaN(v)) ? "—" : v.toLocaleString(loc(),{minimumFractionDigits:d,maximumFractionDigits:d}) + " %"; }
+  function fmtCur(v){
+    if(v===null||v===undefined||isNaN(v)) return "—";
+    const num = v.toLocaleString(loc(),{minimumFractionDigits:2,maximumFractionDigits:2});
+    const cur = CURRENCIES[currentCurrency] || CURRENCIES.EUR;
+    const sep = cur.spaced ? " " : "";
+    return cur.suffix ? (num + sep + cur.symbol) : (cur.symbol + sep + num);
+  }
+  function fmtPct(v, d=2){ return (v===null||v===undefined||isNaN(v)) ? "—" : v.toLocaleString(loc(),{minimumFractionDigits:d,maximumFractionDigits:d}) + " %"; }
   function safeDiv(n, d){
     if(n===null||n===undefined||d===null||d===undefined||!Number.isFinite(n)||!Number.isFinite(d)||d===0) return null;
     return n/d;
@@ -500,19 +628,26 @@
   }
   function plural(n){ return n===1 ? '' : 's'; }
 
-  /* ---------- Fix: KPI tiles auto-shrink to fit (no overflow/clipping on long numbers) ---------- */
+  /* ---------- Fix: KPI tiles auto-shrink to fit (no overflow/clipping on long numbers) ----------
+     Two causes produced visible clipping before this fix: (1) no safety margin, so a value that
+     fit by a sub-pixel still touched the card edge, and (2) the 'Outfit' webfont can finish loading
+     AFTER this first runs, making the already-fitted text reflow wider than its shrunk box. Both are
+     fixed by re-running this with a small pixel buffer once fonts are confirmed ready. */
   function fitKpiValues(){
     document.querySelectorAll('.kpi-value').forEach(el=>{
       const max = parseFloat(window.getComputedStyle(el).fontSize);
       let size = max;
       el.style.fontSize = size + 'px';
       let guard = 0;
-      while(el.scrollWidth > el.clientWidth && size > 15 && guard < 60){
+      while(el.scrollWidth > el.clientWidth - 2 && size > 15 && guard < 60){
         size -= 1;
         el.style.fontSize = size + 'px';
         guard++;
       }
     });
+  }
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(fitKpiValues).catch(()=>{});
   }
 
   /* ---------- Derived metrics ---------- */
@@ -555,12 +690,115 @@
     if(d===null||isNaN(d)) return '<span class="text-muted text-xs">—</span>';
     const cls = d>0.001 ? "delta-up" : (d<-0.001 ? "delta-down" : "delta-flat");
     const arrow = d>0.001 ? "▲" : (d<-0.001 ? "▼" : "▬");
-    return `<span class="delta ${cls} font-mono">${arrow} ${Math.abs(d).toLocaleString(loc(),{maximumFractionDigits:1})}%</span>`;
+    return `<span class="delta ${cls} font-mono">${arrow} ${Math.abs(d).toLocaleString(loc(),{maximumFractionDigits:1})} %</span>`;
+  }
+
+  /* ---------- Feature 1: "What changed" summary (pure, deterministic) ---------- */
+  const CHANGE_METRIC_DEFS = [
+    { path:['meta','spend'], type:'cur', labelKey:'changes.metaSpend' },
+    { path:['meta','clicks'], type:'int', labelKey:'changes.metaClicks' },
+    { path:['meta','leads'], type:'int', labelKey:'changes.metaLeads' },
+    { path:['google','spend'], type:'cur', labelKey:'changes.googleSpend' },
+    { path:['google','clicks'], type:'int', labelKey:'changes.googleClicks' },
+    { path:['google','leads'], type:'int', labelKey:'changes.googleLeads' },
+    { path:['website','sessions'], type:'int', labelKey:'changes.sessions' },
+    { path:['website','conversions'], type:'int', labelKey:'changes.conversions' },
+    { path:['email','openRate'], type:'pct', labelKey:'changes.openRate' },
+    { path:['email','clickRate'], type:'pct', labelKey:'changes.clickRate' }
+  ];
+  // Returns null when there's no previous report to compare against (caller shows the
+  // "first report" message), or an array of up to 6 {label,type,curr,prev,pct} ranked by
+  // |pct| descending. Metrics missing on either side, or with a zero previous value
+  // (undefined % change), are silently skipped — never NaN, never a dash in this list.
+  function computeTopChanges(d, dPrev){
+    if(!dPrev) return null;
+    const candidates = [];
+    CHANGE_METRIC_DEFS.forEach(def=>{
+      const curr = def.path.reduce((o,k)=> o && o[k] !== undefined ? o[k] : null, d);
+      const prevVal = def.path.reduce((o,k)=> o && o[k] !== undefined ? o[k] : null, dPrev);
+      if(curr===null||curr===undefined||isNaN(curr)) return;
+      if(prevVal===null||prevVal===undefined||isNaN(prevVal)) return;
+      const pct = delta(curr, prevVal);
+      if(pct===null||isNaN(pct)) return;
+      candidates.push({ label:t(def.labelKey), type:def.type, curr, prev:prevVal, pct });
+    });
+    (d.custom||[]).forEach(c=>{
+      if(c.value===null||c.value===undefined||isNaN(c.value)) return;
+      const prevItem = (dPrev.custom||[]).find(p=>p.label===c.label);
+      if(!prevItem || prevItem.value===null||prevItem.value===undefined||isNaN(prevItem.value)) return;
+      const pct = delta(c.value, prevItem.value);
+      if(pct===null||isNaN(pct)) return;
+      candidates.push({ label:c.label, type:'dec', curr:c.value, prev:prevItem.value, pct });
+    });
+    candidates.sort((a,b)=> Math.abs(b.pct) - Math.abs(a.pct));
+    return candidates.slice(0,6);
+  }
+  function fmtByType(type, v){ return type==='cur' ? fmtCur(v) : (type==='pct' ? fmtPct(v) : fmtInt(v)); }
+  function renderChangesSummary(d, dPrev){
+    const changes = computeTopChanges(d, dPrev);
+    if(changes === null){
+      return `<p class="text-muted text-sm">${t('changes.noPrevious')}</p>`;
+    }
+    if(changes.length === 0){
+      return `<p class="text-muted text-sm">${t('changes.none')}</p>`;
+    }
+    return `<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.65rem;">
+      ${changes.map(c=>{
+        const arrow = c.pct>0.001 ? '▲' : (c.pct<-0.001 ? '▼' : '=');
+        const arrowColor = c.pct>0.001 ? 'var(--success)' : (c.pct<-0.001 ? 'var(--danger)' : 'var(--muted)');
+        const sign = c.pct>0 ? '+' : '';
+        return `<li class="text-sm"><span class="font-mono" style="color:${arrowColor}; font-weight:700;">${arrow}</span> <strong>${escapeHtml(c.label)}</strong> : ${sign}${c.pct.toLocaleString(loc(),{maximumFractionDigits:1})} % <span class="text-muted font-mono">(${fmtByType(c.type,c.prev)} → ${fmtByType(c.type,c.curr)})</span></li>`;
+      }).join("")}
+    </ul>`;
+  }
+
+  /* ---------- Feature 2: Goals per client + progress ---------- */
+  const BUILT_IN_GOAL_TYPES = {
+    leads:{ direction:'more', labelKey:'goals.leadsLabel', fmtType:'int' },
+    spend:{ direction:'less', labelKey:'goals.spendLabel', fmtType:'cur' },
+    cpl:{ direction:'less', labelKey:'goals.cplLabel', fmtType:'cur' }
+  };
+  function goalDirection(goal){ return goal.type==='custom' ? (goal.direction||'more') : BUILT_IN_GOAL_TYPES[goal.type].direction; }
+  function goalLabel(goal){ return goal.type==='custom' ? goal.label : t(BUILT_IN_GOAL_TYPES[goal.type].labelKey); }
+  function goalFmtType(goal){ return goal.type==='custom' ? 'dec' : BUILT_IN_GOAL_TYPES[goal.type].fmtType; }
+  // "more is better" (leads): reached when actual >= target. "less is better" (spend, CPL,
+  // custom cost metrics): reached when actual <= target, exceeded (red) when actual > target.
+  function resolveGoalStatus(goal, actual){
+    const target = toNum(goal.target);
+    if(actual===null||actual===undefined||isNaN(actual)||target===null||target<=0) return null;
+    const direction = goalDirection(goal);
+    const pct = Math.max(0, Math.min(100, (actual/target)*100));
+    if(direction==='more'){
+      return { status: actual>=target ? 'reached' : 'inprogress', pct, actual, target };
+    }
+    return { status: actual<=target ? 'reached' : 'exceeded', pct, actual, target };
+  }
+  function renderGoalProgress(goal, actual){
+    const r = resolveGoalStatus(goal, actual);
+    if(!r) return '';
+    const fmtType = goalFmtType(goal);
+    const fmt = v => fmtByType(fmtType, v);
+    const statusKey = r.status==='reached' ? 'reached' : (r.status==='exceeded' ? 'exceeded' : 'inProgress');
+    const statusClass = r.status==='reached' ? 'goal-status-reached' : (r.status==='exceeded' ? 'goal-status-exceeded' : 'goal-status-inprogress');
+    const fillColor = r.status==='reached' ? 'var(--success)' : (r.status==='exceeded' ? 'var(--danger)' : 'var(--warn)');
+    return `<div class="mt-3">
+      <div class="goal-bar-track"><div class="goal-bar-fill" style="width:${r.pct}%; background:${fillColor};"></div></div>
+      <div class="flex items-center justify-between mt-2">
+        <span class="badge goal-status ${statusClass}">${t('goals.'+statusKey)}</span>
+        <span class="text-muted text-xs font-mono">${fmt(r.actual)} / ${fmt(r.target)}</span>
+      </div>
+    </div>`;
   }
 
   /* ---------- Example data ---------- */
   function exampleClient(){
-    return { id: uid("client"), name: "Client Exemple (Démo)", logo: "", color: "#2D7FE0", isExample: true };
+    return { id: uid("client"), name: "Client Exemple (Démo)", logo: "", color: "#2D7FE0", isExample: true,
+      goals: [
+        { id: uid("goal"), type:"leads", target:45 },
+        { id: uid("goal"), type:"spend", target:1300 },
+        { id: uid("goal"), type:"cpl", target:28 }
+      ]
+    };
   }
   function exampleReports(clientId){
     const months = ["2026-05","2026-06","2026-07"];
@@ -600,6 +838,7 @@
   function renderSidebar(){
     document.getElementById("appNameLabel").textContent = t('appName');
     document.getElementById("taglineLabel").textContent = t('tagline');
+    document.getElementById("navHome").textContent = t('nav.home');
     document.getElementById("navDashboard").textContent = t('nav.dashboard');
     document.getElementById("clientsLabel").textContent = t('nav.clients');
     document.getElementById("newClientBtn").textContent = t('sidebar.newClient');
@@ -619,8 +858,10 @@
         </div>
       `).join("");
     }
+    const navHome = document.getElementById("navHome");
     const navDash = document.getElementById("navDashboard");
     const navSet = document.getElementById("navSettings");
+    if(navHome) navHome.classList.toggle("active", state.mode === "home");
     if(navDash) navDash.classList.toggle("active", state.mode === "welcome" || state.mode === "new-client");
     if(navSet) navSet.classList.toggle("active", state.mode === "settings");
   }
@@ -632,7 +873,8 @@
   function render(){
     renderSidebar();
     const main = document.getElementById("main");
-    if(state.mode === "new-client") renderClientForm(main, null);
+    if(state.mode === "home") renderLanding(main);
+    else if(state.mode === "new-client") renderClientForm(main, null);
     else if(state.mode === "settings") renderSettings(main);
     else if(state.mode === "welcome" || !state.clientId) renderWelcome(main);
     else {
@@ -663,8 +905,8 @@
             <span class="eyebrow" style="color:var(--accent);">${t('landing.eyebrow')}</span>
             <h2 class="headline font-bold mt-4 mb-4" style="font-size:3rem; line-height:1.06;">${t('landing.headline')}</h2>
             <p class="text-muted mb-8" style="font-size:1.08rem;">${t('landing.sub')}</p>
-            <div class="flex gap-3 justify-center mb-4">
-              <button class="btn btn-primary" data-action="new-client">${t('landing.ctaNew')}</button>
+            <div class="flex gap-3 justify-center mb-4 flex-wrap">
+              ${data.clients.length > 0 ? `<button class="btn btn-primary" data-action="go-dashboard">${t('nav.dashboard')}</button>` : `<button class="btn btn-primary" data-action="new-client">${t('landing.ctaNew')}</button>`}
               <button class="btn btn-ghost" data-action="load-example">${t('landing.ctaExample')}</button>
             </div>
             <p class="text-muted text-xs">${t('landing.trust')}</p>
@@ -936,6 +1178,12 @@
           <button class="btn ${currentLang==='en'?'btn-primary':'btn-ghost'} btn-sm" data-action="set-lang" data-lang="en">English</button>
         </div>
 
+        <div class="eyebrow mb-3">${t('settings.currency')}</div>
+        <p class="text-muted text-sm mb-4">${t('settings.currencyDesc')}</p>
+        <select id="currencySelect" class="mb-12" style="max-width:280px;">
+          ${Object.keys(CURRENCIES).map(code=>`<option value="${code}" ${code===currentCurrency?'selected':''}>${t('currency.'+code)}</option>`).join("")}
+        </select>
+
         <div class="eyebrow mb-3">${t('settings.exampleData')}</div>
         <p class="text-muted text-sm mb-4">${t('settings.exampleDataDesc')}</p>
         <div class="flex gap-2">
@@ -943,9 +1191,56 @@
           <button class="btn btn-danger btn-sm" data-action="clear-example" ${hasExample?'':'disabled'}>${t('settings.clearExample')}</button>
         </div>
       </div>`;
+    document.getElementById("currencySelect").onchange = (e) => setCurrency(e.target.value);
   }
 
   /* ---------- Client form ---------- */
+  function goalTypeOptionsHtml(selectedType){
+    return `
+      <option value="leads" ${selectedType==='leads'?'selected':''}>${t('goals.leadsLabel')}</option>
+      <option value="spend" ${selectedType==='spend'?'selected':''}>${t('goals.spendLabel')}</option>
+      <option value="cpl" ${selectedType==='cpl'?'selected':''}>${t('goals.cplLabel')}</option>
+      <option value="custom" ${selectedType==='custom'?'selected':''}>${t('goals.customLabel')}</option>`;
+  }
+  function renderGoalsSection(existing){
+    const goals = existing.goals || [];
+    return `
+      <div class="mt-2" style="border-top:1px solid var(--border); padding-top:1.5rem;">
+        <p class="eyebrow mb-1">${t('goals.title')}</p>
+        <p class="text-muted text-xs mb-4">${t('goals.desc')}</p>
+        <div id="goalsList" class="flex flex-col gap-2 mb-4">
+          ${goals.length===0 ? `<p class="text-muted text-sm">${t('goals.noGoals')}</p>` : goals.map(g=>`
+            <div class="flex items-center justify-between" style="padding:.5rem .75rem; background:var(--bg-soft); border-radius:10px;">
+              <span class="text-sm">${escapeHtml(goalLabel(g))} — <span class="font-mono">${fmtByType(goalFmtType(g), toNum(g.target))}</span></span>
+              <button type="button" class="btn btn-danger btn-sm" data-remove-goal="${g.id}">${t('goals.remove')}</button>
+            </div>
+          `).join("")}
+        </div>
+        <div class="flex flex-col gap-3" style="padding:1rem; background:var(--bg-soft); border-radius:12px;">
+          <div>
+            <label class="field-label">${t('goals.type')}</label>
+            <select id="newGoalType">${goalTypeOptionsHtml('leads')}</select>
+          </div>
+          <div id="newGoalCustomName" class="hidden">
+            <label class="field-label">${t('goals.customLabel')}</label>
+            <input type="text" id="newGoalLabel" placeholder="${t('goals.customNamePlaceholder')}">
+          </div>
+          <div id="newGoalDirectionWrap" class="hidden">
+            <label class="field-label">${t('goals.direction')}</label>
+            <select id="newGoalDirection">
+              <option value="more">${t('goals.directionMore')}</option>
+              <option value="less">${t('goals.directionLess')}</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">${t('goals.target')}</label>
+            <input type="number" min="0" step="any" id="newGoalTarget">
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" id="addGoalBtn">${t('goals.addGoal')}</button>
+        </div>
+      </div>`;
+  }
+
   function renderClientForm(main, existing){
     main.innerHTML = `
       <div class="surface card p-8" style="max-width:460px;">
@@ -970,6 +1265,7 @@
             ${existing && !existing.isExample ? `<button type="button" class="btn btn-danger" id="deleteClient">${t('clientForm.deleteClient')}</button>` : ''}
           </div>
         </form>
+        ${existing ? renderGoalsSection(existing) : ''}
       </div>`;
     document.getElementById("cancelClient").onclick = () => {
       state.mode = state.clientId ? "reports" : "welcome";
@@ -1004,7 +1300,7 @@
       if(existing){
         existing.name = name; existing.logo = logo; existing.color = color;
       }else{
-        const c = { id: uid("client"), name, logo, color, isExample:false };
+        const c = { id: uid("client"), name, logo, color, isExample:false, goals:[] };
         data.clients.push(c);
         state.clientId = c.id;
       }
@@ -1012,12 +1308,113 @@
       state.mode = "reports";
       render();
     };
+
+    if(existing){
+      const typeSelect = document.getElementById("newGoalType");
+      const customNameWrap = document.getElementById("newGoalCustomName");
+      const directionWrap = document.getElementById("newGoalDirectionWrap");
+      function syncGoalFormVisibility(){
+        const isCustom = typeSelect.value === 'custom';
+        customNameWrap.classList.toggle('hidden', !isCustom);
+        directionWrap.classList.toggle('hidden', !isCustom);
+      }
+      typeSelect.onchange = syncGoalFormVisibility;
+      syncGoalFormVisibility();
+
+      document.getElementById("addGoalBtn").onclick = () => {
+        const type = typeSelect.value;
+        const targetInput = document.getElementById("newGoalTarget");
+        const target = toNum(targetInput.value);
+        if(target===null || target<=0){ targetInput.classList.add("field-err"); return; }
+        targetInput.classList.remove("field-err");
+        const goal = { id: uid("goal"), type, target };
+        if(type==='custom'){
+          const label = document.getElementById("newGoalLabel").value.trim();
+          if(!label) return;
+          goal.label = label;
+          goal.direction = document.getElementById("newGoalDirection").value;
+        }
+        existing.goals = existing.goals || [];
+        existing.goals.push(goal);
+        saveData();
+        renderClientForm(main, existing);
+      };
+
+      document.querySelectorAll('[data-remove-goal]').forEach(btn=>{
+        btn.onclick = () => {
+          existing.goals = (existing.goals||[]).filter(g=>g.id!==btn.dataset.removeGoal);
+          saveData();
+          renderClientForm(main, existing);
+        };
+      });
+    }
   }
 
   /* ---------- Reports list ---------- */
+  function getYearMetricOptions(reports){
+    const opts = [
+      { value:'leads', label:t('yearView.metricLeads') },
+      { value:'spend', label:t('yearView.metricSpend') },
+      { value:'cpl', label:t('yearView.metricCpl') },
+      { value:'conversions', label:t('yearView.metricConversions') }
+    ];
+    const customLabels = new Set();
+    reports.forEach(r => (r.custom||[]).forEach(c => { if(c.label) customLabels.add(c.label); }));
+    customLabels.forEach(label => opts.push({ value:'custom:'+label, label }));
+    return opts;
+  }
+  function getYearMetricValue(report, metricKey){
+    const d = computeReport(report);
+    const totalSpend = (d.meta.spend||0) + (d.google.spend||0);
+    const totalLeads = (d.meta.leads||0) + (d.google.leads||0);
+    if(metricKey==='leads') return totalLeads;
+    if(metricKey==='spend') return totalSpend;
+    if(metricKey==='cpl') return safeDiv(totalSpend, totalLeads);
+    if(metricKey==='conversions') return d.website.conversions;
+    if(metricKey.startsWith('custom:')){
+      const label = metricKey.slice(7);
+      const item = (d.custom||[]).find(c=>c.label===label);
+      return item ? item.value : null;
+    }
+    return null;
+  }
+  let yearChartInstance = null;
+  function renderYearChart(client, reports, metricKey){
+    if(yearChartInstance){ yearChartInstance.destroy(); yearChartInstance = null; }
+    const canvas = document.getElementById('yearChart');
+    if(!canvas) return;
+    const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#E7EDF3';
+    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2D7FE0';
+    const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#6D7178';
+    Chart.defaults.color = muted;
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    yearChartInstance = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: reports.map(r=>monthLabel(r.month)),
+        datasets: [{ data: reports.map(r=>getYearMetricValue(r, metricKey) || 0), backgroundColor: client.color||accentColor, borderRadius:8, maxBarThickness:48 }]
+      },
+      options: {
+        plugins:{ legend:{display:false} },
+        scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5}, ticks:{font:{family:"'IBM Plex Mono', monospace"}} }, x:{ border:{display:false}, grid:{display:false} } }
+      }
+    });
+  }
+  function renderYearSummary(reports, metricKey){
+    const leadsTotal = reports.reduce((s,r)=> s + (getYearMetricValue(r,'leads')||0), 0);
+    const spendTotal = reports.reduce((s,r)=> s + (getYearMetricValue(r,'spend')||0), 0);
+    const avgCpl = safeDiv(spendTotal, leadsTotal);
+    return `
+      <div class="grid gap-4 mb-8" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
+        <div class="kpi-card"><span class="eyebrow">${t('yearView.totalLeads')}</span><p class="kpi-value" style="font-size:2rem;">${fmtInt(leadsTotal)}</p></div>
+        <div class="kpi-card"><span class="eyebrow">${t('yearView.totalSpend')}</span><p class="kpi-value" style="font-size:2rem;">${fmtCur(spendTotal)}</p></div>
+        <div class="kpi-card"><span class="eyebrow">${t('yearView.avgCpl')}</span><p class="kpi-value" style="font-size:2rem;">${fmtCur(avgCpl)}</p></div>
+      </div>`;
+  }
   function renderReportsList(main, client){
     const reports = data.reports.filter(r=>r.clientId===client.id).sort((a,b)=> a.month < b.month ? 1 : -1);
-    main.innerHTML = `
+    const activeTab = state.clientTab === 'year' ? 'year' : 'reports';
+    const header = `
       <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
         <div class="flex items-center gap-4" style="min-width:0;">
           ${client.logo ? `<img src="${escapeAttr(client.logo)}" class="w-14 h-14 rounded-2xl object-cover flex-shrink-0" style="box-shadow:var(--shadow-sm);" onerror="this.style.display='none'">` : `<span class="w-14 h-14 rounded-2xl inline-block flex-shrink-0" style="background:${escapeAttr(client.color)}; box-shadow:var(--shadow-sm);"></span>`}
@@ -1030,8 +1427,44 @@
           <button class="btn btn-primary" data-action="new-report">${t('reportsList.newReport')}</button>
         </div>
       </div>
+      <div class="flex gap-1 mb-10" style="margin-top:1.5rem;">
+        <button class="tab-btn ${activeTab==='reports'?'active':''}" data-action="client-tab" data-tab="reports">${t('yearView.tabReports')}</button>
+        <button class="tab-btn ${activeTab==='year'?'active':''}" data-action="client-tab" data-tab="year">${t('yearView.tabYear')}</button>
+      </div>`;
+
+    if(activeTab === 'year'){
+      if(reports.length < 2){
+        main.innerHTML = header + `<div class="text-center py-20 surface card"><p class="headline font-semibold" style="font-size:1.5rem;">${t('yearView.empty')}</p></div>`;
+        return;
+      }
+      const yearReports = reports.slice().sort((a,b)=> a.month < b.month ? -1 : 1).slice(-12);
+      const metricOptions = getYearMetricOptions(yearReports);
+      const defaultMetric = yearViewMetric && metricOptions.some(o=>o.value===yearViewMetric) ? yearViewMetric : 'leads';
+      yearViewMetric = defaultMetric;
+      main.innerHTML = header + `
+        ${renderYearSummary(yearReports, defaultMetric)}
+        <div class="surface card p-6">
+          <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <p class="eyebrow">${t('yearView.chartTitle',{metric:metricOptions.find(o=>o.value===defaultMetric).label})}</p>
+            <select id="yearMetricSelect" style="max-width:220px;">
+              ${metricOptions.map(o=>`<option value="${escapeAttr(o.value)}" ${o.value===defaultMetric?'selected':''}>${escapeHtml(o.label)}</option>`).join("")}
+            </select>
+          </div>
+          <canvas id="yearChart" height="220"></canvas>
+        </div>`;
+      renderYearChart(client, yearReports, defaultMetric);
+      document.getElementById("yearMetricSelect").onchange = (e) => {
+        yearViewMetric = e.target.value;
+        renderYearChart(client, yearReports, yearViewMetric);
+        const label = metricOptions.find(o=>o.value===yearViewMetric).label;
+        const titleTarget = document.getElementById('yearMetricSelect').previousElementSibling;
+        if(titleTarget) titleTarget.textContent = t('yearView.chartTitle',{metric:label});
+      };
+      return;
+    }
+
+    main.innerHTML = header + `
       <p class="text-muted text-sm mb-10">${t('reportsList.count',{n:reports.length, plural:plural(reports.length)})}</p>
-      <div class="eyebrow mb-4">${t('reportsList.recent')}</div>
       ${reports.length===0 ? `
         <div class="text-center py-20 surface card">
           <p class="headline font-semibold" style="font-size:1.5rem;">${t('reportsList.emptyTitle')}</p>
@@ -1068,7 +1501,7 @@
       google:{spend:"",impressions:"",clicks:"",leads:""},
       website:{sessions:"",users:"",conversions:""},
       email:{sent:"",openRate:"",clickRate:""},
-      custom:[]
+      custom:[], notes:""
     };
   }
 
@@ -1078,15 +1511,21 @@
     ["website","sessions"],["website","users"],["website","conversions"],
     ["email","sent"],["email","openRate"],["email","clickRate"]
   ];
+  // Qualified synonyms ("meta spend") disambiguate columns in a single multi-platform
+  // sheet (Excel import). Bare synonyms ("dépense", "spend") only apply when the platform
+  // is already fixed by context — the per-section "paste" feature, where the user pastes
+  // directly into a specific platform's panel, so no column can be ambiguous there. They're
+  // listed here too because the Excel importer's guessColumn() already excludes columns
+  // naming the other platform, so bare terms stay safe for both use sites.
   const FIELD_SYNONYMS = {
-    "meta.spend":["meta spend","facebook spend","amount spent (meta)","dépense meta","spend meta"],
-    "meta.impressions":["meta impressions","facebook impressions"],
-    "meta.clicks":["meta clicks","facebook clicks","meta clics","link clicks (meta)"],
-    "meta.leads":["meta leads","meta results","facebook leads"],
-    "google.spend":["google spend","adwords spend","dépense google","cost (google)"],
-    "google.impressions":["google impressions","adwords impressions"],
-    "google.clicks":["google clicks","adwords clicks","google clics"],
-    "google.leads":["google leads","google conversions","adwords leads"],
+    "meta.spend":["meta spend","facebook spend","amount spent (meta)","dépense meta","spend meta","dépense","spend","cost","amount spent"],
+    "meta.impressions":["meta impressions","facebook impressions","impressions"],
+    "meta.clicks":["meta clicks","facebook clicks","meta clics","link clicks (meta)","clics","clicks"],
+    "meta.leads":["meta leads","meta results","facebook leads","leads","results"],
+    "google.spend":["google spend","adwords spend","dépense google","cost (google)","dépense","spend","cost"],
+    "google.impressions":["google impressions","adwords impressions","impressions"],
+    "google.clicks":["google clicks","adwords clicks","google clics","clics","clicks"],
+    "google.leads":["google leads","google conversions","adwords leads","leads"],
     "website.sessions":["sessions"],
     "website.users":["users","utilisateurs"],
     "website.conversions":["conversions"],
@@ -1098,7 +1537,19 @@
   function platformFieldsHtml(prefix, label, p, fieldKeys){
     return `
       <fieldset class="surface card p-6">
-        <legend class="eyebrow px-1">${label}</legend>
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <span class="eyebrow">${label}</span>
+          <button type="button" class="btn btn-ghost btn-sm" data-paste-toggle="${prefix}">${t('reportForm.pasteToggle')}</button>
+        </div>
+        <div id="pasteArea-${prefix}" class="paste-panel hidden">
+          <label class="field-label">${t('reportForm.pasteLabel')}</label>
+          <textarea id="pasteInput-${prefix}" placeholder="${t('reportForm.pastePlaceholder')}"></textarea>
+          <div class="flex gap-2 mt-2">
+            <button type="button" class="btn btn-primary btn-sm" data-paste-analyze="${prefix}">${t('reportForm.pasteAnalyze')}</button>
+            <button type="button" class="btn btn-ghost btn-sm" data-paste-cancel="${prefix}">${t('reportForm.cancel')}</button>
+          </div>
+          <div id="pastePreview-${prefix}" class="mt-3"></div>
+        </div>
         <div class="grid gap-4 mt-3" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
           ${fieldKeys.map(key=>`
             <div>
@@ -1109,6 +1560,24 @@
           `).join("")}
         </div>
       </fieldset>`;
+  }
+
+  /* ---------- Feature 4B: paste-from-spreadsheet parsing ---------- */
+  const PASTE_FIELD_KEYS = {};
+  FIELD_DEFS.forEach(([section,key])=>{ (PASTE_FIELD_KEYS[section] = PASTE_FIELD_KEYS[section]||[]).push(key); });
+
+  function parsePasteBlock(raw){
+    const lines = raw.replace(/\r\n/g,'\n').split('\n').filter(l=>l.trim()!=='');
+    if(lines.length < 2) return null;
+    const delim = lines[0].includes('\t') ? '\t' : ',';
+    return { headers: lines[0].split(delim).map(h=>h.trim()), values: lines[1].split(delim).map(v=>v.trim()) };
+  }
+  function matchPasteColumn(prefix, key, header){
+    const h = header.toLowerCase().trim();
+    if(!h) return false;
+    if(h === t('reportForm.'+key).toLowerCase()) return true;
+    const syn = FIELD_SYNONYMS[prefix+'.'+key] || [];
+    return syn.some(s => h.includes(s));
   }
 
   function renderReportForm(main, client, reportId){
@@ -1144,6 +1613,11 @@
           <div id="customRows" class="flex flex-col gap-2 mt-3"></div>
           <button type="button" class="btn btn-ghost btn-sm mt-3" id="addCustomRow">${t('reportForm.addMetric')}</button>
         </fieldset>
+
+        <div class="surface card p-6">
+          <label class="field-label">${t('reportForm.notesLabel')}</label>
+          <textarea name="notes" rows="4" placeholder="${t('reportForm.notesPlaceholder')}" style="min-height:90px; resize:vertical;">${escapeHtml(r.notes||'')}</textarea>
+        </div>
 
         <div class="flex gap-2">
           <button type="submit" class="btn btn-primary">${t('reportForm.save')}</button>
@@ -1207,6 +1681,85 @@
       reader.readAsArrayBuffer(file);
     };
 
+    /* ---- Paste-from-spreadsheet import (per platform section) ---- */
+    document.getElementById("reportForm").addEventListener("click", (e) => {
+      const toggleBtn = e.target.closest('[data-paste-toggle]');
+      if(toggleBtn){
+        document.getElementById('pasteArea-'+toggleBtn.dataset.pasteToggle).classList.toggle('hidden');
+        return;
+      }
+      const cancelBtn = e.target.closest('[data-paste-cancel]');
+      if(cancelBtn){
+        const prefix = cancelBtn.dataset.pasteCancel;
+        document.getElementById('pasteArea-'+prefix).classList.add('hidden');
+        document.getElementById('pastePreview-'+prefix).innerHTML = '';
+        document.getElementById('pasteInput-'+prefix).value = '';
+        return;
+      }
+      const analyzeBtn = e.target.closest('[data-paste-analyze]');
+      if(analyzeBtn){
+        e.preventDefault();
+        const prefix = analyzeBtn.dataset.pasteAnalyze;
+        const raw = document.getElementById('pasteInput-'+prefix).value;
+        const previewEl = document.getElementById('pastePreview-'+prefix);
+        const parsed = parsePasteBlock(raw);
+        if(!parsed){ previewEl.innerHTML = `<p class="err-msg">${t('reportForm.pasteNoRows')}</p>`; return; }
+        const keys = PASTE_FIELD_KEYS[prefix] || [];
+        const mapped = {}; const unmapped = [];
+        parsed.headers.forEach((h,i)=>{
+          const key = keys.find(k => matchPasteColumn(prefix, k, h));
+          if(key && parsed.values[i] !== undefined) mapped[key] = parsed.values[i];
+          else if(h.trim() !== '') unmapped.push(h);
+        });
+        let html = '';
+        if(Object.keys(mapped).length){
+          html += `<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.3rem;">`;
+          html += Object.keys(mapped).map(k=>`<li class="text-sm"><strong>${t('reportForm.'+k)}</strong> : <span class="font-mono">${escapeHtml(mapped[k])}</span></li>`).join('');
+          html += `</ul>`;
+        }
+        if(unmapped.length){
+          html += `<p class="text-muted text-xs mt-2">${t('reportForm.pasteUnmapped')} : ${unmapped.map(escapeHtml).join(', ')}</p>`;
+        }
+        if(Object.keys(mapped).length){
+          html += `<button type="button" class="btn btn-primary btn-sm mt-3" data-paste-fill="${prefix}">${t('reportForm.pasteFill')}</button>`;
+        }
+        previewEl.innerHTML = html;
+        previewEl.dataset.mapped = JSON.stringify(mapped);
+        return;
+      }
+      const fillBtn = e.target.closest('[data-paste-fill]');
+      if(fillBtn){
+        e.preventDefault();
+        const prefix = fillBtn.dataset.pasteFill;
+        const previewEl = document.getElementById('pastePreview-'+prefix);
+        const mapped = JSON.parse(previewEl.dataset.mapped || '{}');
+        const formEl = document.getElementById("reportForm");
+        const keys = Object.keys(mapped);
+        const doFill = () => {
+          keys.forEach(k=>{
+            const input = formEl.querySelector(`[name="${prefix}.${k}"]`);
+            if(input) input.value = mapped[k];
+          });
+          document.getElementById('pasteArea-'+prefix).classList.add('hidden');
+          previewEl.innerHTML = '';
+        };
+        const hasExisting = keys.some(k=>{
+          const input = formEl.querySelector(`[name="${prefix}.${k}"]`);
+          return input && input.value !== '';
+        });
+        if(!hasExisting){ doFill(); return; }
+        previewEl.innerHTML = `
+          <p class="text-sm mb-2">${t('reportForm.pasteConfirmOverwrite')}</p>
+          <div class="flex gap-2">
+            <button type="button" class="btn btn-primary btn-sm" id="pasteConfirmYes">${t('common.yes')}</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="pasteConfirmNo">${t('common.no')}</button>
+          </div>`;
+        document.getElementById('pasteConfirmYes').onclick = doFill;
+        document.getElementById('pasteConfirmNo').onclick = () => { previewEl.innerHTML = ''; };
+        return;
+      }
+    });
+
     document.getElementById("cancelReport").onclick = () => { state.mode = "reports"; render(); };
 
     document.getElementById("reportForm").onsubmit = (e) => {
@@ -1257,7 +1810,8 @@
         custom: Array.from(customContainer.querySelectorAll(".custom-row")).map(row => ({
           label: row.querySelector(".custom-label").value.trim(),
           value: row.querySelector(".custom-value").value
-        })).filter(c => c.label !== "")
+        })).filter(c => c.label !== ""),
+        notes: (fd.get("notes")||"").toString()
       };
 
       // prevent duplicate month for same client (except when editing same report)
@@ -1379,6 +1933,11 @@
     const prevTotalSpend = dPrev ? (dPrev.meta.spend||0) + (dPrev.google.spend||0) : null;
     const prevTotalLeads = dPrev ? (dPrev.meta.leads||0) + (dPrev.google.leads||0) : null;
 
+    const goals = client.goals || [];
+    const spendGoal = goals.find(g=>g.type==='spend');
+    const leadsGoal = goals.find(g=>g.type==='leads');
+    const cplGoal = goals.find(g=>g.type==='cpl');
+
     main.innerHTML = `
       <div class="flex items-center justify-between mb-5 no-print flex-wrap gap-2">
         <button class="btn btn-ghost btn-sm" data-action="back-to-reports">${t('preview.back')}</button>
@@ -1407,16 +1966,19 @@
             <span class="eyebrow">${t('preview.kpiSpend')}</span>
             <p class="kpi-value">${fmtCur(totalSpend)}</p>
             ${deltaBadge(delta(totalSpend, prevTotalSpend))}
+            ${spendGoal ? renderGoalProgress(spendGoal, totalSpend) : ''}
           </div>
           <div class="kpi-card">
             <span class="eyebrow">${t('preview.kpiLeads')}</span>
             <p class="kpi-value">${fmtInt(totalLeads)}</p>
             ${deltaBadge(delta(totalLeads, prevTotalLeads))}
+            ${leadsGoal ? renderGoalProgress(leadsGoal, totalLeads) : ''}
           </div>
           <div class="kpi-card">
             <span class="eyebrow">${t('preview.kpiCpl')}</span>
             <p class="kpi-value">${fmtCur(blendedCpl)}</p>
             ${deltaBadge(delta(blendedCpl, dPrev ? safeDiv(prevTotalSpend, prevTotalLeads) : null))}
+            ${cplGoal ? renderGoalProgress(cplGoal, blendedCpl) : ''}
           </div>
           <div class="kpi-card">
             <span class="eyebrow">${t('preview.kpiConversions')}</span>
@@ -1426,6 +1988,11 @@
         </div>
 
         <div class="flex flex-col gap-4 mt-6">
+          <div class="surface card p-6">
+            <p class="eyebrow mb-4">${t('changes.title')}</p>
+            ${renderChangesSummary(d, dPrev)}
+          </div>
+          ${report.notes ? `<div class="surface card p-6"><p class="eyebrow mb-3">${t('reportForm.notesLabel')}</p><p class="text-sm" style="white-space:pre-wrap;">${escapeHtml(report.notes)}</p></div>` : ''}
           <div class="surface card p-6">${platformTable(t('reportForm.metaAds'), d.meta, dPrev?dPrev.meta:null, [["spend","cur"],["impressions","int"],["clicks","int"],["leads","int"],["ctr","pct"],["cpc","cur"],["cpl","cur"]])}</div>
           <div class="surface card p-6">${platformTable(t('reportForm.googleAds'), d.google, dPrev?dPrev.google:null, [["spend","cur"],["impressions","int"],["clicks","int"],["leads","int"],["ctr","pct"],["cpc","cur"],["cpl","cur"]])}</div>
           <div class="surface card p-6">${platformTable(t('reportForm.website'), d.website, dPrev?dPrev.website:null, [["sessions","int"],["users","int"],["conversions","int"],["convRate","pct"]])}</div>
@@ -1542,6 +2109,7 @@
     const rows = [[t('csvExport.section'), t('csvExport.indicator'), t('csvExport.value')]];
     rows.push([t('csvExport.client'), t('csvExport.name'), client.name]);
     rows.push([t('csvExport.report'), t('csvExport.month'), monthLabel(report.month)]);
+    if(report.notes){ rows.push([t('csvExport.report'), t('csvExport.notes'), report.notes]); }
     const push = (section, label, val) => rows.push([section,label, val===null||val===undefined||isNaN(val) ? "" : val]);
 
     const metaAds = t('reportForm.metaAds'), googleAds = t('reportForm.googleAds'), website = t('reportForm.website'), email = t('reportForm.email');
@@ -1585,10 +2153,12 @@
     const id = el.dataset.id;
 
     if(action === "select-client"){ state = {clientId:id, reportId:null, mode:"reports"}; render(); }
+    else if(action === "client-tab"){ state.clientTab = el.dataset.tab; render(); }
     else if(action === "new-client"){ state.mode = "new-client"; render(); }
     else if(action === "edit-client"){ state.mode = "edit-client"; render(); }
     else if(action === "load-example"){ loadExample(); }
     else if(action === "clear-example"){ removeExampleData(); }
+    else if(action === "go-home"){ state = {clientId:null, reportId:null, mode:"home"}; render(); }
     else if(action === "go-dashboard"){ state = {clientId:null, reportId:null, mode:"welcome"}; render(); }
     else if(action === "go-settings"){ state.mode = "settings"; render(); }
     else if(action === "set-lang"){ setLang(el.dataset.lang); }
