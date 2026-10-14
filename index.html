@@ -203,21 +203,41 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       radial-gradient(ellipse 55% 45% at 75% 55%, var(--hero-mesh-2), transparent 70%);
   }
 
-  /* Floating stat/graph chips scattered around the hero copy, for visual interest without
-     external images — each carries real-looking (but illustrative) numbers and a tiny chart. */
-  .float-chip{
-    position:absolute; z-index:1; background:var(--surface); border:1px solid var(--border);
-    border-radius:16px; box-shadow:var(--shadow-md); padding:.85rem 1.1rem; pointer-events:none;
-    animation:floaty 6s ease-in-out infinite;
+  /* ---------- Landing page structure (asymmetric hero, dark stat band, timeline, bento grid) ---------- */
+  .hero-grid{ display:grid; grid-template-columns:1.05fr .95fr; gap:3.5rem; align-items:center; }
+  .hero-mock{ transform:rotate(-1.1deg); transition:transform .35s ease; }
+  .hero-mock:hover{ transform:rotate(0deg) translateY(-4px); }
+  .hero-stat-strip{ display:flex; align-items:center; gap:1.5rem; }
+  .hero-stat-strip .hs-num{ font-family:'Outfit',sans-serif; font-weight:800; font-size:1.5rem; letter-spacing:-.02em; line-height:1; }
+  .hero-stat-strip .hs-rule{ width:1px; height:1.9rem; background:var(--border); flex-shrink:0; }
+  @media (max-width: 860px){
+    .hero-grid{ grid-template-columns:1fr; gap:2.5rem; }
+    .hero-mock{ transform:none; }
   }
-  .float-chip .fc-label{ font-size:.65rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
-  .float-chip .fc-value{ font-family:'Outfit',sans-serif; font-weight:700; font-size:1.3rem; margin-top:.15rem; }
-  @keyframes floaty{
-    0%, 100%{ transform:translateY(0px); }
-    50%{ transform:translateY(-10px); }
+  @media (prefers-reduced-motion: reduce){ .hero-mock{ transition:none; } }
+
+  /* Dark contrast band — breaks the all-white rhythm with one inverted, editorial section */
+  .stat-band{
+    background:var(--ink); color:#fff; border-radius:28px; padding:3.25rem 3rem;
+    display:grid; grid-template-columns:1.2fr repeat(3,1fr); gap:2.5rem; align-items:center;
   }
-  @media (prefers-reduced-motion: reduce){ .float-chip{ animation:none; } }
-  @media (max-width: 960px){ .float-chip{ display:none; } }
+  .stat-band .sb-quote{ font-family:'Outfit',sans-serif; font-weight:600; font-size:1.35rem; line-height:1.35; max-width:340px; }
+  .stat-band .sb-num{ font-family:'Outfit',sans-serif; font-weight:800; font-size:clamp(2rem,4vw,2.75rem); letter-spacing:-.02em; line-height:1; }
+  .stat-band .sb-label{ color:rgba(255,255,255,.55); font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; font-weight:600; margin-top:.5rem; }
+  @media (max-width: 760px){ .stat-band{ grid-template-columns:1fr 1fr; padding:2.25rem 1.5rem; } .stat-band .sb-quote{ grid-column:1 / -1; max-width:none; } }
+
+  /* Numbered timeline for "how it works" — a connecting rule instead of three equal cards */
+  .timeline-row{ display:grid; grid-template-columns:4.5rem 1fr; gap:1.25rem; }
+  .timeline-row:not(:last-child){ padding-bottom:1.75rem; margin-bottom:1.75rem; border-bottom:1px solid var(--border); }
+  .timeline-num{ font-family:'Outfit',sans-serif; font-weight:800; font-size:2.5rem; line-height:1; color:var(--accent-soft); }
+
+  /* Bento-style feature grid: one large anchor tile beside smaller supporting tiles */
+  .bento-grid{ display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:1fr; gap:1rem; }
+  .bento-grid .bento-lg{ grid-column:span 2; grid-row:span 2; display:flex; flex-direction:column; justify-content:flex-end; }
+  @media (max-width: 760px){
+    .bento-grid{ grid-template-columns:repeat(2,1fr); }
+    .bento-grid .bento-lg{ grid-column:span 2; grid-row:span 1; }
+  }
 
   .modal-backdrop{
     position:fixed; inset:0; background:rgba(15,20,30,.45); backdrop-filter:blur(2px);
@@ -314,6 +334,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         sub:"Rapport est un outil de reporting mensuel pour les freelances et petites agences. Collez vos chiffres (ou importez un fichier Excel), obtenez des métriques calculées automatiquement et un rapport prêt à partager — sans serveur, sans compte, sans IA.",
         ctaNew:"+ Nouveau client", ctaExample:"Voir un exemple",
         trust:"Gratuit · 100 % local · Sans création de compte",
+        statBandQuote:"Le reporting mensuel ne devrait pas vous manger une après-midi entière.",
         mockupClient:"Agence Nord", mockupTitle:"Rapport mensuel — Mai 2026",
         mockupCaption:"Aperçu illustratif — vos rapports utilisent vos propres chiffres et couleurs de marque.",
         kpiSpend:"Dépense totale", kpiLeads:"Leads totaux", kpiCpl:"CPL moyen",
@@ -454,6 +475,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
         sub:"Rapport is a monthly reporting tool for freelancers and small agencies. Paste your numbers (or import an Excel file), get automatically calculated metrics and a report ready to share — no server, no account, no AI.",
         ctaNew:"+ New client", ctaExample:"See an example",
         trust:"Free · 100% local · No account needed",
+        statBandQuote:"Monthly reporting shouldn't eat your whole afternoon.",
         mockupClient:"Agence Nord", mockupTitle:"Monthly report — May 2026",
         mockupCaption:"Illustrative preview — your reports use your own numbers and brand colors.",
         kpiSpend:"Total spend", kpiLeads:"Total leads", kpiCpl:"Average CPL",
@@ -1055,138 +1077,144 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
   /* ---------- Landing (first-run explainer) ---------- */
   function renderLanding(main){
     main.innerHTML = `
-      <div style="max-width:980px; margin:0 auto;">
+      <div style="max-width:1120px; margin:0 auto;">
 
         <section style="position:relative; overflow:hidden; padding-bottom:1rem; padding-top:.5rem;">
           <div class="hero-glow"></div>
 
-          <div class="float-chip" style="top:2rem; left:-1rem; animation-delay:0s;">
-            <div class="flex items-center gap-2">
-              <span class="icon-chip" style="width:1.9rem; height:1.9rem; border-radius:9px;">${icon('trendUp',15)}</span>
-              <div><div class="fc-label">${t('landing.chipLeads')}</div><div class="fc-value" style="font-size:1.05rem; color:var(--success);">+24%</div></div>
-            </div>
-          </div>
-          <div class="float-chip" style="top:5.5rem; right:-1.5rem; animation-delay:1.4s;">
-            <div class="flex items-center gap-2">
-              <span class="icon-chip" style="width:1.9rem; height:1.9rem; border-radius:9px;">${icon('barChart',15)}</span>
-              <div><div class="fc-label">${t('landing.chipReports')}</div><div class="fc-value" style="font-size:1.05rem;">128</div></div>
-            </div>
-          </div>
-          <div class="float-chip" style="bottom:-1rem; left:2%; animation-delay:2.8s;">
-            <div class="flex items-center gap-2">
-              <span class="icon-chip" style="width:1.9rem; height:1.9rem; border-radius:9px;">${icon('target',15)}</span>
-              <div><div class="fc-label">${t('landing.chipGoal')}</div><div class="fc-value" style="font-size:1.05rem;">92%</div></div>
-            </div>
-          </div>
-
-          <div style="position:relative; z-index:1; text-align:center; max-width:640px; margin:0 auto;">
-            <span class="eyebrow" style="color:var(--accent);">${t('landing.eyebrow')}</span>
-            <h2 class="headline font-bold mt-4 mb-4" style="font-size:3rem; line-height:1.06;">${t('landing.headline')}</h2>
-            <p class="text-muted mb-8" style="font-size:1.08rem;">${t('landing.sub')}</p>
-            <div class="flex gap-3 justify-center mb-4 flex-wrap">
-              ${data.clients.length > 0 ? `<button class="btn btn-primary" data-action="go-dashboard">${t('nav.dashboard')}</button>` : `<button class="btn btn-primary" data-action="new-client">${t('landing.ctaNew')}</button>`}
-              <button class="btn btn-ghost" data-action="load-example">${t('landing.ctaExample')}</button>
-            </div>
-            <p class="text-muted text-xs">${t('landing.trust')}</p>
-          </div>
-
-          <div style="position:relative; z-index:1; max-width:820px; margin:3.5rem auto 0;">
-            <div class="surface card" style="padding:.6rem; box-shadow:var(--shadow-lg);">
-              <div class="flex items-center gap-1.5 px-3 py-2">
-                <span style="width:.6rem; height:.6rem; border-radius:999px; background:var(--danger);"></span>
-                <span style="width:.6rem; height:.6rem; border-radius:999px; background:#E8B339;"></span>
-                <span style="width:.6rem; height:.6rem; border-radius:999px; background:var(--success);"></span>
+          <div class="hero-grid" style="position:relative; z-index:1;">
+            <div>
+              <span class="eyebrow" style="color:var(--accent);">${t('landing.eyebrow')}</span>
+              <h2 class="headline font-bold mt-4 mb-5" style="font-size:clamp(2.5rem,4.4vw,3.6rem); line-height:1.03; letter-spacing:-.03em;">${t('landing.headline')}</h2>
+              <p class="text-muted mb-8" style="font-size:1.1rem; max-width:460px;">${t('landing.sub')}</p>
+              <div class="flex gap-3 mb-7 flex-wrap">
+                ${data.clients.length > 0 ? `<button class="btn btn-primary" data-action="go-dashboard">${t('nav.dashboard')}</button>` : `<button class="btn btn-primary" data-action="new-client">${t('landing.ctaNew')}</button>`}
+                <button class="btn btn-ghost" data-action="load-example">${t('landing.ctaExample')}</button>
               </div>
-              <div style="background:var(--bg-soft); border-radius:14px; padding:2rem;">
-                <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-                  <div class="flex items-center gap-3">
-                    <span style="width:2.75rem; height:2.75rem; border-radius:12px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:var(--accent-fg);">${icon('barChart',18)}</span>
-                    <div style="text-align:left;">
-                      <p class="headline font-bold" style="font-size:1.3rem; line-height:1.1;">${t('landing.mockupClient')}</p>
-                      <p class="text-muted text-xs">${t('landing.mockupTitle')} <span class="badge badge-example">${t('common.example')}</span></p>
-                    </div>
-                  </div>
-                  <svg width="110" height="36" viewBox="0 0 110 36" fill="none">
-                    <polyline points="0,28 18,24 36,26 54,14 72,18 90,6 110,10" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="110" cy="10" r="3.5" fill="var(--accent)"/>
-                  </svg>
+              <div class="hero-stat-strip">
+                <div><div class="hs-num" style="color:var(--success);">+24%</div><div class="text-muted text-xs mt-1">${t('landing.chipLeads')}</div></div>
+                <div class="hs-rule"></div>
+                <div><div class="hs-num">128</div><div class="text-muted text-xs mt-1">${t('landing.chipReports')}</div></div>
+                <div class="hs-rule"></div>
+                <div><div class="hs-num">92%</div><div class="text-muted text-xs mt-1">${t('landing.chipGoal')}</div></div>
+              </div>
+              <p class="text-muted text-xs mt-7">${t('landing.trust')}</p>
+            </div>
+
+            <div class="hero-mock">
+              <div class="surface card" style="padding:.6rem; box-shadow:var(--shadow-lg);">
+                <div class="flex items-center gap-1.5 px-3 py-2">
+                  <span style="width:.6rem; height:.6rem; border-radius:999px; background:var(--danger);"></span>
+                  <span style="width:.6rem; height:.6rem; border-radius:999px; background:#E8B339;"></span>
+                  <span style="width:.6rem; height:.6rem; border-radius:999px; background:var(--success);"></span>
                 </div>
-                <div class="grid gap-3 mb-6" style="grid-template-columns:repeat(3,1fr);">
-                  <div class="surface card p-4" style="text-align:left; min-width:0;">
-                    <span class="eyebrow">${t('landing.kpiSpend')}</span>
-                    <p class="kpi-value" style="font-size:1.7rem; margin:.4rem 0;">4 230 €</p>
-                    <span class="delta delta-up font-mono">▲ 8,2%</span>
-                  </div>
-                  <div class="surface card p-4" style="text-align:left; min-width:0;">
-                    <span class="eyebrow">${t('landing.kpiLeads')}</span>
-                    <p class="kpi-value" style="font-size:1.7rem; margin:.4rem 0;">312</p>
-                    <span class="delta delta-up font-mono">▲ 12,1%</span>
-                  </div>
-                  <div class="surface card p-4" style="text-align:left; min-width:0;">
-                    <span class="eyebrow">${t('landing.kpiCpl')}</span>
-                    <p class="kpi-value" style="font-size:1.7rem; margin:.4rem 0;">13,56 €</p>
-                    <span class="delta delta-down font-mono">▼ 4,0%</span>
-                  </div>
-                </div>
-                <div class="surface card p-4" style="text-align:left;">
-                  <span class="eyebrow">${t('landing.chartLabel')}</span>
-                  <div class="flex items-end gap-5 mt-4" style="height:90px;">
-                    <div class="flex flex-col items-center justify-end" style="height:100%;">
-                      <div style="width:2.5rem; height:72%; border-radius:6px; background:var(--accent);"></div>
-                      <span class="text-muted text-xs mt-2">Meta</span>
+                <div style="background:var(--bg-soft); border-radius:14px; padding:1.75rem;">
+                  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+                    <div class="flex items-center gap-3">
+                      <span style="width:2.75rem; height:2.75rem; border-radius:12px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:var(--accent-fg);">${icon('barChart',18)}</span>
+                      <div style="text-align:left;">
+                        <p class="headline font-bold" style="font-size:1.2rem; line-height:1.1;">${t('landing.mockupClient')}</p>
+                        <p class="text-muted text-xs">${t('landing.mockupTitle')} <span class="badge badge-example">${t('common.example')}</span></p>
+                      </div>
                     </div>
-                    <div class="flex flex-col items-center justify-end" style="height:100%;">
-                      <div style="width:2.5rem; height:48%; border-radius:6px; background:var(--accent-2);"></div>
-                      <span class="text-muted text-xs mt-2">Google</span>
+                    <svg width="90" height="32" viewBox="0 0 110 36" fill="none">
+                      <polyline points="0,28 18,24 36,26 54,14 72,18 90,6 110,10" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="110" cy="10" r="3.5" fill="var(--accent)"/>
+                    </svg>
+                  </div>
+                  <div class="grid gap-3 mb-6" style="grid-template-columns:repeat(3,1fr);">
+                    <div class="surface card p-4" style="text-align:left; min-width:0;">
+                      <span class="eyebrow">${t('landing.kpiSpend')}</span>
+                      <p class="kpi-value" style="font-size:1.5rem; margin:.4rem 0;">4 230 €</p>
+                      <span class="delta delta-up font-mono">▲ 8,2%</span>
                     </div>
-                    <div class="flex flex-col items-center justify-end" style="height:100%;">
-                      <div style="width:2.5rem; height:30%; border-radius:6px; background:var(--border);"></div>
-                      <span class="text-muted text-xs mt-2">${t('reportForm.website')}</span>
+                    <div class="surface card p-4" style="text-align:left; min-width:0;">
+                      <span class="eyebrow">${t('landing.kpiLeads')}</span>
+                      <p class="kpi-value" style="font-size:1.5rem; margin:.4rem 0;">312</p>
+                      <span class="delta delta-up font-mono">▲ 12,1%</span>
+                    </div>
+                    <div class="surface card p-4" style="text-align:left; min-width:0;">
+                      <span class="eyebrow">${t('landing.kpiCpl')}</span>
+                      <p class="kpi-value" style="font-size:1.5rem; margin:.4rem 0;">13,56 €</p>
+                      <span class="delta delta-down font-mono">▼ 4,0%</span>
+                    </div>
+                  </div>
+                  <div class="surface card p-4" style="text-align:left;">
+                    <span class="eyebrow">${t('landing.chartLabel')}</span>
+                    <div class="flex items-end gap-5 mt-4" style="height:80px;">
+                      <div class="flex flex-col items-center justify-end" style="height:100%;">
+                        <div style="width:2.1rem; height:72%; border-radius:6px; background:var(--accent);"></div>
+                        <span class="text-muted text-xs mt-2">Meta</span>
+                      </div>
+                      <div class="flex flex-col items-center justify-end" style="height:100%;">
+                        <div style="width:2.1rem; height:48%; border-radius:6px; background:var(--accent-2);"></div>
+                        <span class="text-muted text-xs mt-2">Google</span>
+                      </div>
+                      <div class="flex flex-col items-center justify-end" style="height:100%;">
+                        <div style="width:2.1rem; height:30%; border-radius:6px; background:var(--border);"></div>
+                        <span class="text-muted text-xs mt-2">${t('reportForm.website')}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+              <p class="text-muted text-xs text-center mt-3">${t('landing.mockupCaption')}</p>
             </div>
-            <p class="text-muted text-xs text-center mt-3">${t('landing.mockupCaption')}</p>
           </div>
         </section>
 
-        <section class="mt-24 reveal">
-          <div class="eyebrow text-center mb-3">${t('landing.howEyebrow')}</div>
-          <h3 class="headline font-bold text-center mb-10" style="font-size:1.9rem;">${t('landing.howTitle')}</h3>
-          <div class="grid gap-4" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
-            <div class="surface card p-6">
-              <div class="flex items-center gap-3 mb-3">
-                <span class="icon-chip">${icon('userPlus')}</span>
-                <span class="eyebrow" style="color:var(--accent);">01</span>
+        <section class="mt-20 reveal">
+          <div class="stat-band">
+            <p class="sb-quote">${t('landing.statBandQuote')}</p>
+            <div><div class="sb-num" style="color:#6FE0A8;">+24%</div><div class="sb-label">${t('landing.chipLeads')}</div></div>
+            <div><div class="sb-num">128</div><div class="sb-label">${t('landing.chipReports')}</div></div>
+            <div><div class="sb-num">92%</div><div class="sb-label">${t('landing.chipGoal')}</div></div>
+          </div>
+        </section>
+
+        <section class="mt-24 reveal" style="max-width:640px;">
+          <div class="eyebrow mb-3">${t('landing.howEyebrow')}</div>
+          <h3 class="headline font-bold mb-10" style="font-size:1.9rem;">${t('landing.howTitle')}</h3>
+          <div>
+            <div class="timeline-row">
+              <span class="timeline-num">01</span>
+              <div>
+                <p class="font-semibold mb-1" style="font-size:1.05rem;">${t('landing.step1Title')}</p>
+                <p class="text-muted text-sm">${t('landing.step1Desc')}</p>
               </div>
-              <p class="font-semibold mb-1">${t('landing.step1Title')}</p>
-              <p class="text-muted text-sm">${t('landing.step1Desc')}</p>
             </div>
-            <div class="surface card p-6">
-              <div class="flex items-center gap-3 mb-3">
-                <span class="icon-chip">${icon('clipboard')}</span>
-                <span class="eyebrow" style="color:var(--accent);">02</span>
+            <div class="timeline-row">
+              <span class="timeline-num">02</span>
+              <div>
+                <p class="font-semibold mb-1" style="font-size:1.05rem;">${t('landing.step2Title')}</p>
+                <p class="text-muted text-sm">${t('landing.step2Desc')}</p>
               </div>
-              <p class="font-semibold mb-1">${t('landing.step2Title')}</p>
-              <p class="text-muted text-sm">${t('landing.step2Desc')}</p>
             </div>
-            <div class="surface card p-6">
-              <div class="flex items-center gap-3 mb-3">
-                <span class="icon-chip">${icon('share')}</span>
-                <span class="eyebrow" style="color:var(--accent);">03</span>
+            <div class="timeline-row">
+              <span class="timeline-num">03</span>
+              <div>
+                <p class="font-semibold mb-1" style="font-size:1.05rem;">${t('landing.step3Title')}</p>
+                <p class="text-muted text-sm">${t('landing.step3Desc')}</p>
               </div>
-              <p class="font-semibold mb-1">${t('landing.step3Title')}</p>
-              <p class="text-muted text-sm">${t('landing.step3Desc')}</p>
             </div>
           </div>
         </section>
 
         <section class="mt-24 reveal">
-          <div class="eyebrow text-center mb-3">${t('landing.featEyebrow')}</div>
-          <h3 class="headline font-bold text-center mb-10" style="font-size:1.9rem;">${t('landing.featTitle')}</h3>
-          <div class="grid gap-4" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
-            <div class="surface card p-6"><span class="icon-chip mb-3" style="display:flex;">${icon('barChart')}</span><p class="font-semibold mb-1">${t('landing.feat1T')}</p><p class="text-muted text-sm">${t('landing.feat1D')}</p></div>
+          <div class="eyebrow mb-3">${t('landing.featEyebrow')}</div>
+          <h3 class="headline font-bold mb-10" style="font-size:1.9rem;">${t('landing.featTitle')}</h3>
+          <div class="bento-grid">
+            <div class="surface card p-6 bento-lg">
+              <span class="icon-chip mb-3" style="display:flex;">${icon('barChart')}</span>
+              <p class="font-semibold mb-1" style="font-size:1.1rem;">${t('landing.feat1T')}</p>
+              <p class="text-muted text-sm mb-5" style="max-width:320px;">${t('landing.feat1D')}</p>
+              <div class="flex items-end gap-3" style="height:54px;">
+                <div style="width:1.6rem; height:65%; border-radius:5px; background:var(--accent);"></div>
+                <div style="width:1.6rem; height:100%; border-radius:5px; background:var(--accent-2);"></div>
+                <div style="width:1.6rem; height:40%; border-radius:5px; background:var(--accent-soft);"></div>
+                <div style="width:1.6rem; height:80%; border-radius:5px; background:var(--accent);"></div>
+              </div>
+            </div>
             <div class="surface card p-6"><span class="icon-chip mb-3" style="display:flex;">${icon('trendUp')}</span><p class="font-semibold mb-1">${t('landing.feat2T')}</p><p class="text-muted text-sm">${t('landing.feat2D')}</p></div>
             <div class="surface card p-6"><span class="icon-chip mb-3" style="display:flex;">${icon('users')}</span><p class="font-semibold mb-1">${t('landing.feat3T')}</p><p class="text-muted text-sm">${t('landing.feat3D')}</p></div>
             <div class="surface card p-6"><span class="icon-chip mb-3" style="display:flex;">${icon('download')}</span><p class="font-semibold mb-1">${t('landing.feat4T')}</p><p class="text-muted text-sm">${t('landing.feat4D')}</p></div>
@@ -1195,13 +1223,16 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
           </div>
         </section>
 
-        <section class="mt-24 mb-16 reveal" style="background:var(--accent-soft); border-radius:24px; padding:3.5rem 2rem; text-align:center;">
-          <span class="icon-chip mb-4" style="display:inline-flex; background:var(--surface);">${icon('sparkle')}</span>
-          <h3 class="headline font-bold mb-3" style="font-size:2rem;">${t('landing.ctaTitle')}</h3>
-          <p class="text-muted mb-7" style="max-width:420px; margin-left:auto; margin-right:auto;">${t('landing.ctaDesc')}</p>
-          <div class="flex gap-3 justify-center">
-            <button class="btn btn-primary" data-action="new-client">${t('landing.ctaNew')}</button>
-            <button class="btn btn-ghost" data-action="load-example">${t('sidebar.loadExample')}</button>
+        <section class="mt-24 mb-16 reveal" style="background:var(--accent-soft); border-radius:28px; padding:4rem 3rem; position:relative; overflow:hidden;">
+          <span style="position:absolute; top:-2.5rem; right:-2.5rem; width:9rem; height:9rem; border-radius:50%; background:var(--accent); opacity:.12;"></span>
+          <div style="position:relative; z-index:1; max-width:460px;">
+            <span class="icon-chip mb-4" style="display:inline-flex; background:var(--surface);">${icon('sparkle')}</span>
+            <h3 class="headline font-bold mb-3" style="font-size:2.1rem; line-height:1.1;">${t('landing.ctaTitle')}</h3>
+            <p class="text-muted mb-7">${t('landing.ctaDesc')}</p>
+            <div class="flex gap-3 flex-wrap">
+              <button class="btn btn-primary" data-action="new-client">${t('landing.ctaNew')}</button>
+              <button class="btn btn-ghost" data-action="load-example">${t('sidebar.loadExample')}</button>
+            </div>
           </div>
         </section>
 
