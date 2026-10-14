@@ -194,6 +194,29 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     .kpi-value{ font-size:1.9rem; }
   }
 
+  /* ---------- Dashboard: colored/dark stat tiles, client avatar cards ---------- */
+  .stat-tile{
+    border-radius:20px; padding:1.5rem; min-width:0; overflow:hidden; position:relative;
+  }
+  .stat-tile-dark{ background:var(--ink); color:#fff; }
+  .stat-tile-accent{ background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#fff; }
+  .stat-tile-success{ background:linear-gradient(135deg, var(--success), #6FE0A8); color:#fff; }
+  .stat-tile-icon{
+    position:absolute; top:1.25rem; right:1.25rem; width:2.25rem; height:2.25rem; border-radius:10px;
+    background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; color:#fff;
+  }
+  .stat-tile .eyebrow{ color:inherit; opacity:.75; }
+  .stat-tile .kpi-value{ color:inherit; }
+
+  .client-avatar{
+    width:2.5rem; height:2.5rem; border-radius:999px; flex-shrink:0; display:flex; align-items:center;
+    justify-content:center; color:#fff; font-weight:700; font-size:.85rem; overflow:hidden;
+  }
+  .client-card{ border-radius:20px; padding:1.5rem; transition:transform .2s ease, box-shadow .2s ease; }
+  .client-card.top-client{ background:var(--ink); color:#fff; }
+  .client-card.top-client .text-muted{ color:rgba(255,255,255,.6) !important; }
+  .client-card:hover{ transform:translateY(-3px); }
+
   /* Hero background: a single soft radial gradient mesh behind the headline, blue fading to
      transparent. Subtle by design — it should read as depth, not as a visible shape. */
   .hero-glow{
@@ -2023,6 +2046,25 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
     const upToDateCount = data.clients.filter(c => data.reports.some(r=>r.clientId===c.id && r.month===cm)).length;
     const hasAnyReports = data.reports.length > 0;
 
+    // Per-client latest spend + real (not fabricated) month-over-month delta, used for both
+    // the avatar-card trend badges and picking the single "top client" highlight card.
+    const clientStats = data.clients.map(c => {
+      const latest = latestReportFor(c.id);
+      const hasCurrent = data.reports.some(r=>r.clientId===c.id && r.month===cm);
+      let latestSpend = null, spendDelta = null;
+      if(latest){
+        const cd = computeReport(latest);
+        latestSpend = (cd.meta.spend||0) + (cd.google.spend||0);
+        const prev = getPreviousReport(latest);
+        if(prev){
+          const pd = computeReport(prev);
+          spendDelta = delta(latestSpend, (pd.meta.spend||0) + (pd.google.spend||0));
+        }
+      }
+      return { c, latest, hasCurrent, latestSpend, spendDelta };
+    });
+    const topClientId = clientStats.reduce((best, x) => (x.latestSpend!==null && (!best || x.latestSpend > best.latestSpend)) ? x : best, null);
+
     main.innerHTML = `
       <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
         <h2 class="headline font-bold" style="font-size:2.5rem;">${t('dashboard.title')}</h2>
@@ -2031,18 +2073,21 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       <p class="text-muted mb-10" style="font-size:1.02rem;">${t('dashboard.sub',{n:data.clients.length, plural:plural(data.clients.length)})}</p>
 
       <div class="grid gap-4 mb-10" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));">
-        <div class="kpi-card">
+        <div class="stat-tile stat-tile-dark">
+          <span class="stat-tile-icon">${icon('users',16)}</span>
           <span class="eyebrow">${t('dashboard.kpiClients')}</span>
           <p class="kpi-value">${data.clients.length}</p>
         </div>
-        <div class="kpi-card">
+        <div class="stat-tile stat-tile-accent">
+          <span class="stat-tile-icon">${icon('barChart',16)}</span>
           <span class="eyebrow">${t('dashboard.kpiReports')}</span>
           <p class="kpi-value">${data.reports.length}</p>
         </div>
-        <div class="kpi-card">
+        <div class="stat-tile stat-tile-success">
+          <span class="stat-tile-icon">${icon('trendUp',16)}</span>
           <span class="eyebrow">${t('dashboard.kpiSpend')}</span>
           <p class="kpi-value">${fmtCur(totalSpendLatest)}</p>
-          <p class="text-muted text-xs mt-1">${t('dashboard.kpiSpendCaption')}</p>
+          <p class="text-xs mt-1" style="opacity:.75;">${t('dashboard.kpiSpendCaption')}</p>
         </div>
         <div class="kpi-card">
           <span class="eyebrow">${t('dashboard.kpiUpToDate')}</span>
@@ -2058,22 +2103,25 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
 
       <div class="eyebrow mb-4">${t('dashboard.yourClients')}</div>
       <div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">
-        ${data.clients.map(c => {
-          const latest = latestReportFor(c.id);
-          const hasCurrent = data.reports.some(r=>r.clientId===c.id && r.month===cm);
-          let latestSpend = null;
-          if(latest){ const cd = computeReport(latest); latestSpend = (cd.meta.spend||0) + (cd.google.spend||0); }
+        ${clientStats.map(({c, latest, hasCurrent, latestSpend, spendDelta}) => {
+          const isTop = topClientId && topClientId.c.id === c.id;
+          const initial = (c.name||'?').trim().charAt(0).toUpperCase();
           return `
-          <div class="surface card p-6 flex flex-col gap-3 cursor-pointer" data-action="select-client" data-id="${c.id}">
-            <div class="flex items-center justify-between">
+          <div class="client-card surface card cursor-pointer ${isTop ? 'top-client' : ''}" data-action="select-client" data-id="${c.id}">
+            <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-3" style="min-width:0;">
-                ${c.logo ? `<img src="${escapeAttr(c.logo)}" class="w-10 h-10 rounded-xl object-cover flex-shrink-0" onerror="this.style.display='none'">` : `<span class="w-10 h-10 rounded-xl inline-block flex-shrink-0" style="background:${escapeAttr(c.color||'#2D7FE0')}"></span>`}
+                ${c.logo
+                  ? `<img src="${escapeAttr(c.logo)}" class="client-avatar object-cover" onerror="this.style.display='none'">`
+                  : `<span class="client-avatar" style="background:${escapeAttr(c.color||'#2D7FE0')};">${escapeHtml(initial)}</span>`}
                 <span class="font-semibold truncate">${escapeHtml(c.name)}</span>
               </div>
               ${c.isExample ? '<span class="badge badge-example">EX</span>' : ''}
             </div>
-            ${latest ? `<p class="text-muted text-xs font-mono">${t('dashboard.lastReport',{month:monthLabel(latest.month), amount:fmtCur(latestSpend)})}</p>` : `<p class="text-muted text-xs">${t('dashboard.noReport')}</p>`}
-            <span class="badge" style="align-self:flex-start; ${hasCurrent ? 'color:var(--success); background:var(--success-soft);' : 'color:var(--danger); background:var(--danger-soft);'}">${hasCurrent ? t('dashboard.upToDate') : t('dashboard.missing')}</span>
+            ${latest ? `<p class="text-xs font-mono mb-2" style="color:${isTop?'rgba(255,255,255,.6)':'var(--muted)'};">${t('dashboard.lastReport',{month:monthLabel(latest.month), amount:fmtCur(latestSpend)})}</p>` : `<p class="text-xs mb-2" style="color:${isTop?'rgba(255,255,255,.6)':'var(--muted)'};">${t('dashboard.noReport')}</p>`}
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <span class="badge" style="${hasCurrent ? 'color:var(--success); background:var(--success-soft);' : 'color:var(--danger); background:var(--danger-soft);'}">${hasCurrent ? t('dashboard.upToDate') : t('dashboard.missing')}</span>
+              ${spendDelta!==null ? deltaBadge(spendDelta) : ''}
+            </div>
           </div>`;
         }).join("")}
       </div>`;
