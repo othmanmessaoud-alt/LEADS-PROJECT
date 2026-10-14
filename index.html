@@ -232,6 +232,12 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
   @media (prefers-reduced-motion: reduce){ .stat-tile, .kpi-card, .client-card{ animation:none; } }
   @media (max-width: 760px){ .cta-illustration{ display:none; } }
 
+  /* Fixed-count KPI rows (always exactly 4 tiles): a plain 4-column grid instead of
+     auto-fit, which left a half-empty trailing row once a 4th item wrapped alone. */
+  .kpi-grid-4{ grid-template-columns:repeat(4,1fr); }
+  @media (max-width: 920px){ .kpi-grid-4{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width: 480px){ .kpi-grid-4{ grid-template-columns:1fr; } }
+
   /* Hero background: a single soft radial gradient mesh behind the headline, blue fading to
      transparent. Subtle by design — it should read as depth, not as a visible shape. */
   .hero-glow{
@@ -2136,7 +2142,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
       </div>
       <p class="text-muted mb-10" style="font-size:1.02rem;">${t('dashboard.sub',{n:data.clients.length, plural:plural(data.clients.length)})}</p>
 
-      <div class="grid gap-4 mb-10" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));">
+      <div class="grid gap-4 mb-10 kpi-grid-4">
         <div class="stat-tile stat-tile-dark">
           <span class="stat-tile-icon">${icon('users',16)}</span>
           <span class="eyebrow">${t('dashboard.kpiClients')}</span>
@@ -3209,7 +3215,7 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
           </div>
         </div>
 
-        <div class="grid gap-4 mt-10 mb-4" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));">
+        <div class="grid gap-4 mt-10 mb-4 kpi-grid-4">
           <div class="stat-tile stat-tile-dark">
             <span class="stat-tile-icon">${icon('trendUp',16)}</span>
             <span class="eyebrow">${t('preview.kpiSpend')}</span>
