@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapport — Reporting marketing mensuel</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F7F5; --surface:#FFFFFF; --surface-2:#EFF1EE; --border:#E2E5E1;
+    --fg:#1B1F1C; --muted:#6B7268; --accent:#1F6F5C; --accent-fg:#FFFFFF;
+    --danger:#B3412E; --success:#1F6F5C; --warn:#A56A1F;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#111513; --surface:#171C19; --surface-2:#1D2320; --border:#262B27;
+      --fg:#E7EAE6; --muted:#9AA39A; --accent:#3FA98A; --accent-fg:#0C1210;
+      --danger:#E07A63; --success:#3FA98A; --warn:#D9A24B;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#111513; --surface:#171C19; --surface-2:#1D2320; --border:#262B27;
+    --fg:#E7EAE6; --muted:#9AA39A; --accent:#3FA98A; --accent-fg:#0C1210;
+    --danger:#E07A63; --success:#3FA98A; --warn:#D9A24B;
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:'Source Sans 3',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.font-display{font-family:'Sora',system-ui,sans-serif;}
+  .font-mono{font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums;}
+  .surface{background:var(--surface); border:1px solid var(--border);}
+  .surface-2{background:var(--surface-2);}
+  .text-muted{color:var(--muted);}
+  .text-accent{color:var(--accent);}
+  .bg-accent{background:var(--accent); color:var(--accent-fg);}
+  .border-base{border-color:var(--border);}
+  .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:.6rem;font-weight:600;font-size:.875rem;border:1px solid transparent;cursor:pointer;transition:filter .15s;}
+  .btn:hover{filter:brightness(0.95);}
+  .btn-primary{background:var(--accent); color:var(--accent-fg);}
+  .btn-ghost{background:transparent; color:var(--fg); border-color:var(--border);}
+  .btn-ghost:hover{background:var(--surface-2);}
+  .btn-danger{background:transparent; color:var(--danger); border-color:var(--danger);}
+  .btn-sm{padding:.35rem .7rem; font-size:.8rem;}
+  input[type=text], input[type=month], input[type=number], input[type=color], textarea, select{
+    background:var(--surface); color:var(--fg); border:1px solid var(--border);
+    border-radius:.5rem; padding:.5rem .65rem; font-size:.875rem; width:100%;
+  }
+  input:focus, textarea:focus, select:focus{outline:2px solid var(--accent); outline-offset:1px;}
+  .field-err{border-color:var(--danger) !important;}
+  .err-msg{color:var(--danger); font-size:.75rem; margin-top:.25rem;}
+  .card{border-radius:.75rem;}
+  .kpi{border-radius:.75rem; padding:1rem; background:var(--surface); border:1px solid var(--border);}
+  .badge{font-size:.7rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:.15rem .5rem; border-radius:999px;}
+  .badge-example{background:var(--warn); color:#1B1F1C;}
+  .sidebar-item{border-radius:.6rem; cursor:pointer;}
+  .sidebar-item:hover{background:var(--surface-2);}
+  .sidebar-item.active{background:var(--surface-2); border:1px solid var(--border);}
+  .scrollbar-thin::-webkit-scrollbar{width:8px;}
+  .scrollbar-thin::-webkit-scrollbar-thumb{background:var(--border); border-radius:4px;}
+  .delta-up{color:var(--success);}
+  .delta-down{color:var(--danger);}
+  .delta-flat{color:var(--muted);}
+  @media print{
+    .no-print{display:none !important;}
+    body{background:#fff; color:#111;}
+    .surface{border:1px solid #ccc;}
+  }
+  @media (max-width: 860px){
+    .app-shell{flex-direction:column;}
+    .sidebar{width:100% !important; max-height:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell flex min-h-screen">
+  <aside class="sidebar no-print" style="width:280px; border-right:1px solid var(--border); flex-shrink:0;">
+    <div class="p-4 flex items-center gap-2" style="border-bottom:1px solid var(--border);">
+      <div class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center font-display font-bold">R</div>
+      <div>
+        <h1 class="font-display font-bold text-lg leading-none">Rapport</h1>
+        <p class="text-muted text-xs">Reporting marketing mensuel</p>
+      </div>
+    </div>
+    <div class="p-3 flex flex-col gap-2">
+      <button class="btn btn-primary w-full justify-center" data-action="new-client">+ Nouveau client</button>
+      <button class="btn btn-ghost w-full justify-center btn-sm" data-action="load-example">Charger client exemple</button>
+    </div>
+    <div class="px-3 pb-2 text-muted text-xs font-semibold uppercase tracking-wide" style="letter-spacing:.06em;">Clients</div>
+    <div id="clientList" class="px-3 flex flex-col gap-1 overflow-y-auto scrollbar-thin" style="max-height:calc(100vh - 230px);"></div>
+  </aside>
+
+  <main id="main" class="flex-1 p-6 overflow-y-auto"></main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Storage ---------- */
+  const STORAGE_KEY = "rapport_data_v1";
+  function loadData(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {clients:[], reports:[]};
+      const parsed = JSON.parse(raw);
+      return {clients: parsed.clients||[], reports: parsed.reports||[]};
+    }catch(e){ return {clients:[], reports:[]}; }
+  }
+  function saveData(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    catch(e){ console.error("Échec de la sauvegarde locale", e); }
+  }
+
+  let data = loadData();
+  let state = { clientId: null, reportId: null, mode: "welcome" }; // mode: welcome|reports|form|preview
+
+  function uid(prefix){ return prefix + "_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+
+  /* ---------- Utils: numbers & formatting ---------- */
+  function toNum(v){
+    if(v === "" || v === null || v === undefined) return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+  function isValidMetric(v, allowEmpty){
+    if(v === "" || v === null || v === undefined) return allowEmpty;
+    const n = Number(v);
+    return Number.isFinite(n) && n >= 0;
+  }
+  function fmtInt(v){ return (v===null||v===undefined||isNaN(v)) ? "—" : Math.round(v).toLocaleString('fr-FR'); }
+  function fmtDec(v, d=2){ return (v===null||v===undefined||isNaN(v)) ? "—" : v.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+  function fmtCur(v){ return (v===null||v===undefined||isNaN(v)) ? "—" : v.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}) + " €"; }
+  function fmtPct(v, d=2){ return (v===null||v===undefined||isNaN(v)) ? "—" : v.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d}) + " %"; }
+  function safeDiv(n, d){
+    if(n===null||n===undefined||d===null||d===undefined||!Number.isFinite(n)||!Number.isFinite(d)||d===0) return null;
+    return n/d;
+  }
+  function safePct(n, d){ const r = safeDiv(n,d); return r===null ? null : r*100; }
+  function monthLabel(m){
+    if(!m) return "—";
+    const [y,mo] = m.split("-");
+    const names = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+    const idx = parseInt(mo,10)-1;
+    return (names[idx]||mo) + " " + y;
+  }
+
+  /* ---------- Derived metrics ---------- */
+  function computePlatform(p){
+    const spend = toNum(p.spend), impressions = toNum(p.impressions), clicks = toNum(p.clicks), leads = toNum(p.leads);
+    return {
+      spend, impressions, clicks, leads,
+      ctr: safePct(clicks, impressions),
+      cpc: safeDiv(spend, clicks),
+      cpl: safeDiv(spend, leads)
+    };
+  }
+  function computeWebsite(w){
+    const sessions = toNum(w.sessions), users = toNum(w.users), conversions = toNum(w.conversions);
+    return { sessions, users, conversions, convRate: safePct(conversions, sessions) };
+  }
+  function computeEmail(e){
+    return { sent: toNum(e.sent), openRate: toNum(e.openRate), clickRate: toNum(e.clickRate) };
+  }
+  function computeReport(r){
+    return {
+      meta: computePlatform(r.meta||{}),
+      google: computePlatform(r.google||{}),
+      website: computeWebsite(r.website||{}),
+      email: computeEmail(r.email||{}),
+      custom: (r.custom||[]).map(c=>({label:c.label, value: toNum(c.value)}))
+    };
+  }
+  function getPreviousReport(report){
+    const siblings = data.reports
+      .filter(r => r.clientId === report.clientId && r.month < report.month)
+      .sort((a,b) => a.month < b.month ? 1 : -1);
+    return siblings[0] || null;
+  }
+  function delta(curr, prev){
+    if(curr===null||prev===null||prev===0) return null;
+    return ((curr-prev)/prev)*100;
+  }
+  function deltaBadge(d){
+    if(d===null||isNaN(d)) return '<span class="text-muted text-xs">—</span>';
+    const cls = d>0.001 ? "delta-up" : (d<-0.001 ? "delta-down" : "delta-flat");
+    const arrow = d>0.001 ? "▲" : (d<-0.001 ? "▼" : "▬");
+    return `<span class="${cls} text-xs font-semibold font-mono">${arrow} ${Math.abs(d).toLocaleString('fr-FR',{maximumFractionDigits:1})}%</span>`;
+  }
+
+  /* ---------- Example data ---------- */
+  function exampleClient(){
+    return { id: uid("client"), name: "Client Exemple (Démo)", logo: "", color: "#1F6F5C", isExample: true };
+  }
+  function exampleReports(clientId){
+    const months = ["2026-05","2026-06","2026-07"];
+    const base = [
+      { meta:{spend:1200,impressions:85000,clicks:1700,leads:42}, google:{spend:950,impressions:40000,clicks:1100,leads:30},
+        website:{sessions:9000,users:7200,conversions:220}, email:{sent:5000,openRate:28.4,clickRate:4.1}, custom:[{label:"Abonnés Instagram",value:3200}] },
+      { meta:{spend:1350,impressions:91000,clicks:1950,leads:51}, google:{spend:980,impressions:42000,clicks:1180,leads:33},
+        website:{sessions:9800,users:7700,conversions:255}, email:{sent:5100,openRate:30.1,clickRate:4.6}, custom:[{label:"Abonnés Instagram",value:3350}] },
+      { meta:{spend:1280,impressions:88000,clicks:1860,leads:47}, google:{spend:1020,impressions:44500,clicks:1250,leads:35},
+        website:{sessions:10100,users:8000,conversions:268}, email:{sent:5250,openRate:29.5,clickRate:4.3}, custom:[{label:"Abonnés Instagram",value:3480}] }
+    ];
+    return months.map((m,i)=>({ id: uid("report"), clientId, month: m, isExample:true, ...base[i] }));
+  }
+  function loadExample(){
+    if(data.clients.some(c=>c.isExample)){
+      alert("Le client exemple est déjà chargé.");
+      return;
+    }
+    const c = exampleClient();
+    data.clients.push(c);
+    exampleReports(c.id).forEach(r=>data.reports.push(r));
+    saveData();
+    state = { clientId: c.id, reportId: null, mode: "reports" };
+    render();
+  }
+  function removeExampleData(){
+    if(!confirm("Supprimer le client exemple et ses rapports ?")) return;
+    const exClients = data.clients.filter(c=>c.isExample).map(c=>c.id);
+    data.clients = data.clients.filter(c=>!c.isExample);
+    data.reports = data.reports.filter(r=>!exClients.includes(r.clientId));
+    saveData();
+    if(exClients.includes(state.clientId)){ state = {clientId:null, reportId:null, mode:"welcome"}; }
+    render();
+  }
+
+  /* ---------- Rendering: sidebar ---------- */
+  function renderSidebar(){
+    const list = document.getElementById("clientList");
+    if(data.clients.length === 0){
+      list.innerHTML = `<p class="text-muted text-sm py-2">Aucun client pour l'instant.</p>`;
+      return;
+    }
+    list.innerHTML = data.clients.map(c => `
+      <div class="sidebar-item p-2 flex items-center gap-2 ${c.id===state.clientId?'active':''}" data-action="select-client" data-id="${c.id}">
+        ${c.logo ? `<img src="${escapeAttr(c.logo)}" class="w-6 h-6 rounded object-cover" onerror="this.style.display='none'">` : `<span class="w-6 h-6 rounded-full inline-block flex-shrink-0" style="background:${escapeAttr(c.color||'#1F6F5C')}"></span>`}
+        <span class="text-sm flex-1 truncate">${escapeHtml(c.name)}</span>
+        ${c.isExample ? '<span class="badge badge-example">EX</span>' : ''}
+      </div>
+    `).join("");
+  }
+
+  function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
+  function escapeAttr(s){ return escapeHtml(s); }
+
+  /* ---------- Rendering: main router ---------- */
+  function render(){
+    renderSidebar();
+    const main = document.getElementById("main");
+    if(state.mode === "new-client") return renderClientForm(main, null);
+    if(state.mode === "welcome" || !state.clientId) return renderWelcome(main);
+    const client = data.clients.find(c=>c.id===state.clientId);
+    if(!client){ state = {clientId:null, reportId:null, mode:"welcome"}; return renderWelcome(main); }
+    if(state.mode === "reports") return renderReportsList(main, client);
+    if(state.mode === "form") return renderReportForm(main, client, state.reportId);
+    if(state.mode === "preview") return renderReportPreview(main, client, state.reportId);
+    if(state.mode === "edit-client") return renderClientForm(main, client);
+    renderReportsList(main, client);
+  }
+
+  function renderWelcome(main){
+    main.innerHTML = `
+      <div class="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
+        <div class="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center font-display font-bold text-2xl mb-4">R</div>
+        <h2 class="font-display font-semibold text-2xl mb-2">Bienvenue dans Rapport</h2>
+        <p class="text-muted mb-6">Créez un client pour commencer à construire vos rapports marketing mensuels. Toutes les données restent stockées localement dans votre navigateur.</p>
+        <div class="flex gap-2">
+          <button class="btn btn-primary" data-action="new-client">+ Nouveau client</button>
+          <button class="btn btn-ghost" data-action="load-example">Charger un client exemple</button>
+        </div>
+      </div>`;
+  }
+
+  /* ---------- Client form ---------- */
+  function renderClientForm(main, existing){
+    main.innerHTML = `
+      <div class="surface card p-6 max-w-lg">
+        <h2 class="font-display font-semibold text-xl mb-4">${existing ? "Modifier le client" : "Nouveau client"}</h2>
+        <form id="clientForm" class="flex flex-col gap-4">
+          <div>
+            <label class="text-sm font-medium mb-1 block">Nom du client *</label>
+            <input type="text" name="name" required maxlength="80" value="${existing?escapeAttr(existing.name):''}">
+            <div class="err-msg hidden" data-err="name"></div>
+          </div>
+          <div>
+            <label class="text-sm font-medium mb-1 block">Logo (URL, optionnel)</label>
+            <input type="text" name="logo" value="${existing?escapeAttr(existing.logo||''):''}" placeholder="https://...">
+          </div>
+          <div>
+            <label class="text-sm font-medium mb-1 block">Couleur de marque</label>
+            <input type="color" name="color" value="${existing?existing.color:'#1F6F5C'}" style="height:2.6rem; padding:.2rem;">
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <button type="button" class="btn btn-ghost" id="cancelClient">Annuler</button>
+            ${existing && !existing.isExample ? `<button type="button" class="btn btn-danger" id="deleteClient">Supprimer le client</button>` : ''}
+          </div>
+        </form>
+      </div>`;
+    document.getElementById("cancelClient").onclick = () => {
+      state.mode = state.clientId ? "reports" : "welcome";
+      render();
+    };
+    if(existing && !existing.isExample){
+      document.getElementById("deleteClient").onclick = () => {
+        if(!confirm(`Supprimer "${existing.name}" et tous ses rapports ?`)) return;
+        data.clients = data.clients.filter(c=>c.id!==existing.id);
+        data.reports = data.reports.filter(r=>r.clientId!==existing.id);
+        saveData();
+        state = {clientId:null, reportId:null, mode:"welcome"};
+        render();
+      };
+    }
+    document.getElementById("clientForm").onsubmit = (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const name = (fd.get("name")||"").toString().trim();
+      const errEl = e.target.querySelector('[data-err="name"]');
+      const nameInput = e.target.querySelector('[name="name"]');
+      if(!name){
+        errEl.textContent = "Le nom est obligatoire.";
+        errEl.classList.remove("hidden");
+        nameInput.classList.add("field-err");
+        return;
+      }
+      errEl.classList.add("hidden");
+      nameInput.classList.remove("field-err");
+      const logo = (fd.get("logo")||"").toString().trim();
+      const color = (fd.get("color")||"#1F6F5C").toString();
+      if(existing){
+        existing.name = name; existing.logo = logo; existing.color = color;
+      }else{
+        const c = { id: uid("client"), name, logo, color, isExample:false };
+        data.clients.push(c);
+        state.clientId = c.id;
+      }
+      saveData();
+      state.mode = "reports";
+      render();
+    };
+  }
+
+  /* ---------- Reports list ---------- */
+  function renderReportsList(main, client){
+    const reports = data.reports.filter(r=>r.clientId===client.id).sort((a,b)=> a.month < b.month ? 1 : -1);
+    main.innerHTML = `
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div class="flex items-center gap-3">
+          ${client.logo ? `<img src="${escapeAttr(client.logo)}" class="w-10 h-10 rounded-lg object-cover" onerror="this.style.display='none'">` : `<span class="w-10 h-10 rounded-full inline-block" style="background:${escapeAttr(client.color)}"></span>`}
+          <div>
+            <h2 class="font-display font-semibold text-xl flex items-center gap-2">${escapeHtml(client.name)} ${client.isExample?'<span class="badge badge-example">EXEMPLE</span>':''}</h2>
+            <p class="text-muted text-sm">${reports.length} rapport${reports.length===1?'':'s'}</p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm" data-action="edit-client">Modifier le client</button>
+          <button class="btn btn-primary" data-action="new-report">+ Nouveau rapport</button>
+        </div>
+      </div>
+      ${reports.length===0 ? `
+        <div class="surface card p-8 text-center text-muted">Aucun rapport pour ce client. Créez le premier rapport mensuel.</div>
+      ` : `
+        <div class="grid gap-3" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));">
+          ${reports.map(r => {
+            const d = computeReport(r);
+            const totalSpend = (d.meta.spend||0) + (d.google.spend||0);
+            return `
+            <div class="surface card p-4 flex flex-col gap-2 cursor-pointer" data-action="open-report" data-id="${r.id}">
+              <div class="flex items-center justify-between">
+                <span class="font-display font-semibold">${monthLabel(r.month)}</span>
+                ${r.isExample?'<span class="badge badge-example">EX</span>':''}
+              </div>
+              <p class="text-muted text-xs font-mono">Dépenses totales : ${fmtCur(totalSpend)}</p>
+              <div class="flex gap-2 mt-2">
+                <button class="btn btn-ghost btn-sm" data-action="edit-report" data-id="${r.id}">Modifier</button>
+                <button class="btn btn-danger btn-sm" data-action="delete-report" data-id="${r.id}">Supprimer</button>
+              </div>
+            </div>`;
+          }).join("")}
+        </div>
+      `}
+    `;
+  }
+
+  /* ---------- Report form ---------- */
+  function emptyReport(clientId){
+    return {
+      id: uid("report"), clientId, month: "", isExample:false,
+      meta:{spend:"",impressions:"",clicks:"",leads:""},
+      google:{spend:"",impressions:"",clicks:"",leads:""},
+      website:{sessions:"",users:"",conversions:""},
+      email:{sent:"",openRate:"",clickRate:""},
+      custom:[]
+    };
+  }
+
+  function platformFieldsHtml(prefix, label, p, fieldDefs){
+    return `
+      <fieldset class="surface card p-4">
+        <legend class="font-display font-semibold px-1">${label}</legend>
+        <div class="grid gap-3 mt-2" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
+          ${fieldDefs.map(([key,lbl])=>`
+            <div>
+              <label class="text-xs text-muted block mb-1">${lbl}</label>
+              <input type="number" min="0" step="any" name="${prefix}.${key}" value="${p[key]!==undefined && p[key]!==null ? p[key] : ''}" data-metric="${prefix}.${key}">
+              <div class="err-msg hidden" data-err="${prefix}.${key}"></div>
+            </div>
+          `).join("")}
+        </div>
+      </fieldset>`;
+  }
+
+  function renderReportForm(main, client, reportId){
+    const existing = reportId ? data.reports.find(r=>r.id===reportId) : null;
+    const r = existing ? JSON.parse(JSON.stringify(existing)) : emptyReport(client.id);
+    const customRows = r.custom && r.custom.length ? r.custom : [];
+
+    main.innerHTML = `
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display font-semibold text-xl">${existing ? "Modifier le rapport" : "Nouveau rapport"} — ${escapeHtml(client.name)}</h2>
+        <button class="btn btn-ghost btn-sm" data-action="back-to-reports">← Retour</button>
+      </div>
+      <form id="reportForm" class="flex flex-col gap-4 max-w-3xl">
+        <div class="surface card p-4">
+          <label class="text-sm font-medium mb-1 block">Mois du rapport *</label>
+          <input type="month" name="month" required value="${r.month||''}" style="max-width:220px;">
+          <div class="err-msg hidden" data-err="month"></div>
+        </div>
+
+        ${platformFieldsHtml("meta","Meta Ads", r.meta, [["spend","Dépense (€)"],["impressions","Impressions"],["clicks","Clics"],["leads","Leads"]])}
+        ${platformFieldsHtml("google","Google Ads", r.google, [["spend","Dépense (€)"],["impressions","Impressions"],["clicks","Clics"],["leads","Leads"]])}
+        ${platformFieldsHtml("website","Site web", r.website, [["sessions","Sessions"],["users","Utilisateurs"],["conversions","Conversions"]])}
+        ${platformFieldsHtml("email","Email", r.email, [["sent","Emails envoyés"],["openRate","Taux d'ouverture (%)"],["clickRate","Taux de clic (%)"]])}
+
+        <fieldset class="surface card p-4">
+          <legend class="font-display font-semibold px-1">Métriques personnalisées</legend>
+          <div id="customRows" class="flex flex-col gap-2 mt-2"></div>
+          <button type="button" class="btn btn-ghost btn-sm mt-2" id="addCustomRow">+ Ajouter une métrique</button>
+        </fieldset>
+
+        <div class="flex gap-2">
+          <button type="submit" class="btn btn-primary">Enregistrer le rapport</button>
+          <button type="button" class="btn btn-ghost" id="cancelReport">Annuler</button>
+        </div>
+      </form>
+    `;
+
+    const customContainer = document.getElementById("customRows");
+    function addCustomRow(label="", value=""){
+      const row = document.createElement("div");
+      row.className = "flex gap-2 items-start custom-row";
+      row.innerHTML = `
+        <input type="text" class="custom-label" placeholder="Nom de la métrique" value="${escapeAttr(label)}" style="flex:2;">
+        <input type="number" step="any" class="custom-value" placeholder="Valeur" value="${value}" style="flex:1;">
+        <button type="button" class="btn btn-danger btn-sm remove-row">✕</button>
+      `;
+      row.querySelector(".remove-row").onclick = () => row.remove();
+      customContainer.appendChild(row);
+    }
+    customRows.forEach(c => addCustomRow(c.label, c.value===null||c.value===undefined?"":c.value));
+    document.getElementById("addCustomRow").onclick = () => addCustomRow();
+
+    document.getElementById("cancelReport").onclick = () => { state.mode = "reports"; render(); };
+
+    document.getElementById("reportForm").onsubmit = (e) => {
+      e.preventDefault();
+      const form = e.target;
+      let hasError = false;
+      form.querySelectorAll(".err-msg").forEach(el=>el.classList.add("hidden"));
+      form.querySelectorAll("input").forEach(el=>el.classList.remove("field-err"));
+
+      const monthInput = form.querySelector('[name="month"]');
+      if(!monthInput.value){
+        showErr(form, "month", "Le mois est obligatoire.");
+        monthInput.classList.add("field-err");
+        hasError = true;
+      }
+
+      const metricFields = form.querySelectorAll('[data-metric]');
+      metricFields.forEach(input => {
+        const v = input.value;
+        if(!isValidMetric(v, true)){
+          showErr(form, input.dataset.metric, "Doit être un nombre positif.");
+          input.classList.add("field-err");
+          hasError = true;
+        }
+      });
+
+      // email rates should not exceed 100
+      ["email.openRate","email.clickRate"].forEach(key=>{
+        const input = form.querySelector(`[data-metric="${key}"]`);
+        if(input && input.value !== "" && Number(input.value) > 100){
+          showErr(form, key, "Doit être compris entre 0 et 100.");
+          input.classList.add("field-err");
+          hasError = true;
+        }
+      });
+
+      if(hasError) return;
+
+      const fd = new FormData(form);
+      function g(name){ const v = fd.get(name); return v===null||v==="" ? "" : v; }
+
+      const newReport = {
+        id: r.id, clientId: client.id, month: fd.get("month"), isExample: existing ? existing.isExample : false,
+        meta: { spend:g("meta.spend"), impressions:g("meta.impressions"), clicks:g("meta.clicks"), leads:g("meta.leads") },
+        google: { spend:g("google.spend"), impressions:g("google.impressions"), clicks:g("google.clicks"), leads:g("google.leads") },
+        website: { sessions:g("website.sessions"), users:g("website.users"), conversions:g("website.conversions") },
+        email: { sent:g("email.sent"), openRate:g("email.openRate"), clickRate:g("email.clickRate") },
+        custom: Array.from(customContainer.querySelectorAll(".custom-row")).map(row => ({
+          label: row.querySelector(".custom-label").value.trim(),
+          value: row.querySelector(".custom-value").value
+        })).filter(c => c.label !== "")
+      };
+
+      // prevent duplicate month for same client (except when editing same report)
+      const dup = data.reports.find(rep => rep.clientId===client.id && rep.month===newReport.month && rep.id!==newReport.id);
+      if(dup){
+        showErr(form, "month", "Un rapport existe déjà pour ce mois.");
+        monthInput.classList.add("field-err");
+        return;
+      }
+
+      if(existing){
+        const idx = data.reports.findIndex(rep=>rep.id===existing.id);
+        data.reports[idx] = newReport;
+      }else{
+        data.reports.push(newReport);
+      }
+      saveData();
+      state.reportId = newReport.id;
+      state.mode = "preview";
+      render();
+    };
+
+    function showErr(form, key, msg){
+      const el = form.querySelector(`[data-err="${key}"]`);
+      if(el){ el.textContent = msg; el.classList.remove("hidden"); }
+    }
+  }
+
+  /* ---------- Report preview ---------- */
+  let chartInstances = [];
+  function destroyCharts(){ chartInstances.forEach(c=>c.destroy()); chartInstances = []; }
+
+  function renderReportPreview(main, client, reportId){
+    const report = data.reports.find(r=>r.id===reportId);
+    if(!report){ state.mode = "reports"; return render(); }
+    const d = computeReport(report);
+    const prev = getPreviousReport(report);
+    const dPrev = prev ? computeReport(prev) : null;
+
+    const totalSpend = (d.meta.spend||0) + (d.google.spend||0);
+    const totalLeads = (d.meta.leads||0) + (d.google.leads||0);
+    const blendedCpl = safeDiv(totalSpend, totalLeads);
+
+    const prevTotalSpend = dPrev ? (dPrev.meta.spend||0) + (dPrev.google.spend||0) : null;
+    const prevTotalLeads = dPrev ? (dPrev.meta.leads||0) + (dPrev.google.leads||0) : null;
+
+    main.innerHTML = `
+      <div class="flex items-center justify-between mb-4 no-print flex-wrap gap-2">
+        <button class="btn btn-ghost btn-sm" data-action="back-to-reports">← Retour aux rapports</button>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm" data-action="edit-report" data-id="${report.id}">Modifier</button>
+          <button class="btn btn-primary btn-sm" data-action="export-csv" data-id="${report.id}">Exporter en CSV</button>
+        </div>
+      </div>
+
+      <div class="surface-2 no-print rounded-lg p-3 mb-4 text-sm flex items-center gap-2" style="border:1px solid var(--border);">
+        <span>🖨️</span>
+        <span>Pour enregistrer en PDF, utilisez la fonction d'impression de votre navigateur (Ctrl+P / Cmd+P).</span>
+      </div>
+
+      <div id="reportSheet" class="surface card p-6 max-w-5xl" style="border-top:5px solid ${escapeAttr(client.color||'#1F6F5C')};">
+        <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            ${client.logo ? `<img src="${escapeAttr(client.logo)}" class="w-12 h-12 rounded-lg object-cover" onerror="this.style.display='none'">` : `<span class="w-12 h-12 rounded-full inline-block" style="background:${escapeAttr(client.color)}"></span>`}
+            <div>
+              <h2 class="font-display font-bold text-2xl">${escapeHtml(client.name)}</h2>
+              <p class="text-muted">Rapport mensuel — ${monthLabel(report.month)} ${report.isExample?'<span class="badge badge-example">EXEMPLE</span>':''}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-3 mb-6" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
+          <div class="kpi">
+            <p class="text-muted text-xs uppercase" style="letter-spacing:.05em;">Dépense totale</p>
+            <p class="font-mono font-semibold text-xl">${fmtCur(totalSpend)}</p>
+            ${deltaBadge(delta(totalSpend, prevTotalSpend))}
+          </div>
+          <div class="kpi">
+            <p class="text-muted text-xs uppercase" style="letter-spacing:.05em;">Leads totaux</p>
+            <p class="font-mono font-semibold text-xl">${fmtInt(totalLeads)}</p>
+            ${deltaBadge(delta(totalLeads, prevTotalLeads))}
+          </div>
+          <div class="kpi">
+            <p class="text-muted text-xs uppercase" style="letter-spacing:.05em;">CPL moyen</p>
+            <p class="font-mono font-semibold text-xl">${fmtCur(blendedCpl)}</p>
+            ${deltaBadge(delta(blendedCpl, dPrev ? safeDiv(prevTotalSpend, prevTotalLeads) : null))}
+          </div>
+          <div class="kpi">
+            <p class="text-muted text-xs uppercase" style="letter-spacing:.05em;">Conversions site</p>
+            <p class="font-mono font-semibold text-xl">${fmtInt(d.website.conversions)}</p>
+            ${deltaBadge(delta(d.website.conversions, dPrev ? dPrev.website.conversions : null))}
+          </div>
+        </div>
+
+        ${platformTable("Meta Ads", d.meta, dPrev?dPrev.meta:null, [["spend","Dépense","cur"],["impressions","Impressions","int"],["clicks","Clics","int"],["leads","Leads","int"],["ctr","CTR","pct"],["cpc","CPC","cur"],["cpl","CPL","cur"]])}
+        ${platformTable("Google Ads", d.google, dPrev?dPrev.google:null, [["spend","Dépense","cur"],["impressions","Impressions","int"],["clicks","Clics","int"],["leads","Leads","int"],["ctr","CTR","pct"],["cpc","CPC","cur"],["cpl","CPL","cur"]])}
+        ${platformTable("Site web", d.website, dPrev?dPrev.website:null, [["sessions","Sessions","int"],["users","Utilisateurs","int"],["conversions","Conversions","int"],["convRate","Taux de conversion","pct"]])}
+        ${platformTable("Email", d.email, dPrev?dPrev.email:null, [["sent","Envoyés","int"],["openRate","Taux d'ouverture","pct"],["clickRate","Taux de clic","pct"]])}
+        ${d.custom.length ? customTable(d.custom, dPrev?dPrev.custom:null) : ""}
+
+        <div class="grid gap-4 mt-6" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
+          <div class="surface card p-4"><h3 class="font-display font-semibold mb-2 text-sm">Répartition des dépenses</h3><canvas id="chartSpend" height="200"></canvas></div>
+          <div class="surface card p-4"><h3 class="font-display font-semibold mb-2 text-sm">Leads &amp; conversions par canal</h3><canvas id="chartLeads" height="200"></canvas></div>
+          <div class="surface card p-4"><h3 class="font-display font-semibold mb-2 text-sm">Évolution du budget total</h3><canvas id="chartTrend" height="200"></canvas></div>
+        </div>
+      </div>
+    `;
+
+    destroyCharts();
+    const textColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim() || '#1B1F1C';
+    const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#E2E5E1';
+    Chart.defaults.color = textColor;
+    Chart.defaults.borderColor = gridColor;
+    Chart.defaults.font.family = "'Source Sans 3', system-ui, sans-serif";
+
+    chartInstances.push(new Chart(document.getElementById('chartSpend'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Meta Ads','Google Ads'],
+        datasets: [{ data: [d.meta.spend||0, d.google.spend||0], backgroundColor: [client.color||'#1F6F5C', '#6B7268'] }]
+      },
+      options: { plugins:{legend:{position:'bottom'}} }
+    }));
+
+    chartInstances.push(new Chart(document.getElementById('chartLeads'), {
+      type: 'bar',
+      data: {
+        labels: ['Meta Ads','Google Ads','Site web'],
+        datasets: [{ label:'Volume', data: [d.meta.leads||0, d.google.leads||0, d.website.conversions||0], backgroundColor: client.color||'#1F6F5C', borderRadius:4 }]
+      },
+      options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true } } }
+    }));
+
+    const clientReports = data.reports.filter(r=>r.clientId===client.id).sort((a,b)=> a.month < b.month ? -1 : 1);
+    chartInstances.push(new Chart(document.getElementById('chartTrend'), {
+      type: 'line',
+      data: {
+        labels: clientReports.map(r=>monthLabel(r.month)),
+        datasets: [{
+          label:'Dépense totale (€)',
+          data: clientReports.map(r=>{ const cd = computeReport(r); return (cd.meta.spend||0)+(cd.google.spend||0); }),
+          borderColor: client.color||'#1F6F5C', backgroundColor: (client.color||'#1F6F5C')+'33',
+          fill:true, tension:.3, pointRadius: clientReports.map(r=> r.id===report.id ? 5 : 3)
+        }]
+      },
+      options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true } } }
+    }));
+  }
+
+  function rowMetric(label, type, curr, prevVal){
+    const fmt = type==='cur' ? fmtCur : (type==='pct' ? fmtPct : (type==='dec' ? fmtDec : fmtInt));
+    return `<tr class="border-b border-base">
+      <td class="py-2 text-sm text-muted">${label}</td>
+      <td class="py-2 text-sm font-mono text-right">${fmt(curr)}</td>
+      <td class="py-2 text-right">${prevVal===undefined ? '' : deltaBadge(delta(curr, prevVal))}</td>
+    </tr>`;
+  }
+  function platformTable(title, curr, prev, defs){
+    return `
+      <div class="mb-5">
+        <h3 class="font-display font-semibold mb-2">${title}</h3>
+        <table class="w-full">
+          <thead><tr class="border-b border-base text-left">
+            <th class="py-1 text-xs text-muted font-medium">Indicateur</th>
+            <th class="py-1 text-xs text-muted font-medium text-right">Valeur</th>
+            <th class="py-1 text-xs text-muted font-medium text-right">vs mois précédent</th>
+          </tr></thead>
+          <tbody>
+            ${defs.map(([key,label,type]) => rowMetric(label, type, curr[key], prev ? prev[key] : undefined)).join("")}
+          </tbody>
+        </table>
+      </div>`;
+  }
+  function customTable(curr, prev){
+    return `
+      <div class="mb-5">
+        <h3 class="font-display font-semibold mb-2">Métriques personnalisées</h3>
+        <table class="w-full">
+          <thead><tr class="border-b border-base text-left">
+            <th class="py-1 text-xs text-muted font-medium">Indicateur</th>
+            <th class="py-1 text-xs text-muted font-medium text-right">Valeur</th>
+            <th class="py-1 text-xs text-muted font-medium text-right">vs mois précédent</th>
+          </tr></thead>
+          <tbody>
+            ${curr.map(c => {
+              const prevItem = prev ? prev.find(p=>p.label===c.label) : null;
+              return rowMetric(escapeHtml(c.label), 'dec', c.value, prevItem ? prevItem.value : undefined);
+            }).join("")}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  /* ---------- CSV export ---------- */
+  function exportCsv(reportId){
+    const report = data.reports.find(r=>r.id===reportId);
+    const client = data.clients.find(c=>c.id===report.clientId);
+    const d = computeReport(report);
+    const rows = [["Section","Indicateur","Valeur"]];
+    rows.push(["Client","Nom",client.name]);
+    rows.push(["Rapport","Mois",monthLabel(report.month)]);
+    const push = (section, label, val) => rows.push([section,label, val===null||val===undefined||isNaN(val) ? "" : val]);
+
+    push("Meta Ads","Dépense (€)", d.meta.spend); push("Meta Ads","Impressions", d.meta.impressions);
+    push("Meta Ads","Clics", d.meta.clicks); push("Meta Ads","Leads", d.meta.leads);
+    push("Meta Ads","CTR (%)", d.meta.ctr); push("Meta Ads","CPC (€)", d.meta.cpc); push("Meta Ads","CPL (€)", d.meta.cpl);
+
+    push("Google Ads","Dépense (€)", d.google.spend); push("Google Ads","Impressions", d.google.impressions);
+    push("Google Ads","Clics", d.google.clicks); push("Google Ads","Leads", d.google.leads);
+    push("Google Ads","CTR (%)", d.google.ctr); push("Google Ads","CPC (€)", d.google.cpc); push("Google Ads","CPL (€)", d.google.cpl);
+
+    push("Site web","Sessions", d.website.sessions); push("Site web","Utilisateurs", d.website.users);
+    push("Site web","Conversions", d.website.conversions); push("Site web","Taux de conversion (%)", d.website.convRate);
+
+    push("Email","Envoyés", d.email.sent); push("Email","Taux d'ouverture (%)", d.email.openRate); push("Email","Taux de clic (%)", d.email.clickRate);
+
+    d.custom.forEach(c => push("Personnalisé", c.label, c.value));
+
+    const csv = rows.map(row => row.map(cell => {
+      const s = String(cell===null||cell===undefined?"":cell);
+      return /[",;\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+    }).join(";")).join("\r\n");
+
+    const blob = new Blob(["﻿"+csv], {type:"text/csv;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `rapport_${client.name.replace(/[^a-z0-9]+/gi,'_')}_${report.month}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  /* ---------- Event delegation ---------- */
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest("[data-action]");
+    if(!el) return;
+    const action = el.dataset.action;
+    const id = el.dataset.id;
+
+    if(action === "select-client"){ state = {clientId:id, reportId:null, mode:"reports"}; render(); }
+    else if(action === "new-client"){ state.mode = "new-client"; render(); }
+    else if(action === "edit-client"){ state.mode = "edit-client"; render(); }
+    else if(action === "load-example"){ loadExample(); }
+    else if(action === "new-report"){ state.reportId = null; state.mode = "form"; render(); }
+    else if(action === "open-report"){ state.reportId = id; state.mode = "preview"; render(); }
+    else if(action === "edit-report"){ state.reportId = id; state.mode = "form"; render(); }
+    else if(action === "delete-report"){
+      if(confirm("Supprimer ce rapport ?")){
+        data.reports = data.reports.filter(r=>r.id!==id);
+        saveData();
+        render();
+      }
+    }
+    else if(action === "back-to-reports"){ state.mode = "reports"; state.reportId = null; render(); }
+    else if(action === "export-csv"){ exportCsv(id); }
+  });
+
+
+  /* ---------- Init ---------- */
+  render();
+
+  // offer example removal via console-accessible hook if example exists and user wants to clear it
+  window.__rapport_removeExample = removeExampleData;
+})();
+</script>
+</body>
+</html>
