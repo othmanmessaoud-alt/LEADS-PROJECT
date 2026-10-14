@@ -8,26 +8,41 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#FAF7F2; --bg-2:#F2EBDF; --ink:#1E1A16; --fg:#1E1A16;
-    --muted:#8C8072; --muted-2:#D9CFBF; --rule:#D9CFBF;
-    --accent:#7A2B26; --accent-fg:#FAF7F2;
+    --bg:#FFFFFF; --bg-soft:#F7F6F2; --surface:#FFFFFF; --ink:#14151A; --fg:#14151A;
+    --muted:#6D7178; --border:#EDEBE6;
+    --accent:#5B4FE8; --accent-2:#8B7BFF; --accent-soft:#F0EEFE; --accent-fg:#FFFFFF;
+    --success:#129463; --success-soft:#E7F7EF; --danger:#DF4B4B; --danger-soft:#FCEAEA;
+    --shadow-sm:0 1px 2px rgba(20,20,35,.05), 0 1px 1px rgba(20,20,35,.03);
+    --shadow-md:0 16px 36px -12px rgba(20,20,35,.12), 0 4px 10px -4px rgba(20,20,35,.06);
+    --shadow-lg:0 32px 72px -20px rgba(20,20,35,.20);
+    --shadow-accent:0 14px 30px -10px rgba(91,79,232,.38);
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#15120F; --bg-2:#1E1A15; --ink:#F3ECE1; --fg:#F3ECE1;
-      --muted:#A89C8C; --muted-2:#3A332B; --rule:#3A332B;
-      --accent:#C1584C; --accent-fg:#15120F;
+      --bg:#0A0A0D; --bg-soft:#131318; --surface:#131318; --ink:#F2F2F6; --fg:#F2F2F6;
+      --muted:#9A9AA8; --border:#232329;
+      --accent:#8B7FFF; --accent-2:#A89BFF; --accent-soft:#1C1A33; --accent-fg:#0A0A0D;
+      --success:#34D399; --success-soft:#0F2A22; --danger:#F87171; --danger-soft:#2A1414;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+      --shadow-md:0 16px 36px -12px rgba(0,0,0,.5), 0 4px 10px -4px rgba(0,0,0,.4);
+      --shadow-lg:0 32px 72px -20px rgba(0,0,0,.6);
+      --shadow-accent:0 14px 34px -8px rgba(139,127,255,.45);
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"]{
-    --bg:#15120F; --bg-2:#1E1A15; --ink:#F3ECE1; --fg:#F3ECE1;
-    --muted:#A89C8C; --muted-2:#3A332B; --rule:#3A332B;
-    --accent:#C1584C; --accent-fg:#15120F;
+    --bg:#0A0A0D; --bg-soft:#131318; --surface:#131318; --ink:#F2F2F6; --fg:#F2F2F6;
+    --muted:#9A9AA8; --border:#232329;
+    --accent:#8B7FFF; --accent-2:#A89BFF; --accent-soft:#1C1A33; --accent-fg:#0A0A0D;
+    --success:#34D399; --success-soft:#0F2A22; --danger:#F87171; --danger-soft:#2A1414;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+    --shadow-md:0 16px 36px -12px rgba(0,0,0,.5), 0 4px 10px -4px rgba(0,0,0,.4);
+    --shadow-lg:0 32px 72px -20px rgba(0,0,0,.6);
+    --shadow-accent:0 14px 34px -8px rgba(139,127,255,.45);
     color-scheme: dark;
   }
   *{box-sizing:border-box;}
@@ -35,84 +50,91 @@
   body{
     margin:0; background:var(--bg); color:var(--fg);
     font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-    font-size:15px; -webkit-font-smoothing:antialiased;
+    font-size:15.5px; -webkit-font-smoothing:antialiased; line-height:1.5;
   }
-  .font-display, .headline{ font-family:'Fraunces',Georgia,serif; letter-spacing:-.01em; }
+  .font-display, .headline{ font-family:'Outfit',system-ui,sans-serif; letter-spacing:-.02em; }
   .font-mono{ font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums; }
-  .eyebrow{ font-family:'Inter',sans-serif; font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); }
+  .eyebrow{ font-family:'Inter',sans-serif; font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
   .text-muted{ color:var(--muted); }
   .text-accent{ color:var(--accent); }
-  .border-base{ border-color:var(--rule); }
+  .border-base{ border-color:var(--border); }
 
-  .surface{ background:var(--bg); border:1px solid var(--rule); }
-  .card{ border-radius:3px; }
+  .surface{ background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); }
+  .card{ border-radius:20px; }
 
   .btn{
-    display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1.15rem;
-    font-family:'Inter',sans-serif; font-weight:600; font-size:.75rem; text-transform:uppercase; letter-spacing:.06em;
-    border-radius:2px; border:1px solid transparent; cursor:pointer; transition:background .15s, color .15s, border-color .15s;
+    display:inline-flex; align-items:center; gap:.5rem; padding:.7rem 1.4rem;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:.85rem;
+    border-radius:999px; border:1px solid transparent; cursor:pointer; transition:all .18s ease;
   }
-  .btn-primary{ background:var(--accent); color:var(--accent-fg); border-color:var(--accent); }
-  .btn-primary:hover{ opacity:.88; }
-  .btn-ghost{ background:transparent; color:var(--ink); border-color:var(--rule); }
-  .btn-ghost:hover{ border-color:var(--ink); }
-  .btn-danger{ background:transparent; color:var(--accent); border-color:transparent; }
-  .btn-danger:hover{ border-color:var(--accent); }
-  .btn-sm{ padding:.42rem .8rem; font-size:.68rem; }
+  .btn-primary{ background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:var(--accent-fg); box-shadow:var(--shadow-accent); }
+  .btn-primary:hover{ transform:translateY(-1px); filter:brightness(1.04); }
+  .btn-ghost{ background:var(--surface); color:var(--ink); border-color:var(--border); box-shadow:var(--shadow-sm); }
+  .btn-ghost:hover{ box-shadow:var(--shadow-md); transform:translateY(-1px); }
+  .btn-danger{ background:transparent; color:var(--danger); border-color:transparent; }
+  .btn-danger:hover{ background:var(--danger-soft); }
+  .btn-sm{ padding:.5rem 1rem; font-size:.78rem; }
 
-  label.field-label{ display:block; font-family:'Inter',sans-serif; font-size:.68rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:.4rem; }
+  label.field-label{ display:block; font-family:'Inter',sans-serif; font-size:.74rem; font-weight:600; color:var(--muted); margin-bottom:.45rem; }
 
   input[type=text], input[type=month], input[type=number], input[type=color], textarea, select{
-    background:transparent; color:var(--ink); border:1px solid var(--rule);
-    border-radius:2px; padding:.55rem .7rem; font-size:.875rem; width:100%; font-family:'Inter',sans-serif;
-    transition:border-color .15s;
+    background:var(--bg-soft); color:var(--ink); border:1px solid transparent;
+    border-radius:14px; padding:.65rem .85rem; font-size:.9rem; width:100%; font-family:'Inter',sans-serif;
+    transition:border-color .15s, background .15s;
   }
-  input:focus, textarea:focus, select:focus{ outline:none; border-color:var(--accent); }
-  .field-err{ border-color:var(--accent) !important; }
-  .err-msg{ color:var(--accent); font-size:.72rem; margin-top:.35rem; font-weight:500; }
+  input:focus, textarea:focus, select:focus{ outline:none; background:var(--surface); border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft); }
+  .field-err{ border-color:var(--danger) !important; box-shadow:0 0 0 4px var(--danger-soft) !important; }
+  .err-msg{ color:var(--danger); font-size:.78rem; margin-top:.4rem; font-weight:500; }
 
   .badge{
-    font-family:'Inter',sans-serif; font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
-    padding:.15rem .4rem; border:1px solid var(--accent); color:var(--accent); border-radius:2px; background:transparent;
+    font-family:'Inter',sans-serif; font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    padding:.25rem .6rem; border:none; color:var(--accent); border-radius:999px; background:var(--accent-soft);
   }
-  .badge-example{ border-color:var(--accent); color:var(--accent); }
+  .badge-example{ color:var(--accent); background:var(--accent-soft); }
 
   .nav-item{
-    padding:.5rem .9rem .5rem 1rem; border-left:2px solid transparent; color:var(--muted);
-    font-size:.85rem; cursor:pointer; transition:border-color .15s, color .15s;
+    margin:0 .75rem; padding:.6rem .9rem; border-radius:12px; color:var(--muted);
+    font-size:.9rem; font-weight:500; cursor:pointer; transition:all .15s;
   }
-  .nav-item:hover{ color:var(--ink); }
-  .nav-item.active{ border-left-color:var(--accent); color:var(--ink); font-weight:600; }
+  .nav-item:hover{ background:var(--bg-soft); color:var(--ink); }
+  .nav-item.active{ background:var(--accent-soft); color:var(--accent); font-weight:600; }
 
   .sidebar-item{
-    padding:.45rem .9rem .45rem 1rem; border-left:2px solid transparent; cursor:pointer;
-    display:flex; align-items:center; gap:.55rem; transition:border-color .15s;
+    margin:0 .75rem; padding:.55rem .9rem; border-radius:12px; cursor:pointer;
+    display:flex; align-items:center; gap:.6rem; transition:background .15s;
   }
-  .sidebar-item.active{ border-left-color:var(--accent); }
+  .sidebar-item:hover{ background:var(--bg-soft); }
+  .sidebar-item.active{ background:var(--accent-soft); }
   .sidebar-item .cname{ color:var(--fg); }
-  .sidebar-item.active .cname{ font-weight:600; }
+  .sidebar-item.active .cname{ color:var(--accent); font-weight:600; }
 
   .scrollbar-thin::-webkit-scrollbar{ width:5px; }
-  .scrollbar-thin::-webkit-scrollbar-thumb{ background:var(--muted-2); border-radius:2px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb{ background:var(--border); border-radius:3px; }
 
-  .delta-up{ color:var(--ink); font-weight:700; }
-  .delta-down{ color:var(--muted); font-weight:600; font-style:italic; }
-  .delta-flat{ color:var(--muted); }
+  .delta{ display:inline-flex; align-items:center; padding:.2rem .55rem; border-radius:999px; font-weight:700; font-size:.72rem; }
+  .delta-up{ color:var(--success); background:var(--success-soft); }
+  .delta-down{ color:var(--danger); background:var(--danger-soft); }
+  .delta-flat{ color:var(--muted); background:var(--bg-soft); }
 
   table{ border-collapse:collapse; width:100%; }
-  tbody tr{ border-bottom:1px solid var(--rule); }
-  thead tr{ border-bottom:1px solid var(--rule); }
+  tbody tr{ border-bottom:1px solid var(--border); }
+  tbody tr:last-child{ border-bottom:none; }
+  thead tr{ border-bottom:1px solid var(--border); }
 
-  .kpi-row{ display:flex; flex-wrap:wrap; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
-  .kpi-item{ flex:1 1 200px; padding:2.25rem 2rem; border-left:1px solid var(--rule); }
-  .kpi-item:first-child{ border-left:none; padding-left:0; }
-  .kpi-value{ font-family:'Fraunces',Georgia,serif; font-size:3.75rem; font-weight:500; line-height:1; margin:.75rem 0 .75rem; font-variant-numeric:tabular-nums; }
+  .kpi-card{ border-radius:20px; padding:1.75rem; background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); }
+  .kpi-value{ font-family:'Outfit',system-ui,sans-serif; font-weight:700; font-size:3rem; line-height:1; margin:.6rem 0 .8rem; font-variant-numeric:tabular-nums; letter-spacing:-.03em; }
   @media (max-width: 860px){
-    .kpi-value{ font-size:2.75rem; }
+    .kpi-value{ font-size:2.25rem; }
   }
 
-  .report-section{ }
-  .report-section + .report-section{ border-top:1px solid var(--rule); margin-top:3rem; padding-top:3rem; }
+  .hero-glow{
+    position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0;
+  }
+  .hero-glow::before, .hero-glow::after{
+    content:""; position:absolute; border-radius:50%; filter:blur(70px); opacity:.35;
+  }
+  .hero-glow::before{ width:420px; height:420px; background:var(--accent); top:-160px; left:10%; }
+  .hero-glow::after{ width:340px; height:340px; background:var(--accent-2); bottom:-140px; right:12%; opacity:.25; }
 
   @media print{
     .no-print{ display:none !important; }
@@ -120,42 +142,42 @@
   }
   @media (max-width: 860px){
     .app-shell{ flex-direction:column; }
-    .sidebar{ width:100% !important; max-height:none; position:static !important; border-right:none !important; border-bottom:1px solid var(--rule); }
+    .sidebar{ width:100% !important; max-height:none; position:static !important; border-right:none !important; border-bottom:1px solid var(--border); }
   }
 </style>
 </head>
 <body>
 
 <div class="app-shell flex min-h-screen">
-  <aside class="sidebar no-print flex flex-col" style="width:220px; flex-shrink:0; background:var(--bg); border-right:1px solid var(--rule); position:sticky; top:0; height:100vh;">
-    <div class="px-5 pt-6 pb-5">
-      <div class="flex items-center gap-2">
-        <span style="width:.5rem; height:.5rem; background:var(--accent); flex-shrink:0;"></span>
-        <h1 class="headline font-semibold" style="font-size:1.6rem; line-height:1;">Rapport</h1>
+  <aside class="sidebar no-print flex flex-col" style="width:232px; flex-shrink:0; background:var(--bg); border-right:1px solid var(--border); position:sticky; top:0; height:100vh;">
+    <div class="px-5 pt-7 pb-6">
+      <div class="flex items-center gap-2.5">
+        <span style="width:1.6rem; height:1.6rem; border-radius:8px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); flex-shrink:0; box-shadow:var(--shadow-accent);"></span>
+        <h1 class="headline font-bold" style="font-size:1.35rem; line-height:1;">Rapport</h1>
       </div>
-      <p class="eyebrow mt-2">Reporting marketing</p>
+      <p class="text-muted text-xs mt-2">Reporting marketing</p>
     </div>
 
     <nav class="flex flex-col gap-1">
       <div class="nav-item" id="navDashboard" data-action="go-dashboard">Tableau de bord</div>
     </nav>
 
-    <div class="px-4 pt-6 pb-2">
+    <div class="px-5 pt-7 pb-2">
       <span class="eyebrow">Clients</span>
     </div>
-    <div id="clientList" class="flex flex-col gap-0.5 overflow-y-auto scrollbar-thin" style="max-height:calc(100vh - 360px);"></div>
+    <div id="clientList" class="flex flex-col gap-0.5 overflow-y-auto scrollbar-thin" style="max-height:calc(100vh - 380px);"></div>
 
-    <div class="px-4 pt-4 flex flex-col gap-2">
+    <div class="px-4 pt-5 flex flex-col gap-2">
       <button class="btn btn-primary w-full justify-center btn-sm" data-action="new-client">+ Nouveau client</button>
       <button class="btn btn-ghost w-full justify-center btn-sm" data-action="load-example">Charger client exemple</button>
     </div>
 
-    <nav class="pt-4 pb-6 mt-auto flex flex-col gap-1" style="border-top:1px solid var(--rule); margin-top:auto;">
+    <nav class="pt-5 pb-7 mt-auto flex flex-col gap-1" style="border-top:1px solid var(--border); margin-top:auto; padding-top:1.25rem;">
       <div class="nav-item" id="navSettings" data-action="go-settings">Paramètres</div>
     </nav>
   </aside>
 
-  <main id="main" class="flex-1 overflow-y-auto" style="padding:4.5rem 5rem;"></main>
+  <main id="main" class="flex-1 overflow-y-auto" style="padding:4rem 4.5rem; position:relative;"></main>
 </div>
 
 <script>
@@ -250,12 +272,12 @@
     if(d===null||isNaN(d)) return '<span class="text-muted text-xs">—</span>';
     const cls = d>0.001 ? "delta-up" : (d<-0.001 ? "delta-down" : "delta-flat");
     const arrow = d>0.001 ? "▲" : (d<-0.001 ? "▼" : "▬");
-    return `<span class="${cls} text-xs font-mono">${arrow} ${Math.abs(d).toLocaleString('fr-FR',{maximumFractionDigits:1})}%</span>`;
+    return `<span class="delta ${cls} font-mono">${arrow} ${Math.abs(d).toLocaleString('fr-FR',{maximumFractionDigits:1})}%</span>`;
   }
 
   /* ---------- Example data ---------- */
   function exampleClient(){
-    return { id: uid("client"), name: "Client Exemple (Démo)", logo: "", color: "#7A2B26", isExample: true };
+    return { id: uid("client"), name: "Client Exemple (Démo)", logo: "", color: "#5B4FE8", isExample: true };
   }
   function exampleReports(clientId){
     const months = ["2026-05","2026-06","2026-07"];
@@ -295,11 +317,11 @@
   function renderSidebar(){
     const list = document.getElementById("clientList");
     if(data.clients.length === 0){
-      list.innerHTML = `<p class="text-muted text-xs py-2 px-4">Aucun client pour l'instant.</p>`;
+      list.innerHTML = `<p class="text-muted text-xs py-2 px-5">Aucun client pour l'instant.</p>`;
     }else{
       list.innerHTML = data.clients.map(c => `
         <div class="sidebar-item ${c.id===state.clientId?'active':''}" data-action="select-client" data-id="${c.id}">
-          ${c.logo ? `<img src="${escapeAttr(c.logo)}" class="w-5 h-5 object-cover flex-shrink-0" style="border-radius:1px;" onerror="this.style.display='none'">` : `<span class="w-2.5 h-2.5 inline-block flex-shrink-0" style="background:${escapeAttr(c.color||'#7A2B26')}"></span>`}
+          ${c.logo ? `<img src="${escapeAttr(c.logo)}" class="w-5 h-5 rounded-full object-cover flex-shrink-0" onerror="this.style.display='none'">` : `<span class="w-5 h-5 rounded-full inline-block flex-shrink-0" style="background:${escapeAttr(c.color||'#5B4FE8')}"></span>`}
           <span class="cname text-sm flex-1 truncate">${escapeHtml(c.name)}</span>
           ${c.isExample ? '<span class="badge badge-example">EX</span>' : ''}
         </div>
@@ -332,11 +354,12 @@
 
   function renderWelcome(main){
     main.innerHTML = `
-      <div class="h-full flex flex-col items-center justify-center text-center" style="max-width:480px; margin:0 auto;">
-        <span style="width:.7rem; height:.7rem; background:var(--accent); display:inline-block; margin-bottom:2.25rem;"></span>
-        <h2 class="headline font-semibold mb-5" style="font-size:3rem; line-height:1.05;">Bienvenue dans Rapport</h2>
-        <p class="text-muted mb-10" style="font-size:1rem;">Créez un client pour commencer à construire vos rapports marketing mensuels. Toutes les données restent stockées localement dans votre navigateur.</p>
-        <div class="flex gap-2">
+      <div class="hero-glow"></div>
+      <div class="h-full flex flex-col items-center justify-center text-center" style="max-width:480px; margin:0 auto; position:relative; z-index:1;">
+        <span style="width:3.5rem; height:3.5rem; border-radius:16px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); display:flex; align-items:center; justify-content:center; margin-bottom:2rem; box-shadow:var(--shadow-accent);"></span>
+        <h2 class="headline font-bold mb-4" style="font-size:2.75rem; line-height:1.08;">Bienvenue dans Rapport</h2>
+        <p class="text-muted mb-10" style="font-size:1.05rem;">Créez un client pour commencer à construire vos rapports marketing mensuels. Toutes les données restent stockées localement dans votre navigateur.</p>
+        <div class="flex gap-3">
           <button class="btn btn-primary" data-action="new-client">+ Nouveau client</button>
           <button class="btn btn-ghost" data-action="load-example">Charger un client exemple</button>
         </div>
@@ -347,17 +370,17 @@
   function renderSettings(main){
     const hasExample = data.clients.some(c=>c.isExample);
     main.innerHTML = `
-      <div style="max-width:640px;">
-        <h2 class="headline font-semibold mb-3" style="font-size:2.75rem;">Paramètres</h2>
-        <p class="text-muted mb-10" style="font-size:1rem;">Gérez vos données locales. Rien n'est envoyé à un serveur : tout reste dans le stockage de votre navigateur.</p>
+      <div style="max-width:680px;">
+        <h2 class="headline font-bold mb-3" style="font-size:2.5rem;">Paramètres</h2>
+        <p class="text-muted mb-10" style="font-size:1.02rem;">Gérez vos données locales. Rien n'est envoyé à un serveur : tout reste dans le stockage de votre navigateur.</p>
 
         <div class="eyebrow mb-4">Aperçu du stockage</div>
-        <div class="kpi-row mb-12">
-          <div class="kpi-item">
+        <div class="grid gap-4 mb-12" style="grid-template-columns:repeat(2,1fr); max-width:420px;">
+          <div class="kpi-card">
             <span class="eyebrow">Clients</span>
             <p class="kpi-value">${data.clients.length}</p>
           </div>
-          <div class="kpi-item">
+          <div class="kpi-card">
             <span class="eyebrow">Rapports</span>
             <p class="kpi-value">${data.reports.length}</p>
           </div>
@@ -375,8 +398,8 @@
   /* ---------- Client form ---------- */
   function renderClientForm(main, existing){
     main.innerHTML = `
-      <div style="max-width:440px;">
-        <h2 class="headline font-semibold mb-8" style="font-size:2.25rem;">${existing ? "Modifier le client" : "Nouveau client"}</h2>
+      <div class="surface card p-8" style="max-width:460px;">
+        <h2 class="headline font-bold mb-7" style="font-size:1.9rem;">${existing ? "Modifier le client" : "Nouveau client"}</h2>
         <form id="clientForm" class="flex flex-col gap-5">
           <div>
             <label class="field-label">Nom du client *</label>
@@ -389,7 +412,7 @@
           </div>
           <div>
             <label class="field-label">Couleur de marque</label>
-            <input type="color" name="color" value="${existing?existing.color:'#7A2B26'}" style="height:2.8rem; padding:.25rem;">
+            <input type="color" name="color" value="${existing?existing.color:'#5B4FE8'}" style="height:2.8rem; padding:.3rem;">
           </div>
           <div class="flex gap-2 mt-2">
             <button type="submit" class="btn btn-primary">Enregistrer</button>
@@ -427,7 +450,7 @@
       errEl.classList.add("hidden");
       nameInput.classList.remove("field-err");
       const logo = (fd.get("logo")||"").toString().trim();
-      const color = (fd.get("color")||"#7A2B26").toString();
+      const color = (fd.get("color")||"#5B4FE8").toString();
       if(existing){
         existing.name = name; existing.logo = logo; existing.color = color;
       }else{
@@ -445,11 +468,11 @@
   function renderReportsList(main, client){
     const reports = data.reports.filter(r=>r.clientId===client.id).sort((a,b)=> a.month < b.month ? 1 : -1);
     main.innerHTML = `
-      <div class="flex items-center justify-between mb-3 flex-wrap gap-3">
+      <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
         <div class="flex items-center gap-4">
-          ${client.logo ? `<img src="${escapeAttr(client.logo)}" class="w-12 h-12 object-cover" style="border-radius:2px;" onerror="this.style.display='none'">` : `<span class="w-3.5 h-3.5 inline-block" style="background:${escapeAttr(client.color)}"></span>`}
+          ${client.logo ? `<img src="${escapeAttr(client.logo)}" class="w-14 h-14 rounded-2xl object-cover" style="box-shadow:var(--shadow-sm);" onerror="this.style.display='none'">` : `<span class="w-14 h-14 rounded-2xl inline-block" style="background:${escapeAttr(client.color)}; box-shadow:var(--shadow-sm);"></span>`}
           <div>
-            <h2 class="headline font-semibold flex items-center gap-3" style="font-size:2.5rem; line-height:1.05;">${escapeHtml(client.name)} ${client.isExample?'<span class="badge badge-example">EXEMPLE</span>':''}</h2>
+            <h2 class="headline font-bold flex items-center gap-3" style="font-size:2.1rem; line-height:1.1;">${escapeHtml(client.name)} ${client.isExample?'<span class="badge badge-example">EXEMPLE</span>':''}</h2>
           </div>
         </div>
         <div class="flex gap-2">
@@ -460,19 +483,19 @@
       <p class="text-muted text-sm mb-10">${reports.length} rapport${reports.length===1?'':'s'}</p>
       <div class="eyebrow mb-4">Rapports récents</div>
       ${reports.length===0 ? `
-        <div class="text-center py-20">
-          <p class="headline text-muted" style="font-size:1.6rem;">Aucun rapport pour ce client.</p>
+        <div class="text-center py-20 surface card">
+          <p class="headline font-semibold" style="font-size:1.5rem;">Aucun rapport pour ce client</p>
           <p class="text-muted text-sm mt-3">Créez le premier rapport mensuel pour commencer.</p>
         </div>
       ` : `
-        <div class="grid gap-0" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); border-top:1px solid var(--rule); border-left:1px solid var(--rule);">
+        <div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr));">
           ${reports.map(r => {
             const d = computeReport(r);
             const totalSpend = (d.meta.spend||0) + (d.google.spend||0);
             return `
-            <div class="p-5 flex flex-col gap-3 cursor-pointer" style="border-right:1px solid var(--rule); border-bottom:1px solid var(--rule);" data-action="open-report" data-id="${r.id}">
+            <div class="surface card p-6 flex flex-col gap-3 cursor-pointer" data-action="open-report" data-id="${r.id}">
               <div class="flex items-center justify-between">
-                <span class="headline font-semibold" style="font-size:1.1rem;">${monthLabel(r.month)}</span>
+                <span class="headline font-bold" style="font-size:1.2rem;">${monthLabel(r.month)}</span>
                 ${r.isExample?'<span class="badge badge-example">EX</span>':''}
               </div>
               <p class="text-muted text-xs font-mono">Dépenses totales — ${fmtCur(totalSpend)}</p>
@@ -501,7 +524,7 @@
 
   function platformFieldsHtml(prefix, label, p, fieldDefs){
     return `
-      <fieldset class="surface card p-5">
+      <fieldset class="surface card p-6">
         <legend class="eyebrow px-1">${label}</legend>
         <div class="grid gap-4 mt-3" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
           ${fieldDefs.map(([key,lbl])=>`
@@ -522,11 +545,11 @@
 
     main.innerHTML = `
       <div class="flex items-center justify-between mb-8">
-        <h2 class="headline font-semibold" style="font-size:2.1rem;">${existing ? "Modifier le rapport" : "Nouveau rapport"} — ${escapeHtml(client.name)}</h2>
+        <h2 class="headline font-bold" style="font-size:2rem;">${existing ? "Modifier le rapport" : "Nouveau rapport"} — ${escapeHtml(client.name)}</h2>
         <button class="btn btn-ghost btn-sm" data-action="back-to-reports">← Retour</button>
       </div>
-      <form id="reportForm" class="flex flex-col gap-6" style="max-width:720px;">
-        <div class="surface card p-5">
+      <form id="reportForm" class="flex flex-col gap-5" style="max-width:720px;">
+        <div class="surface card p-6">
           <label class="field-label">Mois du rapport *</label>
           <input type="month" name="month" required value="${r.month||''}" style="max-width:220px;">
           <div class="err-msg hidden" data-err="month"></div>
@@ -537,7 +560,7 @@
         ${platformFieldsHtml("website","Site web", r.website, [["sessions","Sessions"],["users","Utilisateurs"],["conversions","Conversions"]])}
         ${platformFieldsHtml("email","Email", r.email, [["sent","Emails envoyés"],["openRate","Taux d'ouverture (%)"],["clickRate","Taux de clic (%)"]])}
 
-        <fieldset class="surface card p-5">
+        <fieldset class="surface card p-6">
           <legend class="eyebrow px-1">Métriques personnalisées</legend>
           <div id="customRows" class="flex flex-col gap-2 mt-3"></div>
           <button type="button" class="btn btn-ghost btn-sm mt-3" id="addCustomRow">+ Ajouter une métrique</button>
@@ -671,82 +694,78 @@
         </div>
       </div>
 
-      <div class="no-print text-sm flex items-center gap-2.5 mb-9" style="color:var(--muted); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:.9rem 0;">
-        <span style="width:.4rem; height:.4rem; background:var(--accent); flex-shrink:0;"></span>
+      <div class="no-print surface card text-sm flex items-center gap-2.5 mb-8" style="color:var(--muted); padding:.9rem 1.25rem;">
+        <span style="width:1.5rem; height:1.5rem; border-radius:999px; background:var(--accent-soft); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:.75rem; flex-shrink:0;">i</span>
         <span>Pour enregistrer en PDF, utilisez la fonction d'impression de votre navigateur (Ctrl+P / Cmd+P).</span>
       </div>
 
-      <div id="reportSheet" style="max-width:900px; border-top:2px solid ${escapeAttr(client.color||'#7A2B26')}; padding-top:3.5rem;">
+      <div id="reportSheet" class="surface card" style="max-width:920px; padding:3rem; overflow:hidden; position:relative;">
+        <div style="position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg, ${escapeAttr(client.color||'#5B4FE8')}, var(--accent-2));"></div>
         <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
           <div>
-            <h2 class="headline font-semibold" style="font-size:3.25rem; line-height:1.05;">${escapeHtml(client.name)}</h2>
-            <p class="text-muted mt-3" style="font-size:1rem;">Rapport mensuel — ${monthLabel(report.month)} ${report.isExample?'<span class="badge badge-example">EXEMPLE</span>':''}</p>
+            <h2 class="headline font-bold" style="font-size:2.75rem; line-height:1.08;">${escapeHtml(client.name)}</h2>
+            <p class="text-muted mt-3" style="font-size:1.02rem;">Rapport mensuel — ${monthLabel(report.month)} ${report.isExample?'<span class="badge badge-example">EXEMPLE</span>':''}</p>
           </div>
         </div>
 
-        <div class="kpi-row mt-12 mb-2">
-          <div class="kpi-item">
+        <div class="grid gap-4 mt-10 mb-4" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));">
+          <div class="kpi-card">
             <span class="eyebrow">Dépense totale</span>
             <p class="kpi-value">${fmtCur(totalSpend)}</p>
             ${deltaBadge(delta(totalSpend, prevTotalSpend))}
           </div>
-          <div class="kpi-item">
+          <div class="kpi-card">
             <span class="eyebrow">Leads totaux</span>
             <p class="kpi-value">${fmtInt(totalLeads)}</p>
             ${deltaBadge(delta(totalLeads, prevTotalLeads))}
           </div>
-          <div class="kpi-item">
+          <div class="kpi-card">
             <span class="eyebrow">CPL moyen</span>
             <p class="kpi-value">${fmtCur(blendedCpl)}</p>
             ${deltaBadge(delta(blendedCpl, dPrev ? safeDiv(prevTotalSpend, prevTotalLeads) : null))}
           </div>
-          <div class="kpi-item">
+          <div class="kpi-card">
             <span class="eyebrow">Conversions site</span>
             <p class="kpi-value">${fmtInt(d.website.conversions)}</p>
             ${deltaBadge(delta(d.website.conversions, dPrev ? dPrev.website.conversions : null))}
           </div>
         </div>
 
-        <div class="report-section" style="margin-top:2.5rem;">
-          ${platformTable("Meta Ads", d.meta, dPrev?dPrev.meta:null, [["spend","Dépense","cur"],["impressions","Impressions","int"],["clicks","Clics","int"],["leads","Leads","int"],["ctr","CTR","pct"],["cpc","CPC","cur"],["cpl","CPL","cur"]])}
+        <div class="flex flex-col gap-4 mt-6">
+          <div class="surface card p-6">${platformTable("Meta Ads", d.meta, dPrev?dPrev.meta:null, [["spend","Dépense","cur"],["impressions","Impressions","int"],["clicks","Clics","int"],["leads","Leads","int"],["ctr","CTR","pct"],["cpc","CPC","cur"],["cpl","CPL","cur"]])}</div>
+          <div class="surface card p-6">${platformTable("Google Ads", d.google, dPrev?dPrev.google:null, [["spend","Dépense","cur"],["impressions","Impressions","int"],["clicks","Clics","int"],["leads","Leads","int"],["ctr","CTR","pct"],["cpc","CPC","cur"],["cpl","CPL","cur"]])}</div>
+          <div class="surface card p-6">${platformTable("Site web", d.website, dPrev?dPrev.website:null, [["sessions","Sessions","int"],["users","Utilisateurs","int"],["conversions","Conversions","int"],["convRate","Taux de conversion","pct"]])}</div>
+          <div class="surface card p-6">${platformTable("Email", d.email, dPrev?dPrev.email:null, [["sent","Envoyés","int"],["openRate","Taux d'ouverture","pct"],["clickRate","Taux de clic","pct"]])}</div>
+          ${d.custom.length ? `<div class="surface card p-6">${customTable(d.custom, dPrev?dPrev.custom:null)}</div>` : ""}
         </div>
-        <div class="report-section">
-          ${platformTable("Google Ads", d.google, dPrev?dPrev.google:null, [["spend","Dépense","cur"],["impressions","Impressions","int"],["clicks","Clics","int"],["leads","Leads","int"],["ctr","CTR","pct"],["cpc","CPC","cur"],["cpl","CPL","cur"]])}
-        </div>
-        <div class="report-section">
-          ${platformTable("Site web", d.website, dPrev?dPrev.website:null, [["sessions","Sessions","int"],["users","Utilisateurs","int"],["conversions","Conversions","int"],["convRate","Taux de conversion","pct"]])}
-        </div>
-        <div class="report-section">
-          ${platformTable("Email", d.email, dPrev?dPrev.email:null, [["sent","Envoyés","int"],["openRate","Taux d'ouverture","pct"],["clickRate","Taux de clic","pct"]])}
-        </div>
-        ${d.custom.length ? `<div class="report-section">${customTable(d.custom, dPrev?dPrev.custom:null)}</div>` : ""}
 
-        <div class="report-section">
+        <div class="mt-8">
           <div class="eyebrow mb-4">Visualisations</div>
-          <div class="grid gap-8" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));">
-            <div><p class="eyebrow mb-3">Répartition des dépenses</p><canvas id="chartSpend" height="200"></canvas></div>
-            <div><p class="eyebrow mb-3">Leads &amp; conversions</p><canvas id="chartLeads" height="200"></canvas></div>
-            <div><p class="eyebrow mb-3">Évolution du budget</p><canvas id="chartTrend" height="200"></canvas></div>
+          <div class="grid gap-4" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));">
+            <div class="surface card p-5"><p class="eyebrow mb-3">Répartition des dépenses</p><canvas id="chartSpend" height="200"></canvas></div>
+            <div class="surface card p-5"><p class="eyebrow mb-3">Leads &amp; conversions</p><canvas id="chartLeads" height="200"></canvas></div>
+            <div class="surface card p-5"><p class="eyebrow mb-3">Évolution du budget</p><canvas id="chartTrend" height="200"></canvas></div>
           </div>
         </div>
       </div>
     `;
 
     destroyCharts();
-    const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#8C8072';
-    const rule = getComputedStyle(document.documentElement).getPropertyValue('--rule').trim() || '#D9CFBF';
-    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#7A2B26';
+    const muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#6D7178';
+    const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#EDEBE6';
+    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#5B4FE8';
+    const accentColor2 = getComputedStyle(document.documentElement).getPropertyValue('--accent-2').trim() || '#8B7BFF';
     Chart.defaults.color = muted;
-    Chart.defaults.borderColor = rule;
-    Chart.defaults.font.family = "'IBM Plex Mono', ui-monospace, monospace";
-    Chart.defaults.font.size = 10;
-    const legendLabelOpts = { color: muted, font:{ size:10, family:"'Inter', sans-serif", weight:'600' }, boxWidth:8, boxHeight:8, padding:14 };
+    Chart.defaults.borderColor = border;
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.size = 11;
+    const legendLabelOpts = { color: muted, font:{ size:11, family:"'Inter', sans-serif", weight:'600' }, boxWidth:8, boxHeight:8, padding:16, usePointStyle:true, pointStyle:'circle' };
 
     chartInstances.push(new Chart(document.getElementById('chartSpend'), {
       type: 'doughnut',
       data: {
-        labels: ['META ADS','GOOGLE ADS'],
-        datasets: [{ data: [d.meta.spend||0, d.google.spend||0], backgroundColor: [accentColor, rule], borderWidth:0 }]
+        labels: ['Meta Ads','Google Ads'],
+        datasets: [{ data: [d.meta.spend||0, d.google.spend||0], backgroundColor: [accentColor, border], borderWidth:0 }]
       },
       options: { plugins:{legend:{position:'bottom', labels:legendLabelOpts}}, cutout:'72%' }
     }));
@@ -754,34 +773,38 @@
     chartInstances.push(new Chart(document.getElementById('chartLeads'), {
       type: 'bar',
       data: {
-        labels: ['META ADS','GOOGLE ADS','SITE WEB'],
-        datasets: [{ label:'Volume', data: [d.meta.leads||0, d.google.leads||0, d.website.conversions||0], backgroundColor: accentColor, borderRadius:0, maxBarThickness:40 }]
+        labels: ['Meta Ads','Google Ads','Site web'],
+        datasets: [{ label:'Volume', data: [d.meta.leads||0, d.google.leads||0, d.website.conversions||0], backgroundColor: accentColor, borderRadius:8, maxBarThickness:40 }]
       },
-      options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:rule, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } } }
+      options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } } }
     }));
 
     const clientReports = data.reports.filter(r=>r.clientId===client.id).sort((a,b)=> a.month < b.month ? -1 : 1);
-    chartInstances.push(new Chart(document.getElementById('chartTrend'), {
+    const trendCtx = document.getElementById('chartTrend').getContext('2d');
+    const trendGradient = trendCtx.createLinearGradient(0,0,0,200);
+    trendGradient.addColorStop(0, accentColor+'3D');
+    trendGradient.addColorStop(1, accentColor+'00');
+    chartInstances.push(new Chart(trendCtx, {
       type: 'line',
       data: {
-        labels: clientReports.map(r=>monthLabel(r.month).toUpperCase()),
+        labels: clientReports.map(r=>monthLabel(r.month)),
         datasets: [{
-          label:'DÉPENSE TOTALE (€)',
+          label:'Dépense totale (€)',
           data: clientReports.map(r=>{ const cd = computeReport(r); return (cd.meta.spend||0)+(cd.google.spend||0); }),
-          borderColor: accentColor, backgroundColor: accentColor+'14',
-          fill:true, tension:.3, borderWidth:1.5, pointRadius: clientReports.map(r=> r.id===report.id ? 3.5 : 2), pointBackgroundColor: accentColor, pointBorderWidth:0
+          borderColor: accentColor, backgroundColor: trendGradient,
+          fill:true, tension:.4, borderWidth:2.5, pointRadius: clientReports.map(r=> r.id===report.id ? 5 : 3), pointBackgroundColor: accentColor, pointBorderColor: '#fff', pointBorderWidth:2
         }]
       },
-      options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:rule, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } } }
+      options: { plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, border:{display:false}, grid:{color:border, lineWidth:.5} }, x:{ border:{display:false}, grid:{display:false} } } }
     }));
   }
 
   function rowMetric(label, type, curr, prevVal){
     const fmt = type==='cur' ? fmtCur : (type==='pct' ? fmtPct : (type==='dec' ? fmtDec : fmtInt));
     return `<tr>
-      <td class="py-2.5 text-sm text-muted">${label}</td>
-      <td class="py-2.5 text-sm font-mono text-right">${fmt(curr)}</td>
-      <td class="py-2.5 text-right">${prevVal===undefined ? '' : deltaBadge(delta(curr, prevVal))}</td>
+      <td class="py-3 text-sm text-muted">${label}</td>
+      <td class="py-3 text-sm font-mono text-right">${fmt(curr)}</td>
+      <td class="py-3 text-right">${prevVal===undefined ? '' : deltaBadge(delta(curr, prevVal))}</td>
     </tr>`;
   }
   function platformTable(title, curr, prev, defs){
@@ -789,7 +812,7 @@
       <div class="eyebrow mb-4">${title}</div>
       <table>
         <thead><tr class="text-left">
-          <th class="py-2 text-xs text-muted font-semibold" style="font-weight:600;">Indicateur</th>
+          <th class="py-2 text-xs text-muted font-semibold">Indicateur</th>
           <th class="py-2 text-xs text-muted font-semibold text-right">Valeur</th>
           <th class="py-2 text-xs text-muted font-semibold text-right">vs mois précédent</th>
         </tr></thead>
